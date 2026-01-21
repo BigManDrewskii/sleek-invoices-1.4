@@ -482,9 +482,10 @@ async function startServer() {
   });
 }
 
-// Export app for Vercel serverless function
-export const app = createApp();
-export default app;
+// Export factory function for Vercel serverless function
+// Note: We export createApp as default to avoid immediate initialization at module load time
+// The serverless handler will call createApp() on first request
+export default createApp;
 
 // Auto-start server in local development
 // require.main === module ensures this only runs when executed directly (not imported)
