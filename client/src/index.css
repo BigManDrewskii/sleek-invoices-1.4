@@ -1,0 +1,1609 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* SUSE Mono - For numerical displays (Normal: 400, Bold: 700) */
+@import url("https://fonts.googleapis.com/css2?family=SUSE+Mono:wght@400;700&display=swap");
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* Typography System */
+  --font-sans: "Google Sans Flex", system-ui, -apple-system, sans-serif;
+  --font-body: "DM Sans", system-ui, -apple-system, sans-serif;
+  --font-mono: "Atkinson Hyperlegible Mono", ui-monospace, monospace;
+  --font-numeric: "SUSE Mono", ui-monospace, monospace;
+
+  /* Radius */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Figma Design Tokens */
+  --nav-bg: rgba(17, 29, 34, 0.95);
+  --nav-shadow-primary: 0px 1.5px 2.25px -0.38px rgba(0, 0, 0, 0.03);
+  --nav-shadow-secondary: 0px 4px 6px -1.2px rgba(0, 0, 0, 0.3);
+  --nav-border-color: #374d58;
+  --nav-border-radius: 16px;
+  --nav-backdrop-blur: 8px;
+  --nav-font-family: "Ubuntu", var(--font-body);
+  --nav-font-size: 14px;
+  --nav-text-color: #94a3b8;
+  --nav-link-active-bg: #252f33;
+  --nav-link-text: #f1f6f9;
+  --nav-link-mobile-bg: #a3b1b8;
+  --nav-button-bg: rgba(255, 255, 255, 0.1);
+  --nav-button-border: rgba(95, 111, 255, 0.5);
+  --nav-button-height: 44px;
+  --nav-button-radius: 8px;
+
+  /* Colors */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Animation System */
+  --duration-instant: 0.1s;
+  --duration-fast: 0.15s;
+  --duration-normal: 0.2s;
+  --duration-moderate: 0.3s;
+  --duration-slow: 0.5s;
+  --duration-slower: 0.6s;
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+
+  /* Shadow Scale */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg:
+    0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl:
+    0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+
+  /* Z-Index Hierarchy
+   * Use these semantic tokens instead of arbitrary z-index values
+   * Scale: base < dropdown < sticky < modal < popover < tooltip < notification < overlay
+   */
+  --z-base: 0;
+  --z-above: 10;
+  --z-dropdown: 50;
+  --z-sticky: 100;
+  --z-modal: 1000;
+  --z-popover: 1100;
+  --z-tooltip: 1200;
+  --z-notification: 1300;
+  --z-overlay: 1400;
+  --z-cookie-banner: 1500;
+  --z-feature-tooltip: 9000;
+
+  /* Special Colors */
+  --color-crypto: #f7931a;
+  --color-bitcoin: #f7931a;
+  --color-ethereum: #627eea;
+  --color-usdt: #26a17b;
+  --color-usdc: #2775ca;
+  --color-stripe: #635bff;
+  --color-manus-bg: #f8f8f7;
+  --color-manus-text: #34322d;
+  --color-manus-muted: #858481;
+}
+
+:root {
+  --primary: var(--color-blue-700);
+  --primary-foreground: var(--color-blue-50);
+  --sidebar-primary: var(--color-blue-600);
+  --sidebar-primary-foreground: var(--color-blue-50);
+  --chart-1: var(--color-blue-300);
+  --chart-2: var(--color-blue-500);
+  --chart-3: var(--color-blue-600);
+  --chart-4: var(--color-blue-700);
+  --chart-5: var(--color-blue-800);
+  --radius: 0.65rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.235 0.015 65);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.235 0.015 65);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.235 0.015 65);
+  --secondary: oklch(0.98 0.001 286.375);
+  --secondary-foreground: oklch(0.4 0.015 65);
+  --muted: oklch(0.967 0.001 286.375);
+  --muted-foreground: oklch(0.552 0.016 285.938);
+  --accent: oklch(0.967 0.001 286.375);
+  --accent-foreground: oklch(0.141 0.005 285.823);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(0.92 0.004 286.32);
+  --input: oklch(0.92 0.004 286.32);
+  --ring: oklch(0.623 0.214 259.815);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.235 0.015 65);
+  --sidebar-accent: oklch(0.967 0.001 286.375);
+  --sidebar-accent-foreground: oklch(0.141 0.005 285.823);
+  --sidebar-border: oklch(0.92 0.004 286.32);
+  --sidebar-ring: oklch(0.623 0.214 259.815);
+}
+
+.dark {
+  /* Primary brand colors - vibrant purple-blue */
+  --primary: oklch(0.609 0.212 273.5);
+  --primary-foreground: oklch(1 0 0);
+  --sidebar-primary: oklch(0.609 0.212 273.5);
+  --sidebar-primary-foreground: oklch(1 0 0);
+
+  /* Background colors - deep blue-gray */
+  --background: oklch(0.222 0.02 225.9);
+  --foreground: oklch(0.97 0.007 234);
+  --card: oklch(0.236 0.017 230);
+  --card-foreground: oklch(0.97 0.007 234);
+  --popover: oklch(0.236 0.017 230);
+  --popover-foreground: oklch(0.97 0.007 234);
+
+  /* Secondary & accent colors */
+  --secondary: oklch(0.297 0.016 224.2);
+  --secondary-foreground: oklch(0.97 0.007 234);
+  --muted: oklch(0.264 0.026 237.2);
+  --muted-foreground: oklch(0.752 0.019 229.2);
+  --accent: oklch(0.297 0.016 224.2);
+  --accent-foreground: oklch(0.97 0.007 234);
+
+  /* Status colors */
+  --destructive: oklch(0.672 0.224 8.9);
+  --destructive-foreground: oklch(1 0 0);
+
+  /* Form & utility colors */
+  --border: oklch(0.407 0.033 230.2);
+  --input: oklch(0.407 0.033 230.2);
+  --ring: oklch(0.595 0.224 278);
+
+  /* Chart colors - purple-blue gradient */
+  --chart-1: oklch(0.609 0.212 273.5);
+  --chart-2: oklch(0.595 0.224 278);
+  --chart-3: oklch(0.733 0.141 280.5);
+  --chart-4: oklch(0.862 0.069 281.2);
+  --chart-5: oklch(0.953 0.023 280.5);
+
+  /* Sidebar colors */
+  --sidebar: oklch(0.222 0.02 225.9);
+  --sidebar-foreground: oklch(0.97 0.007 234);
+  --sidebar-accent: oklch(0.297 0.016 224.2);
+  --sidebar-accent-foreground: oklch(0.97 0.007 234);
+  --sidebar-border: oklch(0.407 0.033 230.2);
+  --sidebar-ring: oklch(0.595 0.224 278);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [type="button"]:not(:disabled),
+  [type="submit"]:not(:disabled),
+  [type="reset"]:not(:disabled),
+  a[href],
+  select:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled) {
+    @apply cursor-pointer;
+  }
+}
+
+@layer components {
+  /**
+   * Custom container utility that centers content and adds responsive padding.
+   *
+   * This overrides Tailwind's default container behavior to:
+   * - Auto-center content (mx-auto)
+   * - Add responsive horizontal padding
+   * - Set max-width for large screens
+   *
+   * Usage: <div className="container">...</div>
+   *
+   * For custom widths, use max-w-* utilities directly:
+   * <div className="max-w-6xl mx-auto px-4">...</div>
+   */
+  .container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem; /* 16px - mobile padding */
+    padding-right: 1rem;
+  }
+
+  .flex {
+    min-height: 0;
+    min-width: 0;
+  }
+
+  /* ========================================
+     Page Layout System - CRITICAL
+     ======================================== */
+
+  /* Main page wrapper - outermost container for all pages */
+  .page-wrapper {
+    @apply min-h-screen w-full;
+  }
+
+  /* Page content area - main content container with responsive padding */
+  .page-content {
+    @apply w-full max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8;
+  }
+
+  /* Vertical section stacking - consistent gap between major sections */
+  .section-stack {
+    @apply space-y-6 sm:space-y-8;
+  }
+
+  /* Page header component */
+  .page-header {
+    @apply mb-6 sm:mb-8;
+  }
+
+  .page-header-title {
+    @apply text-2xl sm:text-3xl font-bold text-foreground tracking-tight;
+  }
+
+  .page-header-subtitle {
+    @apply text-sm sm:text-base text-muted-foreground mt-1;
+  }
+
+  /* ========================================
+     Navigation System
+     ======================================== */
+
+  /* ========================================
+     Touch & Interaction
+     ======================================== */
+
+  /* Ensures minimum 44x44px touch targets for mobile accessibility (WCAG 2.5.5) */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* ========================================
+     Typography & Content
+     ======================================== */
+
+  /* Invoice number display with numeric font */
+  .invoice-number {
+    font-family: var(--font-numeric);
+    font-weight: 400;
+    font-feature-settings:
+      "tnum" 1,
+      "lnum" 1;
+    letter-spacing: -0.025em; /* tracking-tight */
+  }
+
+  /* Metric value display with bold numeric font */
+  .metric-value {
+    font-family: var(--font-numeric);
+    font-weight: 700;
+    font-feature-settings:
+      "tnum" 1,
+      "lnum" 1;
+    font-size: 1.875rem; /* text-3xl */
+    letter-spacing: -0.025em; /* tracking-tight */
+  }
+
+  /* Markdown content styling */
+  .markdown-content {
+    /* Note: prose classes require @tailwindcss/typography plugin */
+    max-width: none;
+  }
+
+  .markdown-content h1 {
+    @apply text-2xl font-bold mb-4 mt-6;
+  }
+
+  .markdown-content h2 {
+    @apply text-xl font-semibold mb-3 mt-5;
+  }
+
+  .markdown-content h3 {
+    @apply text-lg font-semibold mb-2 mt-4;
+  }
+
+  .markdown-content p {
+    @apply mb-4 leading-relaxed;
+  }
+
+  .markdown-content ul,
+  .markdown-content ol {
+    @apply mb-4 ml-6;
+  }
+
+  .markdown-content li {
+    @apply mb-2;
+  }
+
+  .markdown-content code {
+    @apply bg-muted px-1.5 py-0.5 rounded text-sm font-mono;
+  }
+
+  .markdown-content pre {
+    @apply bg-muted p-4 rounded-lg overflow-x-auto mb-4;
+  }
+
+  .markdown-content blockquote {
+    @apply border-l-4 border-primary pl-4 italic my-4;
+  }
+
+  /* ========================================
+     Animations
+     ======================================== */
+
+  /* Subtle bounce animation for mascot/success images */
+  @keyframes bounce-subtle {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  .animate-bounce-subtle {
+    animation: bounce-subtle 2s ease-in-out infinite;
+  }
+
+  /* Status badges for invoices - tweakcn style */
+  .status-draft {
+    @apply bg-slate-500/10 text-slate-400;
+  }
+
+  .status-sent {
+    @apply bg-blue-500/10 text-blue-400;
+  }
+
+  .status-paid {
+    @apply bg-green-500/10 text-green-400;
+  }
+
+  .status-overdue {
+    @apply bg-red-500/10 text-red-400;
+  }
+
+  .status-canceled {
+    @apply bg-slate-500/10 text-slate-500;
+  }
+
+  .status-processing {
+    @apply bg-yellow-500/10 text-yellow-400;
+  }
+
+  .status-pending {
+    @apply bg-orange-500/10 text-orange-400;
+  }
+
+  .status-failed {
+    @apply bg-red-500/10 text-red-400;
+  }
+
+  .status-success {
+    @apply bg-green-500/10 text-green-400;
+  }
+
+  /* Numeric font utilities - SUSE Mono for all numerical displays */
+  .font-numeric {
+    font-family: var(--font-numeric);
+    font-weight: 400;
+    font-feature-settings:
+      "tnum" 1,
+      "lnum" 1; /* Tabular & lining numbers */
+  }
+
+  .font-numeric-bold {
+    font-family: var(--font-numeric);
+    font-weight: 700;
+    font-feature-settings:
+      "tnum" 1,
+      "lnum" 1;
+  }
+
+  /* Apply numeric font to all numbers */
+  .font-numeric,
+  .font-numeric-bold {
+    font-family: var(--font-numeric) !important;
+  }
+
+  /* Apply to all numerical contexts */
+  .numeric,
+  [class*="amount"],
+  [class*="price"],
+  [class*="total"],
+  [class*="balance"],
+  [class*="revenue"],
+  [class*="invoice-number"],
+  .currency {
+    font-family: var(--font-numeric);
+    font-feature-settings:
+      "tnum" 1,
+      "lnum" 1;
+  }
+
+  @media (min-width: 640px) {
+    .container {
+      padding-left: 1.5rem; /* 24px - tablet padding */
+      padding-right: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container {
+      padding-left: 2rem; /* 32px - desktop padding */
+      padding-right: 2rem;
+      max-width: 1280px; /* Standard content width */
+    }
+  }
+}
+
+/* Enhanced focus styles for accessibility */
+*:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+/* Skip to content link for keyboard navigation */
+.skip-to-content {
+  position: absolute;
+  left: -9999px;
+  z-index: 999;
+  padding: 1rem;
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  text-decoration: none;
+}
+
+.skip-to-content:focus {
+  left: 50%;
+  transform: translateX(-50%);
+  top: 1rem;
+}
+
+/* ========================================
+   Modern UI Enhancements
+   ======================================== */
+
+/* Enhanced card shadows for depth */
+.card-elevated {
+  box-shadow:
+    0 1px 3px 0 rgb(0 0 0 / 0.1),
+    0 1px 2px -1px rgb(0 0 0 / 0.1);
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.card-elevated:hover {
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Smooth transitions for interactive elements */
+button,
+a,
+input,
+select,
+textarea {
+  transition: all 0.15s ease-in-out;
+}
+
+/* Button hover states are now handled in the button component */
+
+/* Improved focus states for accessibility */
+*:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Better text rendering */
+body {
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Typography hierarchy */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-sans); /* Google Sans Flex */
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+/* Form labels use body font (DM Sans) */
+label {
+  font-family: var(--font-body); /* DM Sans */
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Numeric values - amounts, dates, invoice numbers */
+.font-numeric {
+  font-family: var(--font-numeric); /* SUSE Mono - ONLY for numbers */
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+/* Bold numeric values - for prominent amounts like totals and prices */
+.font-numeric-bold {
+  font-family: var(--font-numeric); /* SUSE Mono - ONLY for numbers */
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+  font-weight: 700;
+}
+
+/* Utility classes for explicit font control */
+.font-heading {
+  font-family: var(--font-sans); /* Google Sans Flex - Primary font */
+}
+
+.font-paragraph {
+  font-family: var(--font-body); /* DM Sans - Body/secondary font */
+}
+
+/*
+  Typography System Summary:
+  - Primary (Headings): Google Sans Flex
+  - Secondary (Body, Labels): DM Sans
+  - Numbers Only: Atkinson Hyperlegible Mono
+*/
+
+/* Animated gradient backgrounds */
+@keyframes gradient-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+/* Pulse animation for attention-grabbing elements */
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Shimmer effect for loading states */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Glass morphism effect */
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Elevated hover effect for cards */
+.hover-lift {
+  transition:
+    transform 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.15);
+}
+
+/* Hide scrollbar globally */
+::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Sleeky floating animation */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.sleeky-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Typography enhancements */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+/* Improved link styles */
+a:not(.button):not([class*="btn"]) {
+  color: hsl(var(--primary));
+  text-decoration-color: hsl(var(--primary) / 0.3);
+  text-underline-offset: 2px;
+  transition: text-decoration-color 0.2s ease;
+}
+
+a:not(.button):not([class*="btn"]):hover {
+  text-decoration-color: hsl(var(--primary));
+}
+
+/* Subtle animation for page transitions */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fade-in-up 0.3s ease-out;
+}
+
+/* ========================================
+   Enhanced Loading Animations
+   ======================================== */
+
+/* Staggered fade-in animation for lists */
+@keyframes stagger-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stagger-fade-in {
+  animation: stagger-fade-in 0.3s ease-out forwards;
+  opacity: 0;
+}
+
+/* Apply stagger delays to children */
+.stagger-children > *:nth-child(1) {
+  animation-delay: 0ms;
+}
+.stagger-children > *:nth-child(2) {
+  animation-delay: 50ms;
+}
+.stagger-children > *:nth-child(3) {
+  animation-delay: 100ms;
+}
+.stagger-children > *:nth-child(4) {
+  animation-delay: 150ms;
+}
+.stagger-children > *:nth-child(5) {
+  animation-delay: 200ms;
+}
+.stagger-children > *:nth-child(6) {
+  animation-delay: 250ms;
+}
+.stagger-children > *:nth-child(7) {
+  animation-delay: 300ms;
+}
+.stagger-children > *:nth-child(8) {
+  animation-delay: 350ms;
+}
+
+/* Content reveal animation */
+@keyframes content-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.content-reveal {
+  animation: content-reveal 0.25s ease-out forwards;
+}
+
+/* Skeleton shimmer with improved timing */
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 0%,
+    hsl(var(--muted) / 0.5) 50%,
+    hsl(var(--muted)) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+/* Pulse animation for skeleton loading */
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.skeleton-pulse {
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+/* Scale-in animation for modals and dialogs */
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.scale-in {
+  animation: scale-in 0.2s ease-out forwards;
+}
+
+/* Slide-in from bottom for mobile sheets */
+@keyframes slide-in-bottom {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-in-bottom {
+  animation: slide-in-bottom 0.3s ease-out forwards;
+}
+
+/* Loading spinner with smooth rotation */
+@keyframes spin-smooth {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin-smooth {
+  animation: spin-smooth 0.8s linear infinite;
+}
+
+/* Blur-in effect for content loading */
+@keyframes blur-in {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+.blur-in {
+  animation: blur-in 0.3s ease-out forwards;
+}
+
+/* Progress bar animation */
+@keyframes progress-indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+.progress-indeterminate {
+  animation: progress-indeterminate 1.5s ease-in-out infinite;
+}
+
+/* Subtle bounce for attention */
+@keyframes subtle-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.subtle-bounce {
+  animation: subtle-bounce 0.5s ease-in-out;
+}
+
+/* ========================================
+   Delight Layer - Enhanced Micro-interactions
+   ======================================== */
+
+/* Success pulse animation for completed actions */
+@keyframes success-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+
+.success-pulse {
+  animation: success-pulse 0.6s ease-out;
+}
+
+/* Celebration shake for achievements */
+@keyframes celebration-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-2px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(2px);
+  }
+}
+
+.celebration-shake {
+  animation: celebration-shake 0.5s ease-in-out;
+}
+
+/* Smooth card hover with glow effect */
+.card-glow {
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.card-glow::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.1) 0%,
+    rgba(139, 92, 246, 0.1) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.card-glow:hover::before {
+  opacity: 1;
+}
+
+.card-glow:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -5px rgba(99, 102, 241, 0.2);
+}
+
+/* Button press effect */
+.btn-press:active {
+  transform: scale(0.97);
+  transition: transform 0.1s ease;
+}
+
+/* Ripple effect for buttons */
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.ripple-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-effect::after {
+  content: "";
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: scale(0);
+  pointer-events: none;
+}
+
+.ripple-effect:active::after {
+  animation: ripple 0.6s ease-out;
+}
+
+/* Smooth icon rotation on hover */
+.icon-rotate-hover {
+  transition: transform 0.3s ease;
+}
+
+.icon-rotate-hover:hover {
+  transform: rotate(15deg);
+}
+
+/* Text highlight animation */
+@keyframes highlight-sweep {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.highlight-sweep {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(99, 102, 241, 0.2) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: highlight-sweep 1.5s ease-in-out;
+}
+
+/* Notification badge bounce */
+@keyframes badge-bounce {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+.badge-bounce {
+  animation: badge-bounce 0.3s ease-in-out;
+}
+
+/* Smooth number counter effect */
+@keyframes count-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.count-up {
+  animation: count-up 0.5s ease-out forwards;
+}
+
+/* Status indicator pulse */
+@keyframes status-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+.status-pulse {
+  animation: status-pulse 2s ease-in-out infinite;
+}
+
+/* Tooltip fade animation */
+@keyframes tooltip-fade {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tooltip-fade {
+  animation: tooltip-fade 0.15s ease-out;
+}
+
+/* Page transition wrapper */
+.page-transition {
+  animation: fade-in-up 0.3s ease-out;
+}
+
+/* Smooth accordion expand */
+@keyframes accordion-expand {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 800px;
+  }
+}
+
+.accordion-expand {
+  animation: accordion-expand 0.3s ease-out forwards;
+  overflow: hidden;
+}
+
+/* Interactive list item hover */
+.list-item-interactive {
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+}
+
+.list-item-interactive:hover {
+  background: hsl(var(--accent) / 0.5);
+  border-left-color: hsl(var(--primary));
+  padding-left: calc(1rem + 3px);
+}
+
+/* Glow effect for primary actions */
+.glow-primary {
+  box-shadow: 0 0 20px -5px hsl(var(--primary) / 0.5);
+}
+
+/* Subtle background pattern for empty states */
+.pattern-dots {
+  background-image: radial-gradient(
+    hsl(var(--muted-foreground) / 0.1) 1px,
+    transparent 1px
+  );
+  background-size: 20px 20px;
+}
+
+/* Gradient text effect */
+.gradient-text {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--primary)) 0%,
+    hsl(var(--chart-2)) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Smooth input focus transition */
+input:focus,
+textarea:focus,
+select:focus {
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* Enhanced table row hover */
+.table-row-hover {
+  transition: background-color 0.15s ease;
+}
+
+.table-row-hover:hover {
+  background-color: hsl(var(--accent) / 0.3);
+}
+
+/* Magic sparkle effect for AI features */
+@keyframes sparkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) rotate(180deg);
+  }
+}
+
+.sparkle {
+  animation: sparkle 1.5s ease-in-out infinite;
+}
+
+.sparkle-delay-1 {
+  animation-delay: 0.2s;
+}
+.sparkle-delay-2 {
+  animation-delay: 0.4s;
+}
+.sparkle-delay-3 {
+  animation-delay: 0.6s;
+}
+
+/* ========================================
+   Gear Loader - Elegant Loading Animation
+   Inspired by UIverse (fresh-panther-41)
+   ======================================== */
+
+/* Gear rotation animations */
+@keyframes gear-clockwise {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes gear-counter-clockwise {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(-360deg);
+  }
+}
+
+/* Animation utility classes */
+.animate-gear-cw {
+  animation: gear-clockwise 3s infinite linear;
+}
+
+.animate-gear-ccw {
+  animation: gear-counter-clockwise 3s infinite linear;
+}
+
+.animate-gear-ccw-slow {
+  animation: gear-counter-clockwise 6s infinite linear;
+}
+
+/* Rotation utility classes */
+.rotate-30 {
+  transform: rotate(30deg);
+}
+.rotate-60 {
+  transform: rotate(60deg);
+}
+.rotate-90 {
+  transform: rotate(90deg);
+}
+.rotate-120 {
+  transform: rotate(120deg);
+}
+.rotate-150 {
+  transform: rotate(150deg);
+}
+
+/* Gear loader base styles */
+.gear-loader {
+  --gear-color: hsl(var(--muted-foreground) / 0.6);
+  --gear-shadow-light: hsl(var(--foreground) / 0.3);
+  --gear-shadow-dark: hsl(var(--background) / 0.8);
+  --gear-center: hsl(var(--card));
+}
+
+/* Individual gear styling */
+.gear-loader .gear {
+  position: absolute;
+  height: 30%;
+  width: 22.5%;
+  box-shadow:
+    0px -1px 0px 0px var(--gear-shadow-light),
+    0px 1px 0px 0px var(--gear-shadow-dark);
+  border-radius: 50%;
+}
+
+.gear-loader .gear.large {
+  height: 60%;
+  width: 45%;
+}
+
+/* Gear inner circle (the rotating part) */
+.gear-loader .gear-inner {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  background: var(--gear-color);
+  border-radius: 50%;
+  border: 1px solid hsl(var(--border) / 0.3);
+}
+
+/* Center hole of the gear */
+.gear-loader .gear::after {
+  content: "";
+  position: absolute;
+  height: 60%;
+  width: 60%;
+  border-radius: 50%;
+  background: var(--gear-center);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  box-shadow:
+    0px 0px 10px hsl(var(--foreground) / 0.1),
+    inset 0px 0px 10px hsl(var(--background) / 0.3),
+    inset 0px 2px 0px 0px hsl(var(--background) / 0.5),
+    inset 0px -1px 0px 0px var(--gear-shadow-light);
+}
+
+.gear-loader .gear.large::after {
+  height: 80%;
+  width: 80%;
+}
+
+/* Gear teeth (bars) */
+.gear-loader .bar {
+  background: var(--gear-color);
+  height: 26%;
+  width: 126%;
+  position: absolute;
+  left: 50%;
+  margin-left: -63%;
+  top: 50%;
+  margin-top: -13%;
+  border-radius: 2px;
+  border-left: 1px solid hsl(var(--border) / 0.2);
+  border-right: 1px solid hsl(var(--border) / 0.2);
+}
+
+.gear-loader .gear.large .bar {
+  width: 113%;
+  margin-left: -56.5%;
+}
+
+/* Gear positions */
+.gear-loader .gear-one {
+  top: 8%;
+  left: 5%;
+}
+
+.gear-loader .gear-two {
+  top: 40%;
+  left: 30%;
+}
+
+.gear-loader .gear-three {
+  top: 73%;
+  left: 5%;
+}
+
+.gear-loader .gear-four {
+  top: 8%;
+  left: 64%;
+}
+
+/* ========================================
+   Orb Component - ElevenLabs Inspired
+   ======================================== */
+
+@keyframes orb-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-orb-spin {
+  animation: orb-spin 8s linear infinite;
+}
+
+.orb-button:hover {
+  filter: brightness(1.15);
+}
+
+.orb-button:hover .animate-orb-spin {
+  animation-duration: 4s;
+}
+
+/* ============================================================================
+   ACCESSIBILITY ENHANCEMENTS
+   ============================================================================ */
+
+/* Enhanced Focus Indicators - WCAG 2.1 Level AA Compliant */
+*:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* High contrast focus for buttons and interactive elements */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+[role="link"]:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: 3px solid hsl(var(--primary));
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px hsl(var(--primary) / 0.1);
+}
+
+/* Input focus states */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[role="textbox"]:focus-visible,
+[role="combobox"]:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.15);
+}
+
+/* Screen Reader Only - Visually hidden but accessible to screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Skip to main content link - appears on focus */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  padding: 8px 16px;
+  text-decoration: none;
+  z-index: 9999;
+  border-radius: 0 0 4px 0;
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Keyboard navigation hints */
+[data-keyboard-hint]::after {
+  content: attr(data-keyboard-hint);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  background: hsl(var(--popover));
+  color: hsl(var(--popover-foreground));
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: var(--z-tooltip);
+}
+
+[data-keyboard-hint]:focus-visible::after {
+  opacity: 1;
+}
+
+/* Ensure focusable elements are keyboard accessible */
+[onclick]:not(button):not(a):not([role="button"]):not([tabindex]) {
+  cursor: pointer;
+}
+
+/* Remove focus outline for mouse users, keep for keyboard users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Improve contrast for disabled elements */
+button:disabled,
+input:disabled,
+textarea:disabled,
+select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Modal/Dialog accessibility */
+[role="dialog"],
+[role="alertdialog"] {
+  position: fixed;
+  z-index: var(--z-modal);
+}
+
+/* Loading states - announce to screen readers */
+[aria-busy="true"] {
+  cursor: wait;
+}
+
+/* Error states - high contrast */
+[aria-invalid="true"] {
+  border-color: hsl(var(--destructive));
+  outline-color: hsl(var(--destructive));
+}
+
+[aria-invalid="true"]:focus-visible {
+  outline: 2px solid hsl(var(--destructive));
+  box-shadow: 0 0 0 3px hsl(var(--destructive) / 0.15);
+}
+
+/* Live regions for screen readers */
+[aria-live="polite"],
+[aria-live="assertive"] {
+  position: relative;
+}
+
+/* Ensure sufficient color contrast for links */
+a {
+  text-decoration-skip-ink: auto;
+}
+
+a:not([class]) {
+  text-decoration-thickness: max(0.08em, 1px);
+  text-underline-offset: 0.15em;
+}
+
+/* Focus trap container - prevent focus from leaving */
+.focus-trap {
+  isolation: isolate;
+}
+
+/* Keyboard navigation highlight for lists */
+[role="listbox"] [role="option"]:focus-visible,
+[role="menu"] [role="menuitem"]:focus-visible,
+[role="radiogroup"] [role="radio"]:focus-visible {
+  background: hsl(var(--accent));
+  outline: 2px solid hsl(var(--primary));
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  *:focus-visible {
+    outline-width: 3px;
+    outline-offset: 3px;
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    border-width: 2px;
+  }
+}
+
+/* Dark mode focus adjustments */
+.dark *:focus-visible {
+  outline-color: hsl(var(--primary));
+  box-shadow: 0 0 0 5px hsl(var(--primary) / 0.2);
+}

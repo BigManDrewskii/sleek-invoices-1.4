@@ -1,0 +1,69 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1767513747229,
+      "tag": "0000_sour_lenny_balinger",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1767513883366,
+      "tag": "0001_outgoing_abomination",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1767517859152,
+      "tag": "0002_complete_sentry",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1767526073929,
+      "tag": "0003_flimsy_patriot",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1767527158852,
+      "tag": "0004_fixed_reaper",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1767532096001,
+      "tag": "0005_grey_vargas",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1767533152001,
+      "tag": "0006_lean_dexter_bennett",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1767534764508,
+      "tag": "0007_graceful_absorbing_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1767540644159,
+      "tag": "0008_shocking_vulture",
+      "breakpoints": true
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+# Keep frontend build artifacts
+!dist/public/**
+# Cache bust 1768993022
