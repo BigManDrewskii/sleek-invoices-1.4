@@ -17,7 +17,7 @@ pnpm build
 
 This creates:
 1. **Frontend bundle**: `dist/public/` - React app with Vite
-2. **Backend bundle**: `dist/index.js` - Express server bundled with esbuild
+2. **Backend bundle**: `dist/_server/index.js` - Express server bundled with esbuild
 
 ### File Structure
 
@@ -25,7 +25,8 @@ This creates:
 ├── api/
 │   └── index.js          # Vercel serverless function entry point
 ├── dist/
-│   ├── index.js          # Bundled Express app (imported by api/index.js)
+│   └── _server/
+│       └── index.js      # Bundled Express app (imported by api/index.js)
 │   └── public/           # Static frontend assets
 ├── vercel.json           # Vercel configuration
 └── server/
@@ -64,12 +65,12 @@ This creates:
 Required in Vercel dashboard:
 
 **Authentication**:
-- `SKIP_AUTH` - Set to bypass OAuth for testing (⚠️ use carefully)
-- `AUTH_SECRET` - Auth.js session secret
-- `AUTH_GOOGLE_ID` - Google OAuth client ID
-- `AUTH_GOOGLE_SECRET` - Google OAuth secret
-- `AUTH_GITHUB_ID` - GitHub OAuth client ID
-- `AUTH_GITHUB_SECRET` - GitHub OAuth secret
+- `JWT_SECRET` - **REQUIRED** Session signing secret (generate with `openssl rand -base64 32`)
+- `AUTH_SECRET` - Auth.js session secret (generate with `openssl rand -base64 32`)
+- `AUTH_GOOGLE_ID` - Google OAuth client ID (optional but recommended)
+- `AUTH_GOOGLE_SECRET` - Google OAuth secret (optional but recommended)
+- `AUTH_GITHUB_ID` - GitHub OAuth client ID (optional but recommended)
+- `AUTH_GITHUB_SECRET` - GitHub OAuth secret (optional but recommended)
 - `OAUTH_SERVER_URL` - OAuth callback URL (https://sleekinvoices.vercel.app)
 
 **Database**:
@@ -100,11 +101,11 @@ Required in Vercel dashboard:
 
 ### API Handler Pattern
 
-**Why `api/index.js` imports from `dist/index.js`:**
+**Why `api/index.js` imports from `dist/_server/index.js`:**
 
 ```javascript
 // api/index.js (Vercel serverless function)
-import { app } from '../dist/index.js';
+import { app } from '../dist/_server/index.js';
 
 export default function handler(req, res) {
   app(req, res);
@@ -117,7 +118,7 @@ export default function handler(req, res) {
 import { app } from '../server/_core/index';
 ```
 
-**Reason**: Vercel serverless functions are bundled independently. The TypeScript source in `server/` isn't deployed - only the bundled `dist/index.js` exists.
+**Reason**: Vercel serverless functions are bundled independently. The TypeScript source in `server/` isn't deployed - only the bundled `dist/_server/index.js` exists.
 
 ### App Factory Pattern
 
@@ -209,9 +210,9 @@ In Vercel dashboard:
 
 **Cause**: API handler import path incorrect
 
-**Fix**: Ensure `api/index.js` imports from `../dist/index.js` (bundled code), not TypeScript source.
+**Fix**: Ensure `api/index.js` imports from `../dist/_server/index.js` (bundled code), not TypeScript source.
 
-### Issue: "Cannot find module '../dist/index.js'"
+### Issue: "Cannot find module '../dist/_server/index.js'"
 
 **Symptom**: Serverless function fails to load
 
@@ -219,7 +220,7 @@ In Vercel dashboard:
 
 **Fix**:
 1. Run `pnpm build` locally to verify
-2. Ensure `dist/index.js` exists
+2. Ensure `dist/_server/index.js` exists
 3. Check esbuild bundling in `package.json` build script
 
 ### Issue: Cron jobs not running

@@ -20,6 +20,7 @@ import {
   captureException,
   flushErrorMonitoring,
 } from "./errorMonitoring";
+import { validateRequiredEnvVars } from "./validate-env";
 
 // Global error handler for uncaught exceptions
 process.on("uncaughtException", async error => {
@@ -70,19 +71,43 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
  * This runs once when the app starts, in both local dev and Vercel
  */
 let isInitialized = false;
+let initializationPromise: Promise<void> | null = null;
 
 async function initializeApp() {
   if (isInitialized) return;
   isInitialized = true;
 
-  // Initialize error monitoring (Sentry if configured)
+  // Step 1: Validate required environment variables FIRST
+  try {
+    validateRequiredEnvVars();
+  } catch (error) {
+    console.error("[Init] Environment variable validation failed:", error);
+    throw error; // Re-throw to fail initialization
+  }
+
+  // Step 2: Validate database connection
+  try {
+    const { getDb } = await import("../db/connection");
+    const db = await getDb();
+    if (!db) {
+      throw new Error(
+        "Database connection failed - check DATABASE_URL environment variable"
+      );
+    }
+    console.log("[Init] ✓ Database connection validated");
+  } catch (error) {
+    console.error("[Init] Database validation failed:", error);
+    throw error; // Re-throw to fail initialization
+  }
+
+  // Step 3: Initialize error monitoring (Sentry if configured)
   try {
     await initializeErrorMonitoring();
   } catch (error) {
     console.error("[Init] Failed to initialize error monitoring:", error);
   }
 
-  // Initialize default currencies if needed
+  // Step 4: Initialize default currencies if needed
   try {
     await initializeDefaultCurrencies();
   } catch (error) {
@@ -90,7 +115,7 @@ async function initializeApp() {
     captureException(error, { action: "initializeDefaultCurrencies" });
   }
 
-  // Note: Cron jobs are NOT initialized in serverless (Vercel) environments
+  // Step 5: Note: Cron jobs are NOT initialized in serverless (Vercel) environments
   // They require a long-running process, which serverless functions cannot provide
   if (!process.env.VERCEL) {
     try {
@@ -101,7 +126,7 @@ async function initializeApp() {
     }
   }
 
-  console.log("[Init] Application services initialized");
+  console.log("[Init] ✓ Application services initialized successfully");
 }
 
 /**
@@ -111,9 +136,34 @@ async function initializeApp() {
 export function createApp(): Express {
   const app = express();
 
-  // Initialize services (non-blocking in serverless)
-  initializeApp().catch(err => {
-    console.error("[Init] Failed to initialize application:", err);
+  // Initialize services
+  // In serverless (Vercel): await first request to ensure readiness
+  // In local dev: fire-and-forget (long-running process)
+  if (process.env.VERCEL) {
+    // Serverless: Store promise, await on first request
+    initializationPromise = initializeApp();
+  } else {
+    // Local dev: Non-blocking initialization
+    initializeApp().catch(err => {
+      console.error("[Init] Failed to initialize application:", err);
+    });
+  }
+
+  // Readiness check middleware (ensures initialization completes before handling requests)
+  app.use(async (req, res, next) => {
+    if (initializationPromise) {
+      try {
+        await initializationPromise;
+        initializationPromise = null; // Only await once
+      } catch (err) {
+        console.error("[Init] Failed during request:", err);
+        return res.status(503).json({
+          error: "Service initialization failed",
+          message: err instanceof Error ? err.message : "Unknown error",
+        });
+      }
+    }
+    next();
   });
 
   // Stripe webhook endpoint (MUST be before JSON body parser for raw body)
@@ -193,6 +243,15 @@ export function createApp(): Express {
 
   // Client portal PDF download endpoint (public with access token validation)
   app.get("/api/invoices/:id/pdf", async (req, res) => {
+    // Check if PDF generation is disabled (e.g., in serverless environments)
+    if (process.env.PDF_GENERATION_ENABLED === "false") {
+      return res.status(503).json({
+        error: "PDF generation is temporarily disabled",
+        message:
+          "PDF generation is disabled in serverless environment due to memory constraints. Please use the browser's print feature instead (Ctrl+P / Cmd+P).",
+      });
+    }
+
     try {
       const invoiceId = parseInt(req.params.id);
       const accessToken = req.query.token as string;

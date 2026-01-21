@@ -9,7 +9,8 @@ export async function fetchExchangeRates(): Promise<Record<string, number>> {
   try {
     // Free API endpoint (no key required for basic usage)
     const response = await axios.get(
-      "https://api.exchangerate-api.com/v4/latest/USD"
+      "https://api.exchangerate-api.com/v4/latest/USD",
+      { timeout: 5000 } // 5 second timeout
     );
 
     if (response.data && response.data.rates) {
@@ -19,7 +20,20 @@ export async function fetchExchangeRates(): Promise<Record<string, number>> {
     throw new Error("Invalid response from exchange rate API");
   } catch (error) {
     console.error("[Currency] Failed to fetch exchange rates:", error);
-    throw error;
+    console.warn("[Currency] Using fallback exchange rates");
+
+    // Fallback to hardcoded rates (USD as base)
+    return {
+      USD: 1,
+      EUR: 0.92,
+      GBP: 0.79,
+      JPY: 149.5,
+      CAD: 1.36,
+      AUD: 1.53,
+      CHF: 0.88,
+      CNY: 7.24,
+      INR: 83.12,
+    };
   }
 }
 

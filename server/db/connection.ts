@@ -35,6 +35,17 @@ export async function getDb() {
       >;
       _db = drizzle(_pool) as unknown as typeof _db;
       console.log("[Database] Connection pool created successfully");
+
+      // Validate connection with a test query
+      try {
+        await _db!.execute("SELECT 1");
+        console.log("[Database] ✓ Connection validated successfully");
+      } catch (error) {
+        console.error("[Database] Connection validation failed:", error);
+        _db = null;
+        _pool = null;
+        throw new Error("Database connection failed validation");
+      }
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
