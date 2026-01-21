@@ -66,11 +66,55 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 }
 
 /**
+ * Initialize application services (error monitoring, database setup)
+ * This runs once when the app starts, in both local dev and Vercel
+ */
+let isInitialized = false;
+
+async function initializeApp() {
+  if (isInitialized) return;
+  isInitialized = true;
+
+  // Initialize error monitoring (Sentry if configured)
+  try {
+    await initializeErrorMonitoring();
+  } catch (error) {
+    console.error("[Init] Failed to initialize error monitoring:", error);
+  }
+
+  // Initialize default currencies if needed
+  try {
+    await initializeDefaultCurrencies();
+  } catch (error) {
+    console.error("[Init] Failed to initialize currencies:", error);
+    captureException(error, { action: "initializeDefaultCurrencies" });
+  }
+
+  // Note: Cron jobs are NOT initialized in serverless (Vercel) environments
+  // They require a long-running process, which serverless functions cannot provide
+  if (!process.env.VERCEL) {
+    try {
+      initializeScheduler();
+    } catch (error) {
+      console.error("[Init] Failed to initialize scheduler:", error);
+      captureException(error, { action: "initializeScheduler" });
+    }
+  }
+
+  console.log("[Init] Application services initialized");
+}
+
+/**
  * Create and configure the Express application
  * This function is exported for use in both local development and Vercel serverless
  */
 export function createApp(): Express {
   const app = express();
+
+  // Initialize services (non-blocking in serverless)
+  initializeApp().catch(err => {
+    console.error("[Init] Failed to initialize application:", err);
+  });
 
   // Stripe webhook endpoint (MUST be before JSON body parser for raw body)
   app.post(
@@ -373,25 +417,9 @@ async function startServer() {
     console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
   }
 
-  server.listen(port, async () => {
+  server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
-
-    // Initialize error monitoring (Sentry if configured)
-    await initializeErrorMonitoring();
-
-    // Initialize default currencies if needed
-    try {
-      await initializeDefaultCurrencies();
-    } catch (error) {
-      console.error("[Server] Failed to initialize currencies:", error);
-      captureException(error, { action: "initializeDefaultCurrencies" });
-    }
-
-    // Initialize cron jobs for automated tasks
-    // Skip in Vercel (serverless functions can't run continuous cron jobs)
-    if (!process.env.VERCEL) {
-      initializeScheduler();
-    }
+    // Note: Initialization already handled in createApp()
   });
 }
 
