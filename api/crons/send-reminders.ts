@@ -1,6 +1,7 @@
 import { sendOverdueReminders } from '../../server/jobs/sendOverdueReminders';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-export default async function handler(req, res) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Verify Vercel cron secret
   if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
     return res.status(401).json({ error: 'Unauthorized' });
@@ -10,6 +11,7 @@ export default async function handler(req, res) {
     await sendOverdueReminders();
     res.status(200).json({ success: true, timestamp: new Date().toISOString() });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ error: errorMessage });
   }
 }
