@@ -1,5 +1,15 @@
 import { generateRecurringInvoices } from '../../server/jobs/generateRecurringInvoices';
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+
+interface VercelRequest {
+  headers: {
+    authorization?: string;
+  };
+}
+
+interface VercelResponse {
+  status(code: number): VercelResponse;
+  json(data: unknown): VercelResponse;
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Verify Vercel cron secret
