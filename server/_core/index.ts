@@ -488,7 +488,7 @@ async function startServer() {
 export default createApp;
 
 // Auto-start server in local development
-// require.main === module ensures this only runs when executed directly (not imported)
-if (require.main === module || process.env.NODE_ENV === "development") {
+// In ES modules, we check NODE_ENV since require.main is not available
+if (process.env.NODE_ENV === "development") {
   startServer().catch(console.error);
 }

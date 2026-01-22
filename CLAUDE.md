@@ -2,6 +2,15 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Deployment Platform
+
+**Vercel Serverless Environment**
+- This app is deployed on Vercel using serverless functions
+- Server functions must initialize lazily (per-request) to avoid cold start issues
+- DO NOT use top-level `await` or application-level singletons in server code
+- All services (cron jobs, Stripe, etc.) must initialize within request handlers
+- See `server/_core/index.ts` for lazy initialization pattern
+
 ## Commands
 
 ### Development
@@ -119,6 +128,8 @@ pnpm start
 - Input validation with Zod schemas
 - Context creation in `server/_core/context.ts` (handles SKIP_AUTH dev mode)
 - Error monitoring via Sentry (`server/_core/errorMonitoring.ts`)
+- CSRF middleware automatically applied to all mutations via tRPC middleware
+- Vercel deployment: Routes defined in `vercel.json` (API → serverless functions, static → dist/public)
 
 **CRITICAL**: SKIP_AUTH=true will throw in production (security block in context.ts)
 
@@ -137,7 +148,10 @@ pnpm start
 - Local Dev: Set `SKIP_AUTH=true` in `.env.local` to auto-authenticate as "dev-user-local"
 - Session user available in `ctx.user` for protected procedures
 - Frontend gets user from `api.auth.me` query
-- CSRF protection via custom header validation (server/_core/csrf.ts)
+- CSRF protection via custom header validation (server/_core/csrf.ts):
+  - Custom header: `x-csrf-protection: 1`
+  - Exempt paths: webhooks, health checks
+  - Applied automatically to all mutation requests via tRPC middleware
 - Rate limiting: standard (100 req/15min) and strict (20 req/15min) for sensitive routes
 
 ### 4. Frontend Patterns
@@ -160,6 +174,8 @@ pnpm start
 - Responsive breakpoints: Mobile first (320px base, 768px tablet, 1024px desktop)
 - Utility classes: `card-glow`, `hover-lift`, `stagger-fade-in`, `gradient-text`
 - Manual chunk splitting in vite.config.ts for vendor bundles (React, Radix, forms, etc.)
+- Code splitting: AI features (vendor-ai-markdown) lazy-loaded with AIAssistant component
+- Prettier config: `.prettierrc` (semi: true, singleQuote: false, printWidth: 80)
 
 ### 6. Invoice Template System
 
@@ -263,9 +279,12 @@ pnpm start
 
 ### Adding a New Test
 
-1. Create `*.test.ts` file in `server/`
-2. Import vitest: `import { describe, it, expect } from 'vitest'`
-3. Run with `pnpm test`
+1. Create `*.test.ts` file in `server/` (e.g., `server/your-feature.test.ts`)
+2. Import vitest: `import { describe, it, expect, beforeAll } from 'vitest'`
+3. Run with `pnpm test` or `pnpm test path/to/test.ts`
+4. Run in watch mode: `pnpm test --watch`
+
+**Note**: Test files are excluded from TypeScript compilation (see tsconfig.json)
 
 ## Local Development Setup
 
@@ -306,6 +325,28 @@ Set `SKIP_AUTH=true` in `.env.local` to bypass OAuth and auto-login as dev user.
 
 ## Important Implementation Notes
 
+### Serverless Compatibility (Vercel)
+
+**CRITICAL**: This app runs on Vercel serverless functions. Follow these rules:
+
+1. **Lazy Service Initialization**: All services must initialize within request handlers, not at module scope
+   - Cron jobs: `initializeScheduler()` called in `server/_core/index.ts` when app starts
+   - Stripe: Initialized within tRPC procedures, not globally
+   - Database connections: Reused via connection pooling, but created per-request
+
+2. **No Top-Level Await**: Avoid `await` at module scope in server code
+   - Use async initialization functions called from handlers
+   - Example: Don't do `const db = await createPool()` at top level
+
+3. **Stateless Functions**: Each request should be independent
+   - Don't cache mutable state in global variables
+   - Use request-level context for user-specific data
+
+4. **Cold Start Considerations**:
+   - Initial requests may be slower (cold start)
+   - Database queries should be optimized (avoid N+1 queries)
+   - Use connection pooling for database connections
+
 ### Decimal Precision for Financial Calculations
 
 - **ALWAYS** use Decimal.js for money math (import Decimal from "decimal.js")
@@ -332,31 +373,53 @@ Set `SKIP_AUTH=true` in `.env.local` to bypass OAuth and auto-login as dev user.
 - [ ] Input validation with Zod schemas on all tRPC procedures
 - [ ] SQL injection protection via Drizzle ORM (no raw SQL)
 - [ ] XSS protection via React escaping + DOMPurify for HTML
-- [ ] CSRF protection via custom headers on mutations
+- [ ] CSRF protection via custom headers on mutations (`x-csrf-protection: 1`)
 - [ ] Rate limiting on sensitive endpoints
 - [ ] Webhook signature verification (Stripe, Resend, NOWPayments)
 - [ ] httpOnly + secure + SameSite cookies for sessions
 - [ ] Never expose API keys in frontend code
+- [ ] SKIP_AUTH throws in production (see server/_core/context.ts)
 
 ## Troubleshooting
+
+### Vercel Deployment Issues
+
+**500 Errors on Serverless Functions**:
+- Ensure all services use lazy initialization (no top-level await)
+- Check `server/_core/index.ts` for proper initialization pattern
+- Review Vercel function logs: `vercel logs --limit 50`
+- Verify environment variables are set in Vercel dashboard
+
+**Cold Start Delays**:
+- First request after deployment may be slow (expected)
+- Subsequent requests should be faster
+- Monitor performance in Vercel Analytics
+
+**Database Connection Issues**:
+- Verify DATABASE_URL includes SSL parameters for remote databases
+- Check connection pooling is configured correctly
+- Ensure database allows connections from Vercel's IP ranges
 
 ### Database Issues
 
 - Check `DATABASE_URL` is correct
 - Run `pnpm db:push` after schema changes
 - Ensure MySQL is running (Docker: `docker-compose ps`)
+- For TiDB/PlanetScale: Use `?ssl={"rejectUnauthorized":true}` in connection string
 
 ### Build Errors
 
 - Run `pnpm check` for TypeScript errors
 - Clear `dist/` and rebuild: `rm -rf dist && pnpm build`
 - Check for circular dependencies in imports
+- Verify path aliases in `tsconfig.json` match imports
 
 ### Test Failures
 
 - Ensure database is accessible
 - Check for stale test data
 - Run single test: `pnpm test path/to/test.ts`
+- Run in watch mode for debugging: `pnpm test --watch`
 
 ### Performance Issues
 
@@ -364,3 +427,4 @@ Set `SKIP_AUTH=true` in `.env.local` to bypass OAuth and auto-login as dev user.
 - Use React DevTools Profiler to identify slow renders
 - Enable lazy loading for heavy components
 - Verify pagination is working on large lists
+- Check for N+1 queries in database operations

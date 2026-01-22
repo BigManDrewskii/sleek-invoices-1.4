@@ -14,6 +14,20 @@
       "maxDuration": 30
     }
   },
+  "crons": [
+    {
+      "path": "/api/crons/recurring-invoices",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/crons/check-overdue",
+      "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/crons/send-reminders",
+      "schedule": "0 9 * * *"
+    }
+  ],
   "routes": [
     {
       "src": "/api/(.*)",
