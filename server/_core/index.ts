@@ -9,7 +9,6 @@ import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerAuthRoutes } from "./auth-routes";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
-import { serveStatic, setupVite } from "./vite";
 import { initializeScheduler } from "../jobs/scheduler";
 import { initializeDefaultCurrencies } from "../currency";
 import { standardRateLimit, strictRateLimit } from "./rateLimit";
@@ -462,6 +461,9 @@ async function startServer() {
   // development mode uses Vite, production mode uses static files
   // In Vercel, static files are served via vercel.json routes, so we skip this
   if (!process.env.VERCEL) {
+    // Dynamically import Vite only in local development to avoid Rollup dependency in serverless
+    const { serveStatic, setupVite } = await import("./vite");
+
     if (process.env.NODE_ENV === "development") {
       await setupVite(app, server);
     } else {
