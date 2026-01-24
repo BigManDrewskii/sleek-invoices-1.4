@@ -13,13 +13,13 @@ export async function setupVite(app: Express, server: Server) {
   };
 
   // Inline Vite config to avoid importing vite.config.ts which pulls in TailwindCSS
+  // Note: TailwindCSS plugin omitted - CSS is already built by Vite build step
   const vite = await createViteServer({
     configFile: false,
     server: serverOptions,
     appType: "custom",
     plugins: [
       (await import("@vitejs/plugin-react")).default(),
-      (await import("@tailwindcss/vite")).default(),
       (await import("@builder.io/vite-plugin-jsx-loc")).default(),
     ],
     resolve: {
