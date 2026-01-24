@@ -18,8 +18,8 @@
     "seed": "NODE_ENV=development tsx server/seed/index.ts"
   },
   "dependencies": {
-    "@auth/core": "^0.34.3",
     "@auth/drizzle-adapter": "^1.11.1",
+    "@auth/express": "^0.12.1",
     "@aws-sdk/client-s3": "^3.693.0",
     "@aws-sdk/s3-request-presigner": "^3.693.0",
     "@hookform/resolvers": "^5.2.2",
@@ -88,7 +88,6 @@
     "pdfjs-dist": "^4.0.379",
     "puppeteer": "^24.34.0",
     "qs": "^6.14.1",
-    "raw-body": "^3.0.2",
     "react": "^19.2.1",
     "react-day-picker": "^9.11.1",
     "react-dom": "^19.2.1",

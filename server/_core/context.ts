@@ -1,6 +1,5 @@
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
 import type { User } from "../../drizzle/schema";
-import { authHandler } from "./auth";
 
 export type TrpcContext = {
   req: CreateExpressContextOptions["req"];
@@ -45,22 +44,24 @@ export async function createContext(
 
   // Auth.js session validation
   try {
-    const sessionUrl = new URL(
-      "/api/auth/session",
-      `http://${opts.req.headers.host}`
-    );
-    const sessionRequest = new Request(sessionUrl, {
+    const protocol = opts.req.headers["x-forwarded-proto"] as string || "http";
+    const host = opts.req.headers.host || "localhost:3000";
+    const sessionUrl = `${protocol}://${host}/api/auth/session`;
+
+    const sessionResponse = await fetch(sessionUrl, {
       headers: opts.req.headers as HeadersInit,
     });
-    const sessionResponse = await authHandler(sessionRequest);
-    const sessionData = (await sessionResponse.json()) as {
-      user?: { id: string } | null;
-    } | null;
 
-    if (sessionData?.user?.id) {
-      const userId = parseInt(sessionData.user.id);
-      const { getUserById } = await import("../db");
-      user = await getUserById(userId);
+    if (sessionResponse.ok) {
+      const sessionData = (await sessionResponse.json()) as {
+        user?: { id: string } | null;
+      } | null;
+
+      if (sessionData?.user?.id) {
+        const userId = parseInt(sessionData.user.id);
+        const { getUserById } = await import("../db");
+        user = await getUserById(userId) || null;
+      }
     }
   } catch (error) {
     // Session validation failed (no session or invalid session)

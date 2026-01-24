@@ -20,7 +20,7 @@ export async function setupVite(app: Express, server: Server) {
     appType: "custom",
     plugins: [
       (await import("@vitejs/plugin-react")).default(),
-      (await import("@builder.io/vite-plugin-jsx-loc")).default(),
+      (await import("@builder.io/vite-plugin-jsx-loc")).jsxLocPlugin(),
     ],
     resolve: {
       alias: {
@@ -34,6 +34,11 @@ export async function setupVite(app: Express, server: Server) {
   app.use(vite.middlewares);
   app.use("*", async (req, res, next) => {
     const url = req.originalUrl;
+
+    // Skip API routes - let Express handle them
+    if (url.startsWith("/api/")) {
+      return next();
+    }
 
     try {
       const clientTemplate = path.resolve(
