@@ -35,19 +35,24 @@ export function registerAuthRoutes(app: Express) {
 
     const response = await authHandler(request);
 
+    // Handle 3xx redirects (OAuth callbacks, sign-in flows)
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.get("location");
+      if (location) {
+        return res.redirect(response.status, location);
+      }
+    }
+
     // Set status and headers
     res.status(response.status);
     response.headers.forEach((value, key) => {
       res.setHeader(key, value);
     });
 
-    // Handle different response types (JSON, text, redirects)
+    // Handle different response types (JSON, text)
     const contentType = response.headers.get("content-type");
     if (contentType?.includes("application/json")) {
       res.json(await response.json());
-    } else if (response.redirected) {
-      // Handle 3xx redirects
-      res.redirect(response.status, response.url);
     } else {
       res.send(await response.text());
     }
