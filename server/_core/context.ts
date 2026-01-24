@@ -55,15 +55,16 @@ export async function createContext(
     const sessionResponse = await authHandler(sessionRequest);
     const sessionData = (await sessionResponse.json()) as {
       user?: { id: string } | null;
-    };
+    } | null;
 
-    if (sessionData.user?.id) {
+    if (sessionData?.user?.id) {
       const userId = parseInt(sessionData.user.id);
       const { getUserById } = await import("../db");
       user = await getUserById(userId);
     }
   } catch (error) {
-    console.warn("[Auth] Session validation failed:", error);
+    // Session validation failed (no session or invalid session)
+    // This is expected for unauthenticated requests
     user = null;
   }
 
