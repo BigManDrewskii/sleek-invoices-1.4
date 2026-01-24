@@ -50,6 +50,8 @@ export async function authHandler(request: Request) {
     );
   }
 
+  const isProduction = process.env.NODE_ENV === "production";
+
   return Auth(request, {
     adapter: DrizzleAdapter(db, {
       usersTable: users,
@@ -58,9 +60,10 @@ export async function authHandler(request: Request) {
     }),
     providers,
     secret: process.env.AUTH_SECRET,
+    trustHost: true, // Critical for Vercel/serverless environments
     session: {
       strategy: "jwt",
-      maxAge: 365 * 24 * 60 * 60,
+      maxAge: 365 * 24 * 60 * 60, // 1 year
     },
     pages: {
       signIn: "/login",

@@ -187,6 +187,10 @@ export function createApp(): Express {
     resendRouter(req, res, () => {});
   });
 
+  // Auth.js routes MUST be registered before body parser
+  // Auth.js needs to handle the request body itself for proper OAuth flow
+  registerAuthRoutes(app);
+
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
@@ -434,9 +438,6 @@ export function createApp(): Express {
       res.status(500).json({ error: error.message });
     }
   });
-
-  // OAuth callback under /api/oauth/callback
-  registerAuthRoutes(app);
 
   // tRPC API
   app.use(
