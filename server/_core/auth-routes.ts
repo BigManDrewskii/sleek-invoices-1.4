@@ -4,7 +4,18 @@ import rawBody from "raw-body";
 
 export function registerAuthRoutes(app: Express) {
   app.all("/api/auth/*", async (req, res) => {
-    const url = new URL(req.url, `http://${req.headers.host}`);
+    // Detect protocol from Vercel/X-Forwarded-Proto header or default to https
+    const proto =
+      (req.headers["x-forwarded-proto"] as string) ||
+      (req.headers.host?.startsWith("localhost") ? "http" : "https");
+
+    // Get hostname from headers or req.host
+    const host =
+      (req.headers["x-forwarded-host"] as string) ||
+      req.headers.host ||
+      "localhost:3000";
+
+    const url = new URL(req.url || "", `${proto}://${host}`);
 
     // Read raw body for POST requests
     let body: string | undefined;
