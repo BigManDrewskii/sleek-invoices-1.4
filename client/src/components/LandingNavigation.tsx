@@ -1,15 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
-import {
-  LayoutDashboard,
-  Menu,
-  LogIn,
-  UserPlus,
-  Google as GoogleIcon,
-  Github as GithubIcon,
-} from "lucide-react";
+import { LayoutDashboard, Menu, LogIn, UserPlus } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl, getSignUpUrl } from "@/const";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export function LandingNavigation() {
@@ -111,14 +103,14 @@ export function LandingNavigation() {
                   href="/api/auth/signin?provider=google&callbackUrl=/dashboard"
                   className="h-8 rounded-[33554400px] border border-[#374d58] px-4 flex items-center justify-center gap-2 text-xs font-medium text-[#a3b1b8] hover:text-[#f1f6f9] hover:border-[#5f6fff]/50 transition-all"
                 >
-                  <GoogleIcon className="h-3.5 w-3.5" />
+                  <LogIn className="h-3.5 w-3.5" />
                   Log In with Google
                 </a>
                 <a
                   href="/api/auth/signin?provider=github&callbackUrl=/dashboard"
                   className="h-8 rounded-[33554400px] bg-[#5f6fff] border border-[#5f6fff] px-4 flex items-center justify-center gap-2 text-xs font-medium text-[#f1f6f9] hover:bg-[#5f6fff]/90 transition-all"
                 >
-                  <GithubIcon className="h-3.5 w-3.5" />
+                  <LogIn className="h-3.5 w-3.5" />
                   Log In with GitHub
                 </a>
               </>
@@ -202,14 +194,14 @@ export function LandingNavigation() {
                         href="/api/auth/signin?provider=google&callbackUrl=/dashboard"
                         className="w-full h-11 rounded-lg border border-[#374d58] flex items-center justify-center gap-2 text-sm font-medium text-[#a3b1b8] hover:text-[#f1f6f9] hover:border-[#5f6fff]/50 transition-all"
                       >
-                        <GoogleIcon className="h-4 w-4" />
+                        <LogIn className="h-4 w-4" />
                         Log In with Google
                       </a>
                       <a
                         href="/api/auth/signin?provider=github&callbackUrl=/dashboard"
                         className="w-full h-11 rounded-lg bg-[#5f6fff] flex items-center justify-center gap-2 text-sm font-medium text-[#f1f6f9] hover:bg-[#5f6fff]/90 transition-all"
                       >
-                        <GithubIcon className="h-4 w-4" />
+                        <LogIn className="h-4 w-4" />
                         Log In with GitHub
                       </a>
                     </>
