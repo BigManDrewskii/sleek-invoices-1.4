@@ -1,4 +1,5 @@
-import puppeteer, { Browser } from "puppeteer";
+import puppeteer from "puppeteer";
+import type { Browser } from "puppeteer";
 
 // Track active browser instances for cleanup
 let activeBrowser: Browser | null = null;
