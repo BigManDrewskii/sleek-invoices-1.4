@@ -80,7 +80,7 @@ pnpm start
 - **Frontend**: React 19, TailwindCSS 4, TypeScript, Wouter (routing), React Query
 - **Backend**: Express, tRPC 11, Drizzle ORM, node-cron
 - **Database**: MySQL (TiDB compatible) with Drizzle ORM
-- **Auth**: Manus OAuth with JWT session cookies (bypassed in local dev with SKIP_AUTH=true)
+- **Auth**: Auth.js v5 with Google & GitHub OAuth providers (bypassed in local dev with SKIP_AUTH=true)
 - **Payments**: Stripe + NOWPayments (crypto subscriptions)
 - **PDF**: Puppeteer (headless Chrome)
 - **Email**: Resend API with delivery tracking webhooks
@@ -157,14 +157,16 @@ pnpm start
 
 ### 3. Authentication & Authorization Flow
 
-- Production: Manus OAuth with JWT session cookies (httpOnly, secure, SameSite)
-- Local Dev: Set `SKIP_AUTH=true` in `.env.local` to auto-authenticate as "dev-user-local"
+- **Production**: Auth.js v5 with Google and GitHub OAuth providers
+  - Provider: `@auth/core` v0.34.3
+  - Adapter: Drizzle ORM (`@auth/drizzle-adapter`)
+  - Session Strategy: JWT with 365-day expiry
+  - OAuth Endpoints: `/api/auth/signin`, `/api/auth/signout`, `/api/auth/session`
+  - Callback Routes: `/api/auth/callback/google`, `/api/auth/callback/github`
+- **Local Dev**: Set `SKIP_AUTH=true` to auto-authenticate as "dev-user-local"
 - Session user available in `ctx.user` for protected procedures
-- Frontend gets user from `api.auth.me` query
-- CSRF protection via custom header validation (server/_core/csrf.ts):
-  - Custom header: `x-csrf-protection: 1`
-  - Exempt paths: webhooks, health checks
-  - Applied automatically to all mutation requests via tRPC middleware
+- Frontend gets user via `api.auth.me` query or `/api/auth/session`
+- CSRF protection via custom headers (server/_core/csrf.ts) and Auth.js built-in CSRF tokens
 - Rate limiting: standard (100 req/15min) and strict (20 req/15min) for sensitive routes
 
 ### 4. Frontend Patterns
@@ -345,9 +347,26 @@ open http://localhost:5173
 
 ### Environment Variables
 
-- Required: `DATABASE_URL`, `JWT_SECRET`, `SKIP_AUTH=true`
-- Optional: `STRIPE_SECRET_KEY`, `RESEND_API_KEY`, `OPENROUTER_API_KEY`
-- See `.env.local.example` for full list
+**Auth.js OAuth (REQUIRED for production):**
+- `AUTH_SECRET` - Random secret for JWT signing (generate with `openssl rand -base64 32`)
+- `AUTH_GOOGLE_ID` - Google OAuth client ID
+- `AUTH_GOOGLE_SECRET` - Google OAuth client secret
+- `AUTH_GITHUB_ID` - GitHub OAuth client ID
+- `AUTH_GITHUB_SECRET` - GitHub OAuth client secret
+- `AUTH_URL` - Full app URL (auto-detected, but can be set explicitly)
+
+**Auth Bypass (Local Dev Only):**
+- `SKIP_AUTH=true` - Bypass OAuth and auto-login as dev user (NEVER set in production)
+
+**Other Required:**
+- `DATABASE_URL` - MySQL connection string
+
+**Optional:**
+- `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` - Stripe payments
+- `RESEND_API_KEY` - Transactional emails
+- `OPENROUTER_API_KEY` - AI features
+
+See `.env.local.example` for full list
 
 ### Auth Bypass (Local Dev Only)
 

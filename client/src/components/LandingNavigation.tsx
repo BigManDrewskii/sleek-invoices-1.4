@@ -1,8 +1,15 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
-import { LayoutDashboard, Menu, LogIn, UserPlus } from "lucide-react";
+import {
+  LayoutDashboard,
+  Menu,
+  LogIn,
+  UserPlus,
+  Google as GoogleIcon,
+  Github as GithubIcon,
+} from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
+import { getLoginUrl, getSignUpUrl } from "@/const";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export function LandingNavigation() {
@@ -27,27 +34,6 @@ export function LandingNavigation() {
       setTimeout(() => setScrollAnnouncement(""), 1000);
     }
     setMobileMenuOpen(false);
-  };
-
-  // Generate sign up URL (same as login but with type=signUp)
-  const getSignUpUrl = () => {
-    const oauthPortalUrl = import.meta.env.VITE_OAUTH_PORTAL_URL;
-    const appId = import.meta.env.VITE_APP_ID;
-
-    if (!oauthPortalUrl || !appId) {
-      return "/dashboard"; // Fallback for dev mode
-    }
-
-    const redirectUri = `${window.location.origin}/api/oauth/callback`;
-    const state = btoa(redirectUri);
-
-    const url = new URL(`${oauthPortalUrl}/app-auth`);
-    url.searchParams.set("appId", appId);
-    url.searchParams.set("redirectUri", redirectUri);
-    url.searchParams.set("state", state);
-    url.searchParams.set("type", "signUp");
-
-    return url.toString();
   };
 
   return (
@@ -122,18 +108,18 @@ export function LandingNavigation() {
               // Show Login and Sign Up for unauthenticated users
               <>
                 <a
-                  href={getLoginUrl()}
+                  href="/api/auth/signin?provider=google&callbackUrl=/dashboard"
                   className="h-8 rounded-[33554400px] border border-[#374d58] px-4 flex items-center justify-center gap-2 text-xs font-medium text-[#a3b1b8] hover:text-[#f1f6f9] hover:border-[#5f6fff]/50 transition-all"
                 >
-                  <LogIn className="h-3.5 w-3.5" />
-                  Log In
+                  <GoogleIcon className="h-3.5 w-3.5" />
+                  Log In with Google
                 </a>
                 <a
-                  href={getSignUpUrl()}
+                  href="/api/auth/signin?provider=github&callbackUrl=/dashboard"
                   className="h-8 rounded-[33554400px] bg-[#5f6fff] border border-[#5f6fff] px-4 flex items-center justify-center gap-2 text-xs font-medium text-[#f1f6f9] hover:bg-[#5f6fff]/90 transition-all"
                 >
-                  <UserPlus className="h-3.5 w-3.5" />
-                  Sign Up Free
+                  <GithubIcon className="h-3.5 w-3.5" />
+                  Log In with GitHub
                 </a>
               </>
             )}
@@ -213,18 +199,18 @@ export function LandingNavigation() {
                   ) : (
                     <>
                       <a
-                        href={getLoginUrl()}
+                        href="/api/auth/signin?provider=google&callbackUrl=/dashboard"
                         className="w-full h-11 rounded-lg border border-[#374d58] flex items-center justify-center gap-2 text-sm font-medium text-[#a3b1b8] hover:text-[#f1f6f9] hover:border-[#5f6fff]/50 transition-all"
                       >
-                        <LogIn className="h-4 w-4" />
-                        Log In
+                        <GoogleIcon className="h-4 w-4" />
+                        Log In with Google
                       </a>
                       <a
-                        href={getSignUpUrl()}
+                        href="/api/auth/signin?provider=github&callbackUrl=/dashboard"
                         className="w-full h-11 rounded-lg bg-[#5f6fff] flex items-center justify-center gap-2 text-sm font-medium text-[#f1f6f9] hover:bg-[#5f6fff]/90 transition-all"
                       >
-                        <UserPlus className="h-4 w-4" />
-                        Sign Up Free
+                        <GithubIcon className="h-4 w-4" />
+                        Log In with GitHub
                       </a>
                     </>
                   )}

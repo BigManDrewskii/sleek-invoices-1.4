@@ -45,15 +45,17 @@ export async function createContext(
 
   // Auth.js session validation
   try {
-    const url = new URL(opts.req.url || "", `http://${opts.req.headers.host}`);
-    const request = new Request(url, {
+    const sessionUrl = new URL(
+      "/api/auth/session",
+      `http://${opts.req.headers.host}`
+    );
+    const sessionRequest = new Request(sessionUrl, {
       headers: opts.req.headers as HeadersInit,
-      body:
-        opts.req.method === "POST" ? JSON.stringify(opts.req.body) : undefined,
     });
-
-    const response = await authHandler(request);
-    const sessionData = (await response.json()) as { user?: { id: string } };
+    const sessionResponse = await authHandler(sessionRequest);
+    const sessionData = (await sessionResponse.json()) as {
+      user?: { id: string } | null;
+    };
 
     if (sessionData.user?.id) {
       const userId = parseInt(sessionData.user.id);
