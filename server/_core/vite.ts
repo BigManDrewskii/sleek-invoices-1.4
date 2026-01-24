@@ -4,7 +4,6 @@ import { type Server } from "http";
 import { nanoid } from "nanoid";
 import path from "path";
 import { createServer as createViteServer } from "vite";
-import viteConfig from "../../vite.config";
 
 export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
@@ -13,11 +12,23 @@ export async function setupVite(app: Express, server: Server) {
     allowedHosts: true as const,
   };
 
+  // Inline Vite config to avoid importing vite.config.ts which pulls in TailwindCSS
   const vite = await createViteServer({
-    ...viteConfig,
     configFile: false,
     server: serverOptions,
     appType: "custom",
+    plugins: [
+      (await import("@vitejs/plugin-react")).default(),
+      (await import("@tailwindcss/vite")).default(),
+      (await import("@builder.io/vite-plugin-jsx-loc")).default(),
+    ],
+    resolve: {
+      alias: {
+        "@": path.resolve(process.cwd(), "client", "src"),
+        "@shared": path.resolve(process.cwd(), "shared"),
+        "@assets": path.resolve(process.cwd(), "attached_assets"),
+      },
+    },
   });
 
   app.use(vite.middlewares);

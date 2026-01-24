@@ -61,6 +61,8 @@ pnpm test --watch
 pnpm test server/ai/assistant.test.ts
 ```
 
+**Note**: Test files are located in `server/` directory and use Vitest with Node environment. They are excluded from TypeScript compilation (see tsconfig.json).
+
 ### Production
 
 ```bash
@@ -130,6 +132,17 @@ pnpm start
 - Error monitoring via Sentry (`server/_core/errorMonitoring.ts`)
 - CSRF middleware automatically applied to all mutations via tRPC middleware
 - Vercel deployment: Routes defined in `vercel.json` (API → serverless functions, static → dist/public)
+
+**API Route Structure**:
+- `/api/trpc/*` - All tRPC procedures (mutations, queries)
+- `/api/stripe/webhook` - Stripe webhook handler (raw body parser)
+- `/api/webhooks/nowpayments` - NOWPayments webhook handler
+- `/api/webhooks/resend` - Resend email webhook handler
+- `/api/oauth/*` - OAuth callback routes
+- `/api/upload/*` - File upload endpoints (avatar, logo)
+- `/api/invoices/:id/pdf` - Client portal PDF download
+- `/api/health` - Health check endpoint
+- `/api/crons/*` - Cron job endpoints (Vercel Cron Jobs)
 
 **CRITICAL**: SKIP_AUTH=true will throw in production (security block in context.ts)
 
@@ -286,6 +299,23 @@ pnpm start
 
 **Note**: Test files are excluded from TypeScript compilation (see tsconfig.json)
 
+### Running Individual Cron Jobs
+
+For testing cron job logic locally:
+
+```bash
+# Test recurring invoice generation
+curl http://localhost:3000/api/crons/recurring-invoices
+
+# Test overdue invoice detection
+curl http://localhost:3000/api/crons/check-overdue
+
+# Test payment reminder sending
+curl http://localhost:3000/api/crons/send-reminders
+```
+
+In production, these run automatically via Vercel Cron Jobs on the schedule defined in `vercel.json`.
+
 ## Local Development Setup
 
 ### Quick Start (with Docker)
@@ -324,6 +354,33 @@ open http://localhost:5173
 Set `SKIP_AUTH=true` in `.env.local` to bypass OAuth and auto-login as dev user.
 
 ## Important Implementation Notes
+
+### Environment-Specific Behavior
+
+**Local Development**:
+- Set `SKIP_AUTH=true` in `.env.local` to bypass OAuth and auto-login as "dev-user-local"
+- Vite dev server handles frontend with HMR on port 5173
+- Express server runs on port 3000 (auto-finds available port if 3000 is busy)
+- Cron jobs run via node-cron (initialized in `server/_core/index.ts`)
+
+**Vercel Production**:
+- Serverless functions handle all API routes (defined in `vercel.json`)
+- Cron jobs run via Vercel Cron Jobs (3 scheduled jobs in `vercel.json`)
+- PDF generation disabled in serverless (`PDF_GENERATION_ENABLED=false`) due to memory constraints
+- Lazy initialization required for all services (no top-level await)
+- Build uses custom esbuild bundle to exclude Rollup/TailwindCSS from serverless bundle
+
+### Build Process
+
+The build process has two parts:
+1. **Frontend**: `vite build` → outputs to `dist/public/`
+2. **Backend**: `esbuild` bundles `server/_core/index.ts` → outputs to `dist/_server/`
+
+The esbuild bundler excludes specific devDependencies from the serverless bundle:
+- `rollup`, `@rollup/*` (Vite dependency)
+- `lightningcss`, `@tailwindcss/*` (TailwindCSS dependencies)
+
+This is critical for Vercel deployment to keep bundle size small and avoid bundling Vite/Rollup into serverless functions.
 
 ### Serverless Compatibility (Vercel)
 
