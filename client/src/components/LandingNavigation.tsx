@@ -4,7 +4,6 @@ import { LayoutDashboard, Menu, LogIn, UserPlus } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { getLoginUrl } from "@/const";
-import { getLoginUrl } from "@/const";
 
 export function LandingNavigation() {
   const [scrolled, setScrolled] = useState(false);
@@ -193,14 +192,14 @@ export function LandingNavigation() {
                   ) : (
                     <>
                       <a
-                        href="/api/auth/signin/google?callbackUrl=/dashboard"
+                        href={getLoginUrl("google")}
                         className="w-full h-11 rounded-lg border border-[#374d58] flex items-center justify-center gap-2 text-sm font-medium text-[#a3b1b8] hover:text-[#f1f6f9] hover:border-[#5f6fff]/50 transition-all"
                       >
                         <LogIn className="h-4 w-4" />
                         Log In with Google
                       </a>
                       <a
-                        href="/api/auth/signin/github?callbackUrl=/dashboard"
+                        href={getLoginUrl("github")}
                         className="w-full h-11 rounded-lg bg-[#5f6fff] flex items-center justify-center gap-2 text-sm font-medium text-[#f1f6f9] hover:bg-[#5f6fff]/90 transition-all"
                       >
                         <LogIn className="h-4 w-4" />
