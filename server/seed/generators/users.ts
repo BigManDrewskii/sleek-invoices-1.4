@@ -15,6 +15,19 @@ export interface SeededUser {
   createdAt: Date;
   updatedAt: Date;
   lastSignedIn: Date;
+  avatarUrl: string | null;
+  companyName: string | null;
+  baseCurrency: string | null;
+  companyAddress: string | null;
+  companyPhone: string | null;
+  logoUrl: string | null;
+  taxId: string | null;
+  defaultInvoiceStyle: "receipt" | "classic";
+  stripeCustomerId: string | null;
+  subscriptionId: string | null;
+  currentPeriodEnd: Date | null;
+  subscriptionEndDate: Date | null;
+  subscriptionSource: "stripe" | "crypto" | null;
 }
 
 export async function seedUsers(db: any): Promise<SeededUser[]> {
