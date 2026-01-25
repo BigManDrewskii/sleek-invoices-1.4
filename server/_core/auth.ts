@@ -68,9 +68,8 @@ export async function createAuthConfig(): Promise<ExpressAuthConfig> {
   };
 }
 
-// Keep old export for backward compatibility (deprecated, will be removed in next version)
-// This uses top-level await which is safe in ES modules
-export const authConfig = await createAuthConfig();
+// REMOVED: Deprecated top-level await export (caused serverless compatibility issues)
+// use createAuthConfig() async function instead (called in auth-routes.ts)
 
 // Log warning if no providers configured
 if (!process.env.AUTH_GOOGLE_ID && !process.env.AUTH_GITHUB_ID) {
