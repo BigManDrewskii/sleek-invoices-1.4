@@ -12,12 +12,6 @@
     "api/**/*.js": {
       "memory": 1024,
       "maxDuration": 30
-    },
-    "api/**/*.ts": {
-      "runtime": "nodejs18.x",
-      "memory": 1024,
-      "maxDuration": 30,
-      "exclude": true
     }
   },
   "crons": [
@@ -34,11 +28,13 @@
       "schedule": "0 9 * * *"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/index.js"
-    },
+      "source": "/api/(.*)",
+      "destination": "/api/index.js"
+    }
+  ],
+  "routes": [
     {
       "src": "/(.*\\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|json|webp))",
       "dest": "/dist/public/$1"
