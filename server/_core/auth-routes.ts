@@ -4,7 +4,8 @@ import { toNodeHandler } from "better-auth/node";
 
 export async function registerAuthRoutes(app: Express) {
   // Set trust proxy BEFORE auth routes (required for Vercel)
-  app.set("trust proxy", true);
+  // Trust 1 proxy layer (Vercel or typical load balancer setup)
+  app.set("trust proxy", 1);
 
   // Register Better Auth handler using official Node.js adapter
   // This handles ALL auth endpoints automatically:

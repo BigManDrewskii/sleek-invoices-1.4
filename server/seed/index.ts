@@ -90,7 +90,12 @@ async function clearAllTables(db: any): Promise<void> {
   for (const table of tables) {
     try {
       await db.execute(sql.raw(`ALTER TABLE ${table} AUTO_INCREMENT = 1`));
-    } catch (error) {}
+    } catch (error) {
+      console.warn(
+        `[Seed] Failed to reset auto-increment for ${table}:`,
+        error
+      );
+    }
   }
 
   console.log("   ✅ All tables cleared\n");

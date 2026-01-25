@@ -136,8 +136,11 @@ export async function seedInvoices(
       const ctx: TrpcContext = {
         user: {
           id: user.id,
+          uuid: user.uuid,
           openId: user.openId,
           email: user.email,
+          emailVerified: user.emailVerified,
+          image: user.image,
           name: user.name,
           loginMethod: "manus",
           role: "user",

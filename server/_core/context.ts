@@ -42,24 +42,17 @@ export async function createContext(
     };
   }
 
-  // Auth.js session validation
+  // Better Auth session validation
   try {
-    const protocol =
-      (opts.req.headers["x-forwarded-proto"] as string) || "http";
-    const host = opts.req.headers.host || "localhost:3000";
-    const sessionUrl = `${protocol}://${host}/api/auth/get-session`;
+    const cookieHeader = opts.req.headers.cookie;
+    if (cookieHeader) {
+      const { auth } = await import("./better-auth");
+      const session = await auth.api.getSession({
+        headers: opts.req.headers as HeadersInit,
+      });
 
-    const sessionResponse = await fetch(sessionUrl, {
-      headers: opts.req.headers as HeadersInit,
-    });
-
-    if (sessionResponse.ok) {
-      const sessionData = (await sessionResponse.json()) as {
-        user?: { id: string } | null;
-      } | null;
-
-      if (sessionData?.user?.id) {
-        const userId = parseInt(sessionData.user.id);
+      if (session?.user?.id) {
+        const userId = parseInt(session.user.id);
         const { getUserById } = await import("../db");
         user = (await getUserById(userId)) || null;
       }

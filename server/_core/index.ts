@@ -1,3 +1,4 @@
+import cors from "cors";
 import dotenv from "dotenv";
 import express, { type Express } from "express";
 
@@ -188,8 +189,23 @@ export async function createApp(): Promise<Express> {
   });
 
   // Auth.js routes MUST be registered before body parser
-  // Auth.js needs to handle the request body itself for proper OAuth flow
+  // Auth.js needs to handle request body itself for proper OAuth flow
   await registerAuthRoutes(app);
+
+  // CORS configuration
+  const allowedOrigins =
+    process.env.NODE_ENV === "production"
+      ? [process.env.APP_URL || "https://sleekinvoices.com"]
+      : ["http://localhost:5173", "http://localhost:3000"];
+
+  app.use(
+    cors({
+      origin: allowedOrigins,
+      credentials: true,
+      methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization", "x-requested-with"],
+    })
+  );
 
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));

@@ -5,11 +5,14 @@ import { USER_COMPANIES } from "../data/realistic-data";
 
 export interface SeededUser {
   id: number;
+  uuid: string;
   openId: string;
   name: string;
   email: string;
+  emailVerified: Date | null;
+  image: string | null;
   loginMethod: string;
-  role: "user";
+  role: "user" | "admin";
   subscriptionStatus: "free" | "active" | "past_due" | "canceled";
   avatarType: "initials" | "boring" | "upload";
   createdAt: Date;
@@ -36,9 +39,12 @@ export async function seedUsers(db: any): Promise<SeededUser[]> {
 
   const usersData: InsertUser[] = [
     {
+      uuid: crypto.randomUUID(),
       openId: "seed-user-free",
       name: "Free User",
       email: "free@sleek-invoices.test",
+      emailVerified: now,
+      image: null,
       loginMethod: "manus",
       role: "user",
       avatarType: "initials",
@@ -53,9 +59,12 @@ export async function seedUsers(db: any): Promise<SeededUser[]> {
       lastSignedIn: now,
     },
     {
+      uuid: crypto.randomUUID(),
       openId: "seed-user-pro",
       name: "Pro User",
       email: "pro@sleek-invoices.test",
+      emailVerified: now,
+      image: "https://example.com/avatars/pro-user.png",
       loginMethod: "manus",
       role: "user",
       avatarType: "boring",
@@ -75,9 +84,12 @@ export async function seedUsers(db: any): Promise<SeededUser[]> {
       lastSignedIn: now,
     },
     {
+      uuid: crypto.randomUUID(),
       openId: "seed-user-past-due",
       name: "Past Due User",
       email: "pastdue@sleek-invoices.test",
+      emailVerified: now,
+      image: "https://example.com/avatars/user3.png",
       loginMethod: "manus",
       role: "user",
       avatarType: "upload",
@@ -103,9 +115,31 @@ export async function seedUsers(db: any): Promise<SeededUser[]> {
   const insertId = Number(result[0].insertId);
   return usersData.map((user, index) => ({
     id: insertId + index,
+    uuid: user.uuid!,
     openId: user.openId!,
     name: user.name!,
     email: user.email!,
+    emailVerified: user.emailVerified!,
+    image: user.image!,
+    loginMethod: user.loginMethod!,
+    role: user.role!,
     subscriptionStatus: user.subscriptionStatus!,
+    avatarType: user.avatarType!,
+    createdAt: user.createdAt!,
+    updatedAt: user.updatedAt!,
+    lastSignedIn: user.lastSignedIn!,
+    avatarUrl: user.avatarUrl!,
+    companyName: user.companyName!,
+    baseCurrency: user.baseCurrency!,
+    companyAddress: user.companyAddress!,
+    companyPhone: user.companyPhone!,
+    logoUrl: user.logoUrl!,
+    taxId: user.taxId!,
+    defaultInvoiceStyle: user.defaultInvoiceStyle!,
+    stripeCustomerId: user.stripeCustomerId!,
+    subscriptionId: user.subscriptionId!,
+    currentPeriodEnd: user.currentPeriodEnd!,
+    subscriptionEndDate: user.subscriptionEndDate!,
+    subscriptionSource: user.subscriptionSource!,
   }));
 }
