@@ -110,23 +110,9 @@ export function LandingNavigation() {
                 </a>
                 <a
                   href={getLoginUrl("github")}
-                  className="h-8 rounded-[33554400px] bg-[#5f6fff] border border-[#5f6fff] px-4 flex items-center justify-center gap-2 text-xs font-medium text-[#f1f6f9] hover:bg-[#5f6fff]/90 transition-all"
+                  className="w-full h-11 rounded-lg bg-[#5f6fff] flex items-center justify-center gap-2 text-sm font-medium text-[#f1f6f9] hover:bg-[#5f6fff]/90 transition-all"
                 >
-                  <LogIn className="h-3.5 w-3.5" />
-                  Log In with GitHub
-                </a>
-                <a
-                  href={getLoginUrl("github")}
-                  className="h-8 rounded-[33554400px] bg-[#5f6fff] border border-[#5f6fff] px-4 flex items-center justify-center gap-2 text-xs font-medium text-[#1f6f9] hover:bg-[#5f6fff]/90 transition-all"
-                >
-                  <LogIn className="h-3.5 w-3.5" />
-                  Log In with GitHub
-                </a>
-                <a
-                  href="/api/auth/signin/github?callbackUrl=/dashboard"
-                  className="h-8 rounded-[33554400px] bg-[#5f6fff] border border-[#5f6fff] px-4 flex items-center justify-center gap-2 text-xs font-medium text-[#f1f6f9] hover:bg-[#5f6fff]/90 transition-all"
-                >
-                  <LogIn className="h-3.5 w-3.5" />
+                  <LogIn className="h-4 w-4" />
                   Log In with GitHub
                 </a>
               </>
