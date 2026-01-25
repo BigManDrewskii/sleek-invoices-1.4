@@ -17,6 +17,15 @@ async function getAuthDb() {
 
 // Export async factory function instead of static config
 export async function createAuthConfig(): Promise<ExpressAuthConfig> {
+  console.log("[Auth] Creating auth config...");
+  console.log("[Auth] ENV CHECK:", {
+    AUTH_GOOGLE_ID: process.env.AUTH_GOOGLE_ID ? "SET" : "NOT_SET",
+    AUTH_GOOGLE_SECRET: process.env.AUTH_GOOGLE_SECRET ? "SET" : "NOT_SET",
+    AUTH_GITHUB_ID: process.env.AUTH_GITHUB_ID ? "SET" : "NOT_SET",
+    AUTH_GITHUB_SECRET: process.env.AUTH_GITHUB_SECRET ? "SET" : "NOT_SET",
+    AUTH_SECRET: process.env.AUTH_SECRET ? "SET" : "NOT_SET",
+  });
+
   const db = await getAuthDb();
 
   if (!db) {
@@ -24,12 +33,11 @@ export async function createAuthConfig(): Promise<ExpressAuthConfig> {
   }
 
   return {
-    // Temporarily disabled adapter to test OAuth configuration
-    // adapter: DrizzleAdapter(db, {
-    //   usersTable: users,
-    //   accountsTable: accounts,
-    //   sessionsTable: sessions,
-    // }),
+    adapter: DrizzleAdapter(db, {
+      usersTable: users,
+      accountsTable: accounts,
+      sessionsTable: sessions,
+    }),
     providers: [
       ...(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET
         ? [
