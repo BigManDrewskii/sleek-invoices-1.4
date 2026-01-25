@@ -11,7 +11,7 @@ type UseAuthOptions = {
 export function useAuth(options?: UseAuthOptions) {
   const {
     redirectOnUnauthenticated = false,
-    redirectPath = "/api/auth/signin?callbackUrl=/dashboard",
+    redirectPath = "/api/auth/signin/google?callbackUrl=/dashboard",
   } = options ?? {};
   const utils = trpc.useUtils();
 
