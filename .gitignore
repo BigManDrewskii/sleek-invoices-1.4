@@ -119,3 +119,4 @@ research/ARCHIVE/
 notes/
 .vercel
 .env*.local
+.DS_Store
