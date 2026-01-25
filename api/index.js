@@ -10,7 +10,7 @@ async function getApp() {
     try {
       // Dynamic import to catch module loading errors
       const { createApp } = await import('../dist/_server/index.js');
-      appInstance = createApp();
+      appInstance = await createApp();
     } catch (error) {
       console.error('[Vercel] Failed to initialize app:', error);
       throw error;

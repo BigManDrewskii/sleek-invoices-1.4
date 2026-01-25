@@ -1,51 +1,76 @@
 import type { ExpressAuthConfig } from "@auth/express";
 import Google from "@auth/express/providers/google";
 import GitHub from "@auth/express/providers/github";
+import { DrizzleAdapter } from "@auth/drizzle-adapter";
+import { getDb } from "../db/connection.js";
+import { users, accounts, sessions } from "../../drizzle/schema.js";
 
-export const authConfig: ExpressAuthConfig = {
-  providers: [
-    ...(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET
-      ? [Google({
-          clientId: process.env.AUTH_GOOGLE_ID,
-          clientSecret: process.env.AUTH_GOOGLE_SECRET,
-        })]
-      : []),
-    ...(process.env.AUTH_GITHUB_ID && process.env.AUTH_GITHUB_SECRET
-      ? [GitHub({
-          clientId: process.env.AUTH_GITHUB_ID,
-          clientSecret: process.env.AUTH_GITHUB_SECRET,
-        })]
-      : []),
-  ],
-  secret: process.env.AUTH_SECRET,
-  trustHost: true, // Critical for Vercel/serverless environments
-  // Note: basePath is NOT set here because Express already handles the /api/auth/* prefix
-  // When using app.use("/api/auth/*", ExpressAuth(authConfig)), Express strips the prefix
-  // and @auth/express receives root-level paths like /signin, /callback/google, etc.
-  session: {
-    strategy: "jwt",
-    maxAge: 365 * 24 * 60 * 60, // 1 year
-  },
-  pages: {
-    signIn: "/login",
-    error: "/login",
-  },
-  callbacks: {
-    async session({ session, token }: any) {
-      if (session.user && token.sub) {
-        session.user.id = token.sub;
-      }
-      return session;
+// Lazy database initialization for serverless compatibility
+let _db: Awaited<ReturnType<typeof getDb>> | null = null;
+
+async function getAuthDb() {
+  if (!_db) {
+    _db = await getDb();
+  }
+  return _db;
+}
+
+// Export async factory function instead of static config
+export async function createAuthConfig(): Promise<ExpressAuthConfig> {
+  const db = await getAuthDb();
+
+  if (!db) {
+    throw new Error("Database not available for auth configuration");
+  }
+
+  return {
+    adapter: DrizzleAdapter(db, {
+      usersTable: users,
+      accountsTable: accounts,
+      sessionsTable: sessions,
+    }),
+    providers: [
+      ...(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET
+        ? [Google({
+            clientId: process.env.AUTH_GOOGLE_ID,
+            clientSecret: process.env.AUTH_GOOGLE_SECRET,
+          })]
+        : []),
+      ...(process.env.AUTH_GITHUB_ID && process.env.AUTH_GITHUB_SECRET
+        ? [GitHub({
+            clientId: process.env.AUTH_GITHUB_ID,
+            clientSecret: process.env.AUTH_GITHUB_SECRET,
+          })]
+        : []),
+    ],
+    secret: process.env.AUTH_SECRET,
+    trustHost: true, // Critical for Vercel/serverless environments
+    // Note: basePath is NOT set here because Express already handles the /api/auth/* prefix
+    // When using app.use("/api/auth/*", ExpressAuth(authConfig)), Express strips the prefix
+    // and @auth/express receives root-level paths like /signin, /callback/google, etc.
+    session: {
+      strategy: "database", // CHANGED from "jwt" to "database" for persistent sessions
+      maxAge: 365 * 24 * 60 * 60, // 1 year
     },
-    async jwt({ token, user, account }: any) {
-      if (user && account) {
-        token.sub = user.id?.toString() || "";
-        token.provider = account.provider;
-      }
-      return token;
+    pages: {
+      signIn: "/login",
+      error: "/login",
     },
-  },
-};
+    callbacks: {
+      async session({ session, user }: any) {
+        // CHANGED: Now receives 'user' from database instead of 'token' from JWT
+        if (session.user && user.id) {
+          session.user.id = user.id.toString();
+        }
+        return session;
+      },
+    },
+  };
+}
+
+// Keep old export for backward compatibility (deprecated, will be removed in next version)
+// This uses top-level await which is safe in ES modules
+export const authConfig = await createAuthConfig();
 
 // Log warning if no providers configured
 if (!process.env.AUTH_GOOGLE_ID && !process.env.AUTH_GITHUB_ID) {

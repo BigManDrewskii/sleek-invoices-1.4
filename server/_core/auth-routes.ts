@@ -1,10 +1,13 @@
 import type { Express } from "express";
 import { ExpressAuth } from "@auth/express";
-import { authConfig } from "./auth";
+import { createAuthConfig } from "./auth";
 
-export function registerAuthRoutes(app: Express) {
+export async function registerAuthRoutes(app: Express) {
   // Set trust proxy BEFORE auth routes (required for Vercel)
   app.set("trust proxy", true);
+
+  // Await async auth config (database connection required)
+  const authConfig = await createAuthConfig();
 
   // Register @auth/express middleware
   // Handles ALL auth endpoints automatically:

@@ -132,7 +132,7 @@ async function initializeApp() {
  * Create and configure the Express application
  * This function is exported for use in both local development and Vercel serverless
  */
-export function createApp(): Express {
+export async function createApp(): Promise<Express> {
   const app = express();
 
   // Initialize services
@@ -189,7 +189,7 @@ export function createApp(): Express {
 
   // Auth.js routes MUST be registered before body parser
   // Auth.js needs to handle the request body itself for proper OAuth flow
-  registerAuthRoutes(app);
+  await registerAuthRoutes(app);
 
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
@@ -456,7 +456,7 @@ export function createApp(): Express {
  * Only used in local development - Vercel handles server startup in production
  */
 async function startServer() {
-  const app = createApp();
+  const app = await createApp();
   const server = createServer(app);
 
   // development mode uses Vite, production mode uses static files
