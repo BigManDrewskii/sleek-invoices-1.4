@@ -8,7 +8,13 @@ export interface SeededUser {
   openId: string;
   name: string;
   email: string;
+  loginMethod: string;
+  role: "user";
   subscriptionStatus: "free" | "active" | "past_due" | "canceled";
+  avatarType: "initials" | "boring" | "upload";
+  createdAt: Date;
+  updatedAt: Date;
+  lastSignedIn: Date;
 }
 
 export async function seedUsers(db: any): Promise<SeededUser[]> {
