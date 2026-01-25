@@ -24,13 +24,25 @@ async function getApp() {
 export default async function handler(req, res) {
   try {
     const app = await getApp();
-    app(req, res);
+    // Return a promise that resolves when the Express app finishes handling the request
+    return new Promise((resolve, reject) => {
+      try {
+        app(req, res);
+        // Express doesn't return a promise, so we listen for the response to finish
+        res.on('finish', () => resolve());
+        res.on('error', (err) => reject(err));
+      } catch (err) {
+        reject(err);
+      }
+    });
   } catch (error) {
     console.error('[Vercel] Handler error:', error);
-    res.status(500).json({
-      error: 'Internal server error',
-      message: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-    });
+    if (!res.headersSent) {
+      res.status(500).json({
+        error: 'Internal server error',
+        message: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
+    }
   }
 }
