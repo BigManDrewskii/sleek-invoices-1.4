@@ -24,7 +24,6 @@ export async function createAuthConfig(): Promise<ExpressAuthConfig> {
   }
 
   return {
-    basePath: "/api/auth", // Required: Express middleware is mounted at /api/auth/*
     adapter: DrizzleAdapter(db, {
       usersTable: users,
       accountsTable: accounts,
