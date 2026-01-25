@@ -1,32 +1,32 @@
 import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "@better-auth/drizzle-adapter";
-import { getAuthDb } from "./db";
-import { users, accounts, sessions } from "../../shared/schema/auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { getDb } from "../db";
+import { users, accounts, sessions } from "../../drizzle/schema";
 
 export const auth = betterAuth({
-  database: {
-    provider: drizzleAdapter(getAuthDb, {
-      usersTable: users,
-      accountsTable: accounts,
-      sessionsTable: sessions,
-    }),
-  },
+  database: drizzleAdapter(getDb, {
+    provider: "mysql",
+  }),
   socialProviders: {
     google: {
       clientId: process.env.AUTH_GOOGLE_ID!,
       clientSecret: process.env.AUTH_GOOGLE_SECRET!,
-      allowDangerousEmailAccounts: false,
+      enabled: true,
     },
     github: {
       clientId: process.env.AUTH_GITHUB_ID!,
       clientSecret: process.env.AUTH_GITHUB_SECRET!,
-      allowDangerousEmailAccounts: false,
+      enabled: true,
     },
   },
   secret: process.env.AUTH_SECRET!,
+  baseURL:
+    process.env.BETTER_AUTH_URL || process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000",
   trustHost: true,
   advanced: {
-    generateId: true,
+    useSecureCookies: process.env.NODE_ENV === "production",
     sessionCookieExpires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days
   },
 });

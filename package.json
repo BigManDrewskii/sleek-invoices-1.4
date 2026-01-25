@@ -18,8 +18,6 @@
     "seed": "NODE_ENV=development tsx server/seed/index.ts"
   },
   "dependencies": {
-    "@auth/drizzle-adapter": "^1.11.1",
-    "@auth/express": "^0.12.1",
     "@aws-sdk/client-s3": "^3.693.0",
     "@aws-sdk/s3-request-presigner": "^3.693.0",
     "@better-auth/drizzle-adapter": "1.5.0-beta.9",
@@ -64,7 +62,7 @@
     "archiver": "^7.0.1",
     "arctic": "^3.7.0",
     "axios": "^1.12.0",
-    "better-auth": "^1.4.17",
+    "better-auth": "1.5.0-beta.9",
     "boring-avatars": "^2.0.4",
     "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.1",
