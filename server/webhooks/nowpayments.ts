@@ -119,7 +119,12 @@ router.post("/nowpayments", async (req: Request, res: Response) => {
       orderId: payload.order_id,
     });
 
-    // Verify signature - SECURITY: Fail hard in production if no secret
+    // Verify signature - SECURITY: Always verify signature in production
+    if (process.env.NODE_ENV === "production" && !signature) {
+      console.error("[NOWPayments IPN] Missing signature in production");
+      return res.status(401).json({ error: "Missing signature" });
+    }
+
     if (
       signature &&
       !nowpayments.verifyIPNSignature(
