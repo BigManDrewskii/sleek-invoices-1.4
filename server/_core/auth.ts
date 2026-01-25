@@ -24,6 +24,7 @@ export async function createAuthConfig(): Promise<ExpressAuthConfig> {
   }
 
   return {
+    basePath: "/api/auth", // Required: Express middleware is mounted at /api/auth/*
     adapter: DrizzleAdapter(db, {
       usersTable: users,
       accountsTable: accounts,
@@ -45,9 +46,9 @@ export async function createAuthConfig(): Promise<ExpressAuthConfig> {
     ],
     secret: process.env.AUTH_SECRET,
     trustHost: true, // Critical for Vercel/serverless environments
-    // Note: basePath is NOT set here because Express already handles the /api/auth/* prefix
-    // When using app.use("/api/auth/*", ExpressAuth(authConfig)), Express strips the prefix
-    // and @auth/express receives root-level paths like /signin, /callback/google, etc.
+    // Note: basePath tells Auth.js what prefix it's mounted at so it generates correct callback URLs
+    // The middleware is registered at app.use("/api/auth/*", ExpressAuth(config))
+    // Without basePath, Auth.js defaults to "/auth" for Express, causing callback URL mismatches
     session: {
       strategy: "database", // CHANGED from "jwt" to "database" for persistent sessions
       maxAge: 365 * 24 * 60 * 60, // 1 year
