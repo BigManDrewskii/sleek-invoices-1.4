@@ -9,8 +9,7 @@ export async function registerAuthRoutes(app: Express) {
   // Await async auth config (database connection required)
   const authConfig = await createAuthConfig();
 
-  // Register @auth/express middleware with prefix
-  // The prefix option tells Auth.js what base path to use for generating URLs
+  // Register @auth/express middleware
   // This handles ALL auth endpoints automatically:
   // - /api/auth/signin
   // - /api/auth/callback/:provider
@@ -18,5 +17,5 @@ export async function registerAuthRoutes(app: Express) {
   // - /api/auth/session
   // - /api/auth/providers
   // - /api/auth/csrf-token
-  app.use("/api/auth", ExpressAuth({ ...authConfig, prefix: "/api/auth" }));
+  app.use("/api/auth/*", ExpressAuth(authConfig));
 }
