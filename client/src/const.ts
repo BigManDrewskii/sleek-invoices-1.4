@@ -21,8 +21,8 @@ export const getLoginUrl = (provider?: "google" | "github") => {
     return "/"; // Auth bypassed anyway
   }
 
-  // Auth.js sign-in endpoint
-  const baseUrl = "/api/auth/signin";
+  // Better Auth sign-in endpoint
+  const baseUrl = "/api/auth/sign-in";
   const url = new URL(baseUrl, window.location.origin);
 
   if (provider) {
@@ -40,5 +40,5 @@ export const getSignUpUrl = (provider?: "google" | "github") => {
 };
 
 export const getLogoutUrl = () => {
-  return "/api/auth/signout?callbackUrl=/";
+  return "/api/auth/sign-out?callbackUrl=/";
 };

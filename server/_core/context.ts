@@ -44,9 +44,10 @@ export async function createContext(
 
   // Auth.js session validation
   try {
-    const protocol = opts.req.headers["x-forwarded-proto"] as string || "http";
+    const protocol =
+      (opts.req.headers["x-forwarded-proto"] as string) || "http";
     const host = opts.req.headers.host || "localhost:3000";
-    const sessionUrl = `${protocol}://${host}/api/auth/session`;
+    const sessionUrl = `${protocol}://${host}/api/auth/get-session`;
 
     const sessionResponse = await fetch(sessionUrl, {
       headers: opts.req.headers as HeadersInit,
@@ -60,7 +61,7 @@ export async function createContext(
       if (sessionData?.user?.id) {
         const userId = parseInt(sessionData.user.id);
         const { getUserById } = await import("../db");
-        user = await getUserById(userId) || null;
+        user = (await getUserById(userId)) || null;
       }
     }
   } catch (error) {

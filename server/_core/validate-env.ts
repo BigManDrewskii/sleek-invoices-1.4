@@ -6,13 +6,9 @@
  */
 
 export function validateRequiredEnvVars(): void {
-  const required = [
-    "DATABASE_URL",
-    "JWT_SECRET",
-    "AUTH_SECRET",
-  ];
+  const required = ["DATABASE_URL", "AUTH_SECRET"];
 
-  const missing = required.filter((key) => !process.env[key]);
+  const missing = required.filter(key => !process.env[key]);
 
   if (missing.length > 0) {
     throw new Error(
@@ -25,7 +21,7 @@ export function validateRequiredEnvVars(): void {
   // Warn about optional but recommended vars
   const recommended = ["AUTH_GOOGLE_ID", "AUTH_GITHUB_ID"];
 
-  const missingRecommended = recommended.filter((key) => !process.env[key]);
+  const missingRecommended = recommended.filter(key => !process.env[key]);
   if (missingRecommended.length > 0) {
     console.warn(
       `[Init] Warning: Missing recommended environment variables: ${missingRecommended.join(", ")}`

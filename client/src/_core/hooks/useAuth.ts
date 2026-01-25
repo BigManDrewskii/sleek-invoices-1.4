@@ -11,7 +11,7 @@ type UseAuthOptions = {
 export function useAuth(options?: UseAuthOptions) {
   const {
     redirectOnUnauthenticated = false,
-    redirectPath = "/api/auth/signin/google?callbackUrl=/dashboard",
+    redirectPath = "/api/auth/sign-in/google?callbackUrl=/dashboard",
   } = options ?? {};
   const utils = trpc.useUtils();
 
@@ -22,8 +22,8 @@ export function useAuth(options?: UseAuthOptions) {
 
   const logout = useCallback(async () => {
     try {
-      // Call Auth.js sign-out endpoint directly
-      const response = await fetch("/api/auth/signout", {
+      // Call Better Auth sign-out endpoint
+      const response = await fetch("/api/auth/sign-out", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

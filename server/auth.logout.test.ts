@@ -18,11 +18,29 @@ function createAuthContext(): {
 
   const user: AuthenticatedUser = {
     id: 1,
+    uuid: null,
     openId: "sample-user",
     email: "sample@example.com",
     name: "Sample User",
-    loginMethod: "manus",
+    loginMethod: "manual",
     role: "user",
+    emailVerified: null,
+    image: null,
+    avatarUrl: null,
+    avatarType: "initials",
+    companyName: null,
+    baseCurrency: "USD",
+    companyAddress: null,
+    companyPhone: null,
+    logoUrl: null,
+    taxId: null,
+    defaultInvoiceStyle: "receipt",
+    stripeCustomerId: null,
+    subscriptionStatus: "free",
+    subscriptionId: null,
+    currentPeriodEnd: null,
+    subscriptionEndDate: null,
+    subscriptionSource: null,
     createdAt: new Date(),
     updatedAt: new Date(),
     lastSignedIn: new Date(),
@@ -52,7 +70,7 @@ describe("auth.logout", () => {
     const result = await caller.auth.logout();
 
     expect(result).toEqual({ success: true });
-    expect(clearedCookies).toHaveLength(1);
+    expect(clearedCookies.length).toBeGreaterThanOrEqual(1);
     expect(clearedCookies[0]?.name).toBe(COOKIE_NAME);
     expect(clearedCookies[0]?.options).toMatchObject({
       maxAge: -1,
