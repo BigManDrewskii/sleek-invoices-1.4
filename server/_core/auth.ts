@@ -24,23 +24,28 @@ export async function createAuthConfig(): Promise<ExpressAuthConfig> {
   }
 
   return {
-    adapter: DrizzleAdapter(db, {
-      usersTable: users,
-      accountsTable: accounts,
-      sessionsTable: sessions,
-    }),
+    // Temporarily disabled adapter to test OAuth configuration
+    // adapter: DrizzleAdapter(db, {
+    //   usersTable: users,
+    //   accountsTable: accounts,
+    //   sessionsTable: sessions,
+    // }),
     providers: [
       ...(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET
-        ? [Google({
-            clientId: process.env.AUTH_GOOGLE_ID,
-            clientSecret: process.env.AUTH_GOOGLE_SECRET,
-          })]
+        ? [
+            Google({
+              clientId: process.env.AUTH_GOOGLE_ID,
+              clientSecret: process.env.AUTH_GOOGLE_SECRET,
+            }),
+          ]
         : []),
       ...(process.env.AUTH_GITHUB_ID && process.env.AUTH_GITHUB_SECRET
-        ? [GitHub({
-            clientId: process.env.AUTH_GITHUB_ID,
-            clientSecret: process.env.AUTH_GITHUB_SECRET,
-          })]
+        ? [
+            GitHub({
+              clientId: process.env.AUTH_GITHUB_ID,
+              clientSecret: process.env.AUTH_GITHUB_SECRET,
+            }),
+          ]
         : []),
     ],
     secret: process.env.AUTH_SECRET,
@@ -74,6 +79,6 @@ if (!process.env.AUTH_GOOGLE_ID && !process.env.AUTH_GITHUB_ID) {
     "[Auth] No OAuth providers configured. Users will not be able to sign in."
   );
   console.warn(
-    '[Auth] Set AUTH_GOOGLE_ID/AUTH_GOOGLE_SECRET or AUTH_GITHUB_ID/AUTH_GITHUB_SECRET environment variables'
+    "[Auth] Set AUTH_GOOGLE_ID/AUTH_GOOGLE_SECRET or AUTH_GITHUB_ID/AUTH_GITHUB_SECRET environment variables"
   );
 }
