@@ -100,11 +100,18 @@ export function LandingNavigation() {
               // Show Login and Sign Up for unauthenticated users
               <>
                 <a
-                  href="/api/auth/signin/google?callbackUrl=/dashboard"
-                  className="h-8 rounded-[33554400px] border border-[#374d58] px-4 flex items-center justify-center gap-2 text-xs font-medium text-[#a3b1b8] hover:text-[#f1f6f9] hover:border-[#5f6fff]/50 transition-all"
+                  href={getLoginUrl("google")}
+                  className="h-8 rounded-[33554400px] border border-[#374d58] px-4 flex items-center justify-center gap-2 text-xs font-medium text-[#a3b1b8] hover:text-[#1f6f9] hover:border-[#5f6fff]/50 transition-all"
                 >
                   <LogIn className="h-3.5 w-3.5" />
                   Log In with Google
+                </a>
+                <a
+                  href={getLoginUrl("github")}
+                  className="h-8 rounded-[33554400px] bg-[#5f6fff] border border-[#5f6fff] px-4 flex items-center justify-center gap-2 text-xs font-medium text-[#1f6f9] hover:bg-[#5f6fff]/90 transition-all"
+                >
+                  <LogIn className="h-3.5 w-3.5" />
+                  Log In with GitHub
                 </a>
                 <a
                   href="/api/auth/signin/github?callbackUrl=/dashboard"
