@@ -16,6 +16,7 @@ export async function setupVite(app: Express, server: Server) {
   // Note: TailwindCSS plugin omitted - CSS is already built by Vite build step
   const vite = await createViteServer({
     configFile: false,
+    root: path.resolve(process.cwd(), "client"),
     server: serverOptions,
     appType: "custom",
     plugins: [
