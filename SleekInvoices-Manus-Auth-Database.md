@@ -57,14 +57,19 @@ The authentication system uses **Manus OAuth** as the primary authentication pro
 **Purpose**: Primary entry point for authentication
 
 **Key Logic**:
+
 ```typescript
-export async function createContext(opts: CreateExpressContextOptions): Promise<TrpcContext> {
+export async function createContext(
+  opts: CreateExpressContextOptions
+): Promise<TrpcContext> {
   let user: User | null = null;
 
   // Development bypass
   if (process.env.SKIP_AUTH === "true") {
     if (process.env.NODE_ENV === "production") {
-      throw new Error("CRITICAL SECURITY ERROR: SKIP_AUTH is enabled in production");
+      throw new Error(
+        "CRITICAL SECURITY ERROR: SKIP_AUTH is enabled in production"
+      );
     }
 
     // Auto-authenticate with dev user
@@ -104,26 +109,31 @@ export async function createContext(opts: CreateExpressContextOptions): Promise<
 **Key Methods**:
 
 #### `exchangeCodeForToken(code: string)`
+
 - Exchanges OAuth authorization code for access token
 - Server-to-server communication with Manus
 - Returns access token
 
 #### `getUserInfo(accessToken: string)`
+
 - Fetches user details from Manus API
 - Returns: `{ openId, name, email }`
 
 #### `createSessionToken(user: UserSession)`
+
 - Generates JWT using Jose library
 - Token payload: `{ openId, appId, name }`
 - Expiration: 1 year
 - Signed with `COOKIE_SECRET`
 
 #### `verifySession(token: string)`
+
 - Validates JWT signature and expiration
 - Returns decoded session object
 - Throws on invalid token
 
 #### `authenticateRequest(req: Request)`
+
 - Full authentication flow
 - Extracts session cookie
 - Verifies JWT
@@ -137,23 +147,27 @@ export async function createContext(opts: CreateExpressContextOptions): Promise<
 **Three procedure types**:
 
 #### `publicProcedure`
+
 - No authentication required
 - Used for landing page, webhooks, client portal
 - Context: `{ req, res, user: null | User }`
 
 #### `protectedProcedure`
+
 - Requires authenticated user
 - Throws UNAUTHORIZED if no user
 - Used for all business logic (invoices, clients, settings)
 - Context: `{ req, res, user: User }`
 
 #### `adminProcedure`
+
 - Requires admin role
 - Throws FORBIDDEN if not admin
 - Used for admin operations
 - Context: `{ req, res, user: User }`
 
 **Implementation**:
+
 ```typescript
 const requireUser = t.middleware(async opts => {
   const ctx = opts.ctx;
@@ -161,7 +175,7 @@ const requireUser = t.middleware(async opts => {
   if (!ctx.user) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
-      message: UNAUTHED_ERR_MSG
+      message: UNAUTHED_ERR_MSG,
     });
   }
 
@@ -183,6 +197,7 @@ export const protectedProcedure = t.procedure.use(requireUser);
 **Exempt Paths**: Webhooks, health checks
 
 **Implementation**:
+
 ```typescript
 app.use("/api/trpc", csrfProtection);
 
@@ -195,6 +210,7 @@ if (PROTECTED_METHODS.includes(req.method)) {
 ```
 
 **Why This Works**:
+
 - Cross-origin requests cannot set custom headers without CORS
 - Browsers enforce same-origin policy for custom headers
 - Webhooks exempt (they verify request signatures instead)
@@ -205,13 +221,14 @@ if (PROTECTED_METHODS.includes(req.method)) {
 
 **Three tiers of protection**:
 
-| Tier | Limit | Use Case |
-|------|-------|----------|
-| **Strict** | 10 req/min | OAuth, payments |
-| **Standard** | 100 req/15min | General API |
-| **Lenient** | 200 req/15min | Read-only operations |
+| Tier         | Limit         | Use Case             |
+| ------------ | ------------- | -------------------- |
+| **Strict**   | 10 req/min    | OAuth, payments      |
+| **Standard** | 100 req/15min | General API          |
+| **Lenient**  | 200 req/15min | Read-only operations |
 
 **Implementation**:
+
 ```typescript
 app.use("/api/trpc", standardRateLimit);
 app.use("/api/stripe/webhook", strictRateLimit);
@@ -225,6 +242,7 @@ app.use("/api/oauth", strictRateLimit);
 ### 3. Cookie Security (`server/_core/cookies.ts`)
 
 **Cookie Configuration**:
+
 ```typescript
 {
   name: "app_session_id",
@@ -240,6 +258,7 @@ app.use("/api/oauth", strictRateLimit);
 ```
 
 **Security Properties**:
+
 - **HTTP-only**: Cannot be accessed via `document.cookie`
 - **Secure**: Only transmitted over HTTPS
 - **SameSite=none**: Required for cross-origin OAuth
@@ -250,6 +269,7 @@ app.use("/api/oauth", strictRateLimit);
 ### 4. Security Headers
 
 **Request Flow**:
+
 ```
 1. Request → CSRF protection check
 2. Request → Rate limiting
@@ -260,6 +280,7 @@ app.use("/api/oauth", strictRateLimit);
 ```
 
 **Additional Measures**:
+
 - Input validation with Zod schemas
 - SQL injection protection via Drizzle ORM
 - XSS protection via React escaping
@@ -274,20 +295,23 @@ app.use("/api/oauth", strictRateLimit);
 **Purpose**: Provides authentication state and utilities
 
 **Usage**:
+
 ```typescript
 const { user, loading, isAuthenticated, logout } = useAuth({
   redirectOnUnauthenticated: true,
-  redirectPath: getLoginUrl()
+  redirectPath: getLoginUrl(),
 });
 ```
 
 **Features**:
+
 - **Queries**: `trpc.auth.me` for user info
 - **Mutations**: `trpc.auth.logout` for logout
 - **Redirect Logic**: Auto-redirects to login when unauthenticated
 - **Dev Mode**: No redirect in local development
 
 **Implementation**:
+
 ```typescript
 const { data: user, isLoading } = trpc.auth.me.useQuery();
 const logoutMutation = trpc.auth.logout.useMutation();
@@ -308,6 +332,7 @@ useEffect(() => {
 ### JWT Token Structure
 
 **Payload**:
+
 ```typescript
 {
   openId: string,      // Manus user ID
@@ -317,6 +342,7 @@ useEffect(() => {
 ```
 
 **Claims**:
+
 - **iss**: Issuer (application)
 - **sub**: Subject (user openId)
 - **exp**: Expiration (1 year)
@@ -329,16 +355,19 @@ useEffect(() => {
 ### User Synchronization
 
 **On First Login**:
+
 1. User fetched from Manus
 2. Record created in local database
 3. All fields populated (openId, email, name, loginMethod)
 
 **On Subsequent Logins**:
+
 1. JWT verified
 2. User fetched from local database
 3. `lastSignedIn` timestamp updated
 
 **Auto-Sync**:
+
 - If user missing from local DB, fetch from Manus
 - Ensures consistency between OAuth and local DB
 
@@ -376,6 +405,7 @@ export const clientsRouter = router({
 ```
 
 **Key Points**:
+
 - `protectedProcedure` guarantees `ctx.user` exists
 - `publicProcedure` allows anonymous access
 - Type-safe access to user context
@@ -387,6 +417,7 @@ export const clientsRouter = router({
 ### Required Environment Variables
 
 **Authentication**:
+
 ```
 OAUTH_SERVER_URL=https://oauth.manus.com
 APP_ID=sleek-invoices
@@ -394,12 +425,14 @@ COOKIE_SECRET=your-secret-key
 ```
 
 **Development Bypass**:
+
 ```
 SKIP_AUTH=true
 NODE_ENV=development
 ```
 
 **Security Note**:
+
 - `SKIP_AUTH=true` throws error in production
 - Critical security block in context creation
 
@@ -409,23 +442,25 @@ NODE_ENV=development
 
 ### Authentication Errors
 
-| Error | Code | Description |
-|-------|------|-------------|
-| **UNAUTHORIZED** | 401 | Missing/invalid session |
-| **FORBIDDEN** | 403 | Admin access required |
-| **INTERNAL_ERROR** | 500 | Authentication service down |
+| Error              | Code | Description                 |
+| ------------------ | ---- | --------------------------- |
+| **UNAUTHORIZED**   | 401  | Missing/invalid session     |
+| **FORBIDDEN**      | 403  | Admin access required       |
+| **INTERNAL_ERROR** | 500  | Authentication service down |
 
 ### Error Messages
 
 **Standard Error**:
+
 ```typescript
 throw new TRPCError({
   code: "UNAUTHORIZED",
-  message: "You must be logged in to access this resource"
+  message: "You must be logged in to access this resource",
 });
 ```
 
 **Custom Messages**:
+
 - "You must be logged in to access this resource"
 - "Admin access required"
 - "Invalid or expired session"
@@ -455,6 +490,7 @@ The database layer uses **Drizzle ORM** with **MySQL (TiDB compatible)**. It fol
 **Purpose**: Manages database connection pool with lazy initialization
 
 **Implementation**:
+
 ```typescript
 let _db: ReturnType<typeof drizzle> | null = null;
 let _pool: mysql.Pool | null = null;
@@ -470,10 +506,10 @@ export async function getDb() {
       user: url.username,
       password: url.password,
       database: url.pathname.slice(1),
-      multipleStatements: false,      // Security: prevent SQL injection
-      supportBigNumbers: true,        // Handle DECIMAL type
+      multipleStatements: false, // Security: prevent SQL injection
+      supportBigNumbers: true, // Handle DECIMAL type
       bigNumberStrings: false,
-      ssl: { rejectUnauthorized: true } // Production SSL
+      ssl: { rejectUnauthorized: true }, // Production SSL
     };
 
     // Create connection pool
@@ -488,6 +524,7 @@ export async function getDb() {
 ```
 
 **Key Features**:
+
 - **Lazy initialization**: Connection created on first use
 - **Connection pooling**: Automatic via mysql2
 - **Singleton pattern**: Single connection pool for application lifetime
@@ -495,6 +532,7 @@ export async function getDb() {
 - **SSL enabled**: Secure connections in production
 
 **Configuration**:
+
 ```
 DATABASE_URL=mysql://user:password@localhost:3306/sleekinvoices_dev
 ```
@@ -510,6 +548,7 @@ DATABASE_URL=mysql://user:password@localhost:3306/sleekinvoices_dev
 **Core Tables**:
 
 #### User Management (5 tables)
+
 ```typescript
 // Core user table
 export const users = mysqlTable("users", {
@@ -523,7 +562,12 @@ export const users = mysqlTable("users", {
   companyName: text("companyName"),
   baseCurrency: varchar("baseCurrency", { length: 3 }).default("USD"),
   logoUrl: text("logoUrl"),
-  subscriptionStatus: mysqlEnum("subscriptionStatus", ["free", "active", "canceled", "past_due"]),
+  subscriptionStatus: mysqlEnum("subscriptionStatus", [
+    "free",
+    "active",
+    "canceled",
+    "past_due",
+  ]),
   stripeCustomerId: varchar("stripeCustomerId", { length: 255 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -548,6 +592,7 @@ export const aiCredits = mysqlTable("aiCredits", {
 ```
 
 #### Business Entities (10 tables)
+
 ```typescript
 // Clients
 export const clients = mysqlTable("clients", {
@@ -566,7 +611,14 @@ export const invoices = mysqlTable("invoices", {
   userId: int("userId").notNull(),
   clientId: int("clientId").notNull(),
   invoiceNumber: varchar("invoiceNumber", { length: 50 }).notNull(),
-  status: mysqlEnum("status", ["draft", "sent", "viewed", "paid", "overdue", "void"]),
+  status: mysqlEnum("status", [
+    "draft",
+    "sent",
+    "viewed",
+    "paid",
+    "overdue",
+    "void",
+  ]),
   subtotal: decimal("subtotal", { precision: 24, scale: 8 }),
   tax: decimal("tax", { precision: 24, scale: 8 }),
   total: decimal("total", { precision: 24, scale: 8 }),
@@ -590,6 +642,7 @@ export const invoiceLineItems = mysqlTable("invoiceLineItems", {
 ```
 
 #### Financial Precision
+
 - **All money fields**: `DECIMAL(24,8)`
 - **Reasoning**:
   - Crypto currencies: Up to 18 decimals (ETH)
@@ -608,6 +661,7 @@ export const invoiceLineItems = mysqlTable("invoiceLineItems", {
 ### Domain-Driven Module Structure
 
 **22 domain-specific modules**:
+
 ```
 server/db/
 ├── connection.ts          # Connection singleton
@@ -640,6 +694,7 @@ server/db/
 ### Standard Query Pattern
 
 **CRUD Operations**:
+
 ```typescript
 export async function createClient(client: InsertClient): Promise<Client> {
   const db = await getDb();
@@ -670,14 +725,14 @@ export async function getClientsByUserId(userId: number): Promise<Client[]> {
     .orderBy(desc(clients.createdAt));
 }
 
-export async function updateClient(id: number, updates: Partial<InsertClient>): Promise<Client> {
+export async function updateClient(
+  id: number,
+  updates: Partial<InsertClient>
+): Promise<Client> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  await db
-    .update(clients)
-    .set(updates)
-    .where(eq(clients.id, id));
+  await db.update(clients).set(updates).where(eq(clients.id, id));
 
   return getClientById(id);
 }
@@ -686,9 +741,7 @@ export async function deleteClient(id: number): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  await db
-    .delete(clients)
-    .where(eq(clients.id, id));
+  await db.delete(clients).where(eq(clients.id, id));
 }
 ```
 
@@ -697,6 +750,7 @@ export async function deleteClient(id: number): Promise<void> {
 ### Advanced Query Pattern (with Joins)
 
 **Invoice List with Payments**:
+
 ```typescript
 export async function getInvoicesByUserId(userId: number) {
   const db = await getDb();
@@ -730,9 +784,17 @@ export async function getInvoicesByUserId(userId: number) {
     .from(invoices)
     .innerJoin(clients, eq(invoices.clientId, clients.id))
     .leftJoin(payments, eq(payments.invoiceId, invoices.id))
-    .leftJoin(quickbooksInvoiceMapping, eq(invoices.id, quickbooksInvoiceMapping.invoiceId))
+    .leftJoin(
+      quickbooksInvoiceMapping,
+      eq(invoices.id, quickbooksInvoiceMapping.invoiceId)
+    )
     .where(eq(invoices.userId, userId))
-    .groupBy(invoices.id, clients.name, clients.email, quickbooksInvoiceMapping.qbInvoiceId)
+    .groupBy(
+      invoices.id,
+      clients.name,
+      clients.email,
+      quickbooksInvoiceMapping.qbInvoiceId
+    )
     .orderBy(desc(invoices.createdAt));
 
   return results;
@@ -740,6 +802,7 @@ export async function getInvoicesByUserId(userId: number) {
 ```
 
 **Key Features**:
+
 - **Multiple joins**: Clients, payments, QuickBooks mapping
 - **Aggregations**: SUM of completed payments
 - **Type-safe**: All fields typed correctly
@@ -750,8 +813,12 @@ export async function getInvoicesByUserId(userId: number) {
 ### Business Logic Queries
 
 **Usage Limit Check**:
+
 ```typescript
-export async function canUserCreateInvoice(userId: number, subscriptionStatus: string): Promise<boolean> {
+export async function canUserCreateInvoice(
+  userId: number,
+  subscriptionStatus: string
+): Promise<boolean> {
   const db = await getDb();
   if (!db) return false;
 
@@ -781,8 +848,12 @@ export async function canUserCreateInvoice(userId: number, subscriptionStatus: s
 ```
 
 **AI Credit Management**:
+
 ```typescript
-export async function decrementAICredits(userId: number, creditsUsed: number): Promise<boolean> {
+export async function decrementAICredits(
+  userId: number,
+  creditsUsed: number
+): Promise<boolean> {
   const db = await getDb();
   if (!db) return false;
 
@@ -792,12 +863,7 @@ export async function decrementAICredits(userId: number, creditsUsed: number): P
   const creditRecord = await db
     .select()
     .from(aiCredits)
-    .where(
-      and(
-        eq(aiCredits.userId, userId),
-        eq(aiCredits.month, currentMonth)
-      )
-    )
+    .where(and(eq(aiCredits.userId, userId), eq(aiCredits.month, currentMonth)))
     .limit(1);
 
   if (!creditRecord[0]) return false;
@@ -820,7 +886,7 @@ export async function decrementAICredits(userId: number, creditsUsed: number): P
     userId,
     month: currentMonth,
     creditsUsed,
-    timestamp: new Date()
+    timestamp: new Date(),
   });
 
   return true;
@@ -834,6 +900,7 @@ export async function decrementAICredits(userId: number, creditsUsed: number): P
 ### Drizzle Type Inference
 
 **Schema Types**:
+
 ```typescript
 // Infer from schema
 export type User = typeof users.$inferSelect;
@@ -847,6 +914,7 @@ export type InsertInvoice = typeof invoices.$inferInsert;
 ```
 
 **Usage in Functions**:
+
 ```typescript
 export async function createClient(client: InsertClient): Promise<Client> {
   // Fully type-safe - all fields validated
@@ -857,6 +925,7 @@ export async function createClient(client: InsertClient): Promise<Client> {
 ```
 
 **Benefits**:
+
 - **Compile-time validation**: TypeScript checks all queries
 - **Autocompletion**: IDE suggests all available fields
 - **Refactoring safety**: Changing schema updates all types
@@ -869,6 +938,7 @@ export async function createClient(client: InsertClient): Promise<Client> {
 ### Migration Workflow
 
 **Database Commands**:
+
 ```bash
 # Generate and run migrations
 pnpm db:push
@@ -889,6 +959,7 @@ pnpm db:reset
 ### Migration Structure
 
 **Organization**:
+
 ```
 drizzle/
 ├── schema.ts              # All table definitions
@@ -907,6 +978,7 @@ drizzle/
 ### Recent Migration Examples
 
 **AI Credit System** (0013_ai_credits.sql):
+
 ```sql
 CREATE TABLE IF NOT EXISTS aiCredits (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -937,6 +1009,7 @@ CREATE TABLE IF NOT EXISTS aiUsageLogs (
 ```
 
 **Key Features**:
+
 - **Foreign key constraints**: Proper referential integrity
 - **Indexes**: Optimized for common queries
 - **Cascade deletes**: Clean data cleanup
@@ -949,19 +1022,21 @@ CREATE TABLE IF NOT EXISTS aiUsageLogs (
 ### Connection Pooling
 
 **Automatic via mysql2**:
+
 ```typescript
 const pool = mysql.createPool({
   host: "localhost",
   user: "root",
   password: "password",
   database: "sleekinvoices",
-  connectionLimit: 10,        // Max concurrent connections
-  queueLimit: 0,              // Unlimited queue
-  waitForConnections: true    // Wait for available connection
+  connectionLimit: 10, // Max concurrent connections
+  queueLimit: 0, // Unlimited queue
+  waitForConnections: true, // Wait for available connection
 });
 ```
 
 **Benefits**:
+
 - Reuses connections instead of creating new ones
 - Limits database load
 - Improves query performance
@@ -972,6 +1047,7 @@ const pool = mysql.createPool({
 ### Query Optimization
 
 **Indexing Strategy**:
+
 ```sql
 -- Foreign key indexes (automatic)
 CREATE INDEX idx_invoices_userId ON invoices(userId);
@@ -986,6 +1062,7 @@ CREATE UNIQUE INDEX idx_invoice_number ON invoices(userId, invoiceNumber);
 ```
 
 **Query Patterns**:
+
 - Use `select()` with specific fields (not `select(*)`)
 - Apply `where()` clauses before joins
 - Use `limit()` for single-record queries
@@ -1009,15 +1086,18 @@ const quantity = new Decimal("2");
 const unitPrice = new Decimal("5.00");
 const taxRate = new Decimal("0.10");
 
-const subtotal = quantity.times(unitPrice);              // 10.00
-const tax = subtotal.times(taxRate);                     // 1.00
-const total = subtotal.plus(tax);                        // 11.00
-const rounded = total.toDecimalPlaces(2);                // 11.00
+const subtotal = quantity.times(unitPrice); // 10.00
+const tax = subtotal.times(taxRate); // 1.00
+const total = subtotal.plus(tax); // 11.00
+const rounded = total.toDecimalPlaces(2); // 11.00
 ```
 
 **Usage in Database Layer**:
+
 ```typescript
-export async function calculateInvoiceTotal(lineItems: InsertInvoiceLineItem[]) {
+export async function calculateInvoiceTotal(
+  lineItems: InsertInvoiceLineItem[]
+) {
   let total = new Decimal(0);
 
   for (const item of lineItems) {
@@ -1043,15 +1123,18 @@ export async function calculateInvoiceTotal(lineItems: InsertInvoiceLineItem[]) 
 ### tRPC Router Usage
 
 **Router Definition**:
+
 ```typescript
 export const invoicesRouter = router({
   // Create invoice
   create: protectedProcedure
-    .input(z.object({
-      clientId: z.number(),
-      lineItems: z.array(lineItemSchema),
-      dueDate: z.string().optional()
-    }))
+    .input(
+      z.object({
+        clientId: z.number(),
+        lineItems: z.array(lineItemSchema),
+        dueDate: z.string().optional(),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       // Business logic in db layer
       return db.createInvoice(input, ctx.user.id);
@@ -1059,9 +1142,11 @@ export const invoicesRouter = router({
 
   // List invoices
   list: protectedProcedure
-    .input(z.object({
-      status: z.enum(["draft", "sent", "paid", "overdue"]).optional()
-    }))
+    .input(
+      z.object({
+        status: z.enum(["draft", "sent", "paid", "overdue"]).optional(),
+      })
+    )
     .query(async ({ ctx, input }) => {
       return db.getInvoicesByUserId(ctx.user.id, input.status);
     }),
@@ -1074,15 +1159,16 @@ export const invoicesRouter = router({
       if (!invoice) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: "Invoice not found"
+          message: "Invoice not found",
         });
       }
       return invoice;
-    })
+    }),
 });
 ```
 
 **Key Principles**:
+
 - **Validation**: Zod schemas validate input
 - **Authorization**: `protectedProcedure` guarantees user
 - **Business logic**: Delegated to db layer
@@ -1100,6 +1186,7 @@ Request → tRPC Router → Validation → Database Layer → Response
 ```
 
 **Benefits**:
+
 - Clean architecture boundaries
 - Easy to test business logic
 - Swappable database layer
@@ -1110,12 +1197,14 @@ Request → tRPC Router → Validation → Database Layer → Response
 ### 2. Type Safety
 
 **End-to-end type safety**:
+
 ```
 Schema → Types → Functions → tRPC → Frontend
  (Drizzle)  (TypeScript)  (db.ts)   (routers)
 ```
 
 **Benefits**:
+
 - Compile-time error detection
 - No runtime type mismatches
 - Excellent IDE support
@@ -1126,16 +1215,19 @@ Schema → Types → Functions → tRPC → Frontend
 ### 3. Scalability
 
 **Connection Pooling**:
+
 - Handles concurrent requests efficiently
 - Prevents connection exhaustion
 - Automatic connection reuse
 
 **Query Optimization**:
+
 - Proper indexes on foreign keys
 - Efficient join patterns
 - Aggregate functions in SQL
 
 **Caching Ready**:
+
 - Clear query boundaries
 - Immutable data structures
 - Easy to add caching layer
@@ -1145,16 +1237,19 @@ Schema → Types → Functions → tRPC → Frontend
 ### 4. Maintainability
 
 **Domain-Driven Organization**:
+
 - 22 domain-specific modules
 - Clear module boundaries
 - Easy to locate functionality
 
 **Consistent Patterns**:
+
 - All queries follow same pattern
 - Standard CRUD operations
 - Predictable function signatures
 
 **Comprehensive Testing**:
+
 - Isolated business logic
 - Easy to mock database
 - Testable without full stack
@@ -1164,6 +1259,7 @@ Schema → Types → Functions → tRPC → Frontend
 ### 5. Compliance & Audit
 
 **Audit Logging**:
+
 ```typescript
 export async function logAuditEvent(
   userId: number,
@@ -1181,12 +1277,13 @@ export async function logAuditEvent(
     details: JSON.stringify(details),
     timestamp: new Date(),
     ipAddress: "", // Captured from request
-    userAgent: "" // Captured from request
+    userAgent: "", // Captured from request
   });
 }
 ```
 
 **Usage Tracking**:
+
 - Free tier limits enforced
 - AI credit consumption tracked
 - Email delivery logged
@@ -1199,11 +1296,13 @@ export async function logAuditEvent(
 ## Authentication System
 
 ✅ **Production-Ready**:
+
 - Manus OAuth with secure JWT sessions
 - Comprehensive security (CSRF, rate limiting, secure cookies)
 - Development bypass (SKIP_AUTH) with production safety block
 
 ✅ **Security Layers**:
+
 - CSRF protection via custom headers
 - Rate limiting (3 tiers)
 - HTTP-only, secure cookies
@@ -1211,6 +1310,7 @@ export async function logAuditEvent(
 - Webhook signature verification
 
 ✅ **Developer Experience**:
+
 - Simple `useAuth()` hook
 - Type-safe user context
 - Clear public vs protected procedures
@@ -1221,24 +1321,28 @@ export async function logAuditEvent(
 ## Database Layer
 
 ✅ **Architecture**:
+
 - Clean separation: API → Database layer
 - All queries in `/server/db/` modules
 - Type-safe with Drizzle ORM
 - Connection pooling for scalability
 
 ✅ **Schema Design**:
+
 - 43 tables organized by domain
 - DECIMAL(24,8) for financial precision
 - Proper foreign keys and indexes
 - Audit logging for compliance
 
 ✅ **Performance**:
+
 - Optimized queries with joins
 - Connection pooling
 - Proper indexing strategy
 - Efficient aggregations
 
 ✅ **Developer Experience**:
+
 - Type inference from schema
 - Consistent query patterns
 - Domain-driven module organization
@@ -1249,6 +1353,7 @@ export async function logAuditEvent(
 ## Critical Files Reference
 
 **Authentication**:
+
 - `server/_core/context.ts` - Context creation (auth entry point)
 - `server/_core/sdk.ts` - OAuth & JWT operations
 - `server/_core/trpc.ts` - Protected/public procedures
@@ -1257,6 +1362,7 @@ export async function logAuditEvent(
 - `client/src/_core/hooks/useAuth.ts` - Frontend auth hook
 
 **Database**:
+
 - `drizzle/schema.ts` - All 43 table definitions
 - `server/db/connection.ts` - Connection singleton
 - `server/db/users.ts` - User management
@@ -1265,6 +1371,7 @@ export async function logAuditEvent(
 - `server/db/analytics.ts` - Business intelligence
 
 **Environment Configuration**:
+
 - `.env.local.example` - All environment variables
 - `DATABASE_URL` - MySQL connection string
 - `SKIP_AUTH` - Development bypass

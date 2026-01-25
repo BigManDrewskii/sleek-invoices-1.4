@@ -9,10 +9,10 @@ async function getApp() {
   if (!appInstance) {
     try {
       // Dynamic import to catch module loading errors
-      const { createApp } = await import('../dist/_server/index.js');
+      const { createApp } = await import("../dist/_server/index.js");
       appInstance = await createApp();
     } catch (error) {
-      console.error('[Vercel] Failed to initialize app:', error);
+      console.error("[Vercel] Failed to initialize app:", error);
       throw error;
     }
   }
@@ -29,19 +29,19 @@ export default async function handler(req, res) {
       try {
         app(req, res);
         // Express doesn't return a promise, so we listen for the response to finish
-        res.on('finish', () => resolve());
-        res.on('error', (err) => reject(err));
+        res.on("finish", () => resolve());
+        res.on("error", err => reject(err));
       } catch (err) {
         reject(err);
       }
     });
   } catch (error) {
-    console.error('[Vercel] Handler error:', error);
+    console.error("[Vercel] Handler error:", error);
     if (!res.headersSent) {
       res.status(500).json({
-        error: 'Internal server error',
+        error: "Internal server error",
         message: error.message,
-        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
       });
     }
   }

@@ -1,4 +1,5 @@
 # Migration Command Reference
+
 ## Copy-Paste Commands for Manus → Vercel Migration
 
 **Save this file for quick reference during migration.**
@@ -87,6 +88,7 @@ openssl rand -base64 32  # CRON_SECRET
 ```
 
 **Manual Steps**:
+
 1. Go to https://console.cloud.google.com/apis/credentials
 2. Create OAuth 2.0 Client ID
 3. Add origins: `http://localhost:5173`, `https://sleekinvoices.vercel.app`
@@ -439,11 +441,7 @@ import { defineConfig } from "vite";
 
 // Manus runtime plugin removed for Vercel deployment
 
-const plugins = [
-  react(),
-  tailwindcss(),
-  jsxLocPlugin(),
-];
+const plugins = [react(), tailwindcss(), jsxLocPlugin()];
 
 export default defineConfig({
   plugins,
@@ -464,25 +462,44 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: id => {
-          if (id.includes("node_modules/react/") || id.includes("node_modules/react-dom/")) {
+          if (
+            id.includes("node_modules/react/") ||
+            id.includes("node_modules/react-dom/")
+          ) {
             return "vendor-react";
           }
           if (id.includes("node_modules/@radix-ui/")) {
             return "vendor-radix";
           }
-          if (id.includes("node_modules/react-hook-form/") || id.includes("node_modules/@hookform/") || id.includes("node_modules/zod/")) {
+          if (
+            id.includes("node_modules/react-hook-form/") ||
+            id.includes("node_modules/@hookform/") ||
+            id.includes("node_modules/zod/")
+          ) {
             return "vendor-forms";
           }
-          if (id.includes("node_modules/streamdown/") || id.includes("node_modules/mermaid/") || id.includes("node_modules/cytoscape/") || id.includes("node_modules/shiki/") || id.includes("node_modules/@shikijs/")) {
+          if (
+            id.includes("node_modules/streamdown/") ||
+            id.includes("node_modules/mermaid/") ||
+            id.includes("node_modules/cytoscape/") ||
+            id.includes("node_modules/shiki/") ||
+            id.includes("node_modules/@shikijs/")
+          ) {
             return "vendor-ai-markdown";
           }
           if (id.includes("node_modules/date-fns/")) {
             return "vendor-date";
           }
-          if (id.includes("node_modules/@trpc/") || id.includes("node_modules/@tanstack/react-query")) {
+          if (
+            id.includes("node_modules/@trpc/") ||
+            id.includes("node_modules/@tanstack/react-query")
+          ) {
             return "vendor-data";
           }
-          if (id.includes("node_modules/@stripe/") || id.includes("node_modules/stripe/")) {
+          if (
+            id.includes("node_modules/@stripe/") ||
+            id.includes("node_modules/stripe/")
+          ) {
             return "vendor-stripe";
           }
           if (id.includes("node_modules/lucide-react/")) {
@@ -494,11 +511,7 @@ export default defineConfig({
   },
   server: {
     host: true,
-    allowedHosts: [
-      "localhost",
-      "127.0.0.1",
-      ".vercel.app",
-    ],
+    allowedHosts: ["localhost", "127.0.0.1", ".vercel.app"],
     fs: {
       strict: true,
       deny: ["**/.*"],
@@ -577,24 +590,29 @@ curl http://localhost:3000/api/auth/signin
 ## Quick Reference URLs
 
 **Vercel:**
+
 - Dashboard: https://vercel.com/dashboard
 - Docs: https://vercel.com/docs
 - Your project: https://vercel.com/[username]/sleekinvoices
 
 **PlanetScale:**
+
 - Dashboard: https://app.planetscale.com
 - Docs: https://planetscale.com/docs
 - Your database: https://app.planetscale.com/sleekinvoices
 
 **Google OAuth:**
+
 - Console: https://console.cloud.google.com/apis/credentials
 - Docs: https://developers.google.com/identity/protocols/oauth2
 
 **GitHub OAuth:**
+
 - Settings: https://github.com/settings/developers
 - Docs: https://docs.github.com/en/developers/apps/building-oauth-apps
 
 **Auth.js:**
+
 - Docs: https://authjs.dev/
 - Reference: https://authjs.dev/reference/core
 

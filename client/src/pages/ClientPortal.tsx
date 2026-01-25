@@ -71,21 +71,19 @@ export default function ClientPortal() {
     );
 
   // Create crypto payment mutation
-  const createCryptoPayment = trpc.crypto.createCryptoPayment.useMutation(
-    {
-      onSuccess: data => {
-        setPaymentUrl(data.invoiceUrl);
-        toast.success(
-          "Payment link created! Choose your preferred cryptocurrency."
-        );
-        // Refresh invoices to show the new payment URL
-        utils.clientPortal.getInvoices.invalidate({ accessToken });
-      },
-      onError: error => {
-        toast.error(error.message || "Failed to create crypto payment");
-      },
-    }
-  );
+  const createCryptoPayment = trpc.crypto.createCryptoPayment.useMutation({
+    onSuccess: data => {
+      setPaymentUrl(data.invoiceUrl);
+      toast.success(
+        "Payment link created! Choose your preferred cryptocurrency."
+      );
+      // Refresh invoices to show the new payment URL
+      utils.clientPortal.getInvoices.invalidate({ accessToken });
+    },
+    onError: error => {
+      toast.error(error.message || "Failed to create crypto payment");
+    },
+  });
 
   // Show payment status toast on mount
   useEffect(() => {

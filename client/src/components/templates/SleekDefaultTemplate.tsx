@@ -151,24 +151,53 @@ export function SleekDefaultTemplate({
       >
         <div
           className="w-[612px] min-h-[792px] p-12 shadow-lg"
-        style={{
-          fontFamily: `"${settings.bodyFont}", sans-serif`,
-          fontSize: `${settings.fontSize}px`,
-          fontWeight: 400,
-          color: textColor,
-          backgroundColor: settings.backgroundColor,
-        }}
-      >
-        {/* Header */}
-        <header
-          className={`mb-10 ${getHeaderAlignment(settings.logoPosition)}`}
+          style={{
+            fontFamily: `"${settings.bodyFont}", sans-serif`,
+            fontSize: `${settings.fontSize}px`,
+            fontWeight: 400,
+            color: textColor,
+            backgroundColor: settings.backgroundColor,
+          }}
         >
-          {settings.logoPosition === "left" ? (
-            <div className="flex justify-between items-start">
-              <Logo settings={settings} />
-              <div className="text-right">
+          {/* Header */}
+          <header
+            className={`mb-10 ${getHeaderAlignment(settings.logoPosition)}`}
+          >
+            {settings.logoPosition === "left" ? (
+              <div className="flex justify-between items-start">
+                <Logo settings={settings} />
+                <div className="text-right">
+                  <h1
+                    className="text-4xl tracking-tight mb-3"
+                    style={{
+                      fontFamily: `"${settings.headingFont}", sans-serif`,
+                      fontWeight: 600,
+                      color: settings.primaryColor,
+                    }}
+                  >
+                    INVOICE
+                  </h1>
+                  <div className="space-y-1" style={{ color: mutedTextColor }}>
+                    <p>
+                      <span
+                        className="font-medium"
+                        style={{ color: textColor }}
+                      >
+                        #{invoiceData.invoiceNumber}
+                      </span>
+                    </p>
+                    <p>{formatDate(invoiceData.date)}</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <>
+                <Logo
+                  settings={settings}
+                  centered={settings.logoPosition === "center"}
+                />
                 <h1
-                  className="text-4xl tracking-tight mb-3"
+                  className={`text-4xl tracking-tight mt-6 mb-4 ${settings.logoPosition === "center" ? "text-center" : ""}`}
                   style={{
                     fontFamily: `"${settings.headingFont}", sans-serif`,
                     fontWeight: 600,
@@ -177,298 +206,272 @@ export function SleekDefaultTemplate({
                 >
                   INVOICE
                 </h1>
-                <div className="space-y-1" style={{ color: mutedTextColor }}>
+                <div
+                  className={`flex gap-8 ${settings.logoPosition === "center" ? "justify-center" : ""}`}
+                  style={{ color: mutedTextColor }}
+                >
                   <p>
                     <span className="font-medium" style={{ color: textColor }}>
-                      #{invoiceData.invoiceNumber}
-                    </span>
+                      Invoice #:
+                    </span>{" "}
+                    {invoiceData.invoiceNumber}
                   </p>
-                  <p>{formatDate(invoiceData.date)}</p>
+                  <p>
+                    <span className="font-medium" style={{ color: textColor }}>
+                      Date:
+                    </span>{" "}
+                    {formatDate(invoiceData.date)}
+                  </p>
                 </div>
-              </div>
-            </div>
-          ) : (
-            <>
-              <Logo
-                settings={settings}
-                centered={settings.logoPosition === "center"}
-              />
-              <h1
-                className={`text-4xl tracking-tight mt-6 mb-4 ${settings.logoPosition === "center" ? "text-center" : ""}`}
+              </>
+            )}
+          </header>
+
+          {/* Divider */}
+          <div
+            className="h-px mb-8"
+            style={{ backgroundColor: `${settings.primaryColor}30` }}
+          />
+
+          {/* Parties */}
+          <div className="grid grid-cols-2 gap-8 mb-10">
+            <div>
+              <h3
+                className="text-xs uppercase tracking-wider mb-3"
                 style={{
                   fontFamily: `"${settings.headingFont}", sans-serif`,
                   fontWeight: 600,
                   color: settings.primaryColor,
                 }}
               >
-                INVOICE
-              </h1>
-              <div
-                className={`flex gap-8 ${settings.logoPosition === "center" ? "justify-center" : ""}`}
-                style={{ color: mutedTextColor }}
-              >
-                <p>
-                  <span className="font-medium" style={{ color: textColor }}>
-                    Invoice #:
-                  </span>{" "}
-                  {invoiceData.invoiceNumber}
-                </p>
-                <p>
-                  <span className="font-medium" style={{ color: textColor }}>
-                    Date:
-                  </span>{" "}
-                  {formatDate(invoiceData.date)}
-                </p>
-              </div>
-            </>
-          )}
-        </header>
-
-        {/* Divider */}
-        <div
-          className="h-px mb-8"
-          style={{ backgroundColor: `${settings.primaryColor}30` }}
-        />
-
-        {/* Parties */}
-        <div className="grid grid-cols-2 gap-8 mb-10">
-          <div>
-            <h3
-              className="text-xs uppercase tracking-wider mb-3"
-              style={{
-                fontFamily: `"${settings.headingFont}", sans-serif`,
-                fontWeight: 600,
-                color: settings.primaryColor,
-              }}
-            >
-              From
-            </h3>
-            <p className="font-semibold mb-1">{invoiceData.companyName}</p>
-            {settings.showCompanyAddress && invoiceData.companyAddress && (
-              <p
-                className="text-sm whitespace-pre-line"
-                style={{ color: mutedTextColor }}
-              >
-                {invoiceData.companyAddress}
-              </p>
-            )}
-          </div>
-          <div>
-            <h3
-              className="text-xs uppercase tracking-wider mb-3"
-              style={{
-                fontFamily: `"${settings.headingFont}", sans-serif`,
-                fontWeight: 600,
-                color: settings.primaryColor,
-              }}
-            >
-              Bill To
-            </h3>
-            <p className="font-semibold mb-1">{invoiceData.clientName}</p>
-            {invoiceData.clientAddress && (
-              <p
-                className="text-sm whitespace-pre-line"
-                style={{ color: mutedTextColor }}
-              >
-                {invoiceData.clientAddress}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Line Items Table */}
-        <div className="mb-8">
-          <table className="w-full">
-            <thead>
-              <tr
-                style={{
-                  borderBottomWidth: "2px",
-                  borderBottomColor: settings.primaryColor,
-                }}
-              >
-                <th
-                  className="text-left py-3 text-xs uppercase tracking-wider"
-                  style={{
-                    fontFamily: `"${settings.headingFont}", sans-serif`,
-                    fontWeight: 600,
-                    color: settings.primaryColor,
-                  }}
-                >
-                  Description
-                </th>
-                <th
-                  className="text-right py-3 text-xs uppercase tracking-wider w-20"
-                  style={{
-                    fontFamily: `"${settings.headingFont}", sans-serif`,
-                    fontWeight: 600,
-                    color: settings.primaryColor,
-                  }}
-                >
-                  Qty
-                </th>
-                <th
-                  className="text-right py-3 text-xs uppercase tracking-wider w-24"
-                  style={{
-                    fontFamily: `"${settings.headingFont}", sans-serif`,
-                    fontWeight: 600,
-                    color: settings.primaryColor,
-                  }}
-                >
-                  Rate
-                </th>
-                <th
-                  className="text-right py-3 text-xs uppercase tracking-wider w-28"
-                  style={{
-                    fontFamily: `"${settings.headingFont}", sans-serif`,
-                    fontWeight: 600,
-                    color: settings.primaryColor,
-                  }}
-                >
-                  Amount
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {invoiceData.lineItems.map((item, index) => (
-                <tr
-                  key={index}
-                  className={getTableRowStyle(settings.tableStyle, index)}
-                  style={{
-                    borderBottomColor: `${settings.secondaryColor}20`,
-                    backgroundColor:
-                      settings.tableStyle === "striped" && index % 2 === 1
-                        ? `${settings.primaryColor}08`
-                        : "transparent",
-                  }}
-                >
-                  <td className="py-4">{item.description}</td>
-                  <td
-                    className="text-right py-4"
-                    style={{ color: mutedTextColor }}
-                  >
-                    {item.quantity}
-                  </td>
-                  <td
-                    className="text-right py-4"
-                    style={{ color: mutedTextColor }}
-                  >
-                    {formatCurrency(item.rate)}
-                  </td>
-                  <td className="text-right py-4 font-medium">
-                    {formatCurrency(item.amount)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Totals */}
-        <div className="flex justify-end mb-10">
-          <div className="w-72 space-y-3">
-            <div
-              className="flex justify-between text-sm"
-              style={{ color: mutedTextColor }}
-            >
-              <span>Subtotal</span>
-              <span style={{ color: textColor }}>
-                {formatCurrency(invoiceData.subtotal)}
-              </span>
-            </div>
-
-            {settings.showDiscountField &&
-              invoiceData.discountAmount &&
-              invoiceData.discountAmount > 0 && (
-                <div
-                  className="flex justify-between text-sm"
-                  style={{ color: settings.accentColor }}
-                >
-                  <span>Discount ({invoiceData.discountPercent}%)</span>
-                  <span>-{formatCurrency(invoiceData.discountAmount)}</span>
-                </div>
-              )}
-
-            {settings.showTaxField &&
-              invoiceData.taxAmount &&
-              invoiceData.taxAmount > 0 && (
-                <div
-                  className="flex justify-between text-sm"
+                From
+              </h3>
+              <p className="font-semibold mb-1">{invoiceData.companyName}</p>
+              {settings.showCompanyAddress && invoiceData.companyAddress && (
+                <p
+                  className="text-sm whitespace-pre-line"
                   style={{ color: mutedTextColor }}
                 >
-                  <span>Tax ({invoiceData.taxPercent}%)</span>
-                  <span style={{ color: textColor }}>
-                    {formatCurrency(invoiceData.taxAmount)}
-                  </span>
-                </div>
+                  {invoiceData.companyAddress}
+                </p>
               )}
-
-            <div
-              className="flex justify-between pt-3 text-lg font-semibold"
-              style={{
-                borderTopWidth: "2px",
-                borderTopColor: settings.primaryColor,
-                fontFamily: `"${settings.headingFont}", sans-serif`,
-              }}
-            >
-              <span style={{ color: settings.primaryColor }}>Total</span>
-              <span style={{ color: settings.primaryColor }}>
-                {formatCurrency(invoiceData.total)}
-              </span>
+            </div>
+            <div>
+              <h3
+                className="text-xs uppercase tracking-wider mb-3"
+                style={{
+                  fontFamily: `"${settings.headingFont}", sans-serif`,
+                  fontWeight: 600,
+                  color: settings.primaryColor,
+                }}
+              >
+                Bill To
+              </h3>
+              <p className="font-semibold mb-1">{invoiceData.clientName}</p>
+              {invoiceData.clientAddress && (
+                <p
+                  className="text-sm whitespace-pre-line"
+                  style={{ color: mutedTextColor }}
+                >
+                  {invoiceData.clientAddress}
+                </p>
+              )}
             </div>
           </div>
-        </div>
 
-        {/* Payment Terms */}
-        {settings.showPaymentTerms && invoiceData.paymentTerms && (
-          <div className="mb-6">
-            <h3
-              className="text-xs uppercase tracking-wider mb-2"
+          {/* Line Items Table */}
+          <div className="mb-8">
+            <table className="w-full">
+              <thead>
+                <tr
+                  style={{
+                    borderBottomWidth: "2px",
+                    borderBottomColor: settings.primaryColor,
+                  }}
+                >
+                  <th
+                    className="text-left py-3 text-xs uppercase tracking-wider"
+                    style={{
+                      fontFamily: `"${settings.headingFont}", sans-serif`,
+                      fontWeight: 600,
+                      color: settings.primaryColor,
+                    }}
+                  >
+                    Description
+                  </th>
+                  <th
+                    className="text-right py-3 text-xs uppercase tracking-wider w-20"
+                    style={{
+                      fontFamily: `"${settings.headingFont}", sans-serif`,
+                      fontWeight: 600,
+                      color: settings.primaryColor,
+                    }}
+                  >
+                    Qty
+                  </th>
+                  <th
+                    className="text-right py-3 text-xs uppercase tracking-wider w-24"
+                    style={{
+                      fontFamily: `"${settings.headingFont}", sans-serif`,
+                      fontWeight: 600,
+                      color: settings.primaryColor,
+                    }}
+                  >
+                    Rate
+                  </th>
+                  <th
+                    className="text-right py-3 text-xs uppercase tracking-wider w-28"
+                    style={{
+                      fontFamily: `"${settings.headingFont}", sans-serif`,
+                      fontWeight: 600,
+                      color: settings.primaryColor,
+                    }}
+                  >
+                    Amount
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {invoiceData.lineItems.map((item, index) => (
+                  <tr
+                    key={index}
+                    className={getTableRowStyle(settings.tableStyle, index)}
+                    style={{
+                      borderBottomColor: `${settings.secondaryColor}20`,
+                      backgroundColor:
+                        settings.tableStyle === "striped" && index % 2 === 1
+                          ? `${settings.primaryColor}08`
+                          : "transparent",
+                    }}
+                  >
+                    <td className="py-4">{item.description}</td>
+                    <td
+                      className="text-right py-4"
+                      style={{ color: mutedTextColor }}
+                    >
+                      {item.quantity}
+                    </td>
+                    <td
+                      className="text-right py-4"
+                      style={{ color: mutedTextColor }}
+                    >
+                      {formatCurrency(item.rate)}
+                    </td>
+                    <td className="text-right py-4 font-medium">
+                      {formatCurrency(item.amount)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Totals */}
+          <div className="flex justify-end mb-10">
+            <div className="w-72 space-y-3">
+              <div
+                className="flex justify-between text-sm"
+                style={{ color: mutedTextColor }}
+              >
+                <span>Subtotal</span>
+                <span style={{ color: textColor }}>
+                  {formatCurrency(invoiceData.subtotal)}
+                </span>
+              </div>
+
+              {settings.showDiscountField &&
+                invoiceData.discountAmount &&
+                invoiceData.discountAmount > 0 && (
+                  <div
+                    className="flex justify-between text-sm"
+                    style={{ color: settings.accentColor }}
+                  >
+                    <span>Discount ({invoiceData.discountPercent}%)</span>
+                    <span>-{formatCurrency(invoiceData.discountAmount)}</span>
+                  </div>
+                )}
+
+              {settings.showTaxField &&
+                invoiceData.taxAmount &&
+                invoiceData.taxAmount > 0 && (
+                  <div
+                    className="flex justify-between text-sm"
+                    style={{ color: mutedTextColor }}
+                  >
+                    <span>Tax ({invoiceData.taxPercent}%)</span>
+                    <span style={{ color: textColor }}>
+                      {formatCurrency(invoiceData.taxAmount)}
+                    </span>
+                  </div>
+                )}
+
+              <div
+                className="flex justify-between pt-3 text-lg font-semibold"
+                style={{
+                  borderTopWidth: "2px",
+                  borderTopColor: settings.primaryColor,
+                  fontFamily: `"${settings.headingFont}", sans-serif`,
+                }}
+              >
+                <span style={{ color: settings.primaryColor }}>Total</span>
+                <span style={{ color: settings.primaryColor }}>
+                  {formatCurrency(invoiceData.total)}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Payment Terms */}
+          {settings.showPaymentTerms && invoiceData.paymentTerms && (
+            <div className="mb-6">
+              <h3
+                className="text-xs uppercase tracking-wider mb-2"
+                style={{
+                  fontFamily: `"${settings.headingFont}", sans-serif`,
+                  fontWeight: 600,
+                  color: settings.primaryColor,
+                }}
+              >
+                Payment Terms
+              </h3>
+              <p className="text-sm" style={{ color: mutedTextColor }}>
+                {invoiceData.paymentTerms}
+              </p>
+            </div>
+          )}
+
+          {/* Notes */}
+          {settings.showNotesField && invoiceData.notes && (
+            <div className="mb-6">
+              <h3
+                className="text-xs uppercase tracking-wider mb-2"
+                style={{
+                  fontFamily: `"${settings.headingFont}", sans-serif`,
+                  fontWeight: 600,
+                  color: settings.primaryColor,
+                }}
+              >
+                Notes
+              </h3>
+              <p className="text-sm" style={{ color: mutedTextColor }}>
+                {invoiceData.notes}
+              </p>
+            </div>
+          )}
+
+          {/* Footer */}
+          {settings.footerText && (
+            <footer
+              className="mt-auto pt-6 text-center text-sm"
               style={{
-                fontFamily: `"${settings.headingFont}", sans-serif`,
-                fontWeight: 600,
-                color: settings.primaryColor,
+                borderTopWidth: "1px",
+                borderTopColor: `${settings.primaryColor}20`,
+                color: mutedTextColor,
               }}
             >
-              Payment Terms
-            </h3>
-            <p className="text-sm" style={{ color: mutedTextColor }}>
-              {invoiceData.paymentTerms}
-            </p>
-          </div>
-        )}
-
-        {/* Notes */}
-        {settings.showNotesField && invoiceData.notes && (
-          <div className="mb-6">
-            <h3
-              className="text-xs uppercase tracking-wider mb-2"
-              style={{
-                fontFamily: `"${settings.headingFont}", sans-serif`,
-                fontWeight: 600,
-                color: settings.primaryColor,
-              }}
-            >
-              Notes
-            </h3>
-            <p className="text-sm" style={{ color: mutedTextColor }}>
-              {invoiceData.notes}
-            </p>
-          </div>
-        )}
-
-        {/* Footer */}
-        {settings.footerText && (
-          <footer
-            className="mt-auto pt-6 text-center text-sm"
-            style={{
-              borderTopWidth: "1px",
-              borderTopColor: `${settings.primaryColor}20`,
-              color: mutedTextColor,
-            }}
-          >
-            {settings.footerText}
-          </footer>
-        )}
+              {settings.footerText}
+            </footer>
+          )}
         </div>
       </div>
     </div>

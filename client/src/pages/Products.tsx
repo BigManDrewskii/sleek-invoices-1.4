@@ -534,117 +534,117 @@ export default function Products() {
           ) : (
             <>
               <ScrollableTableWrapper minWidth={750}>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <SortableTableHeader
-                      label="Product"
-                      sortKey="name"
-                      currentSort={sort}
-                      onSort={handleSort}
-                    />
-                    <SortableTableHeader
-                      label="Rate"
-                      sortKey="rate"
-                      currentSort={sort}
-                      onSort={handleSort}
-                    />
-                    <TableHead>Unit</TableHead>
-                    <SortableTableHeader
-                      label="Category"
-                      sortKey="category"
-                      currentSort={sort}
-                      onSort={handleSort}
-                    />
-                    <TableHead className="text-center">Used</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="w-[50px]"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {paginatedProducts.map(product => (
-                    <TableRow
-                      key={product.id}
-                      className={!product.isActive ? "opacity-50" : ""}
-                    >
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">{product.name}</div>
-                          {product.description && (
-                            <div className="text-sm text-muted-foreground line-clamp-1">
-                              {product.description}
-                            </div>
-                          )}
-                          {product.sku && (
-                            <div className="text-xs text-muted-foreground">
-                              SKU: {product.sku}
-                            </div>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <DollarSign className="h-3 w-3 text-muted-foreground" />
-                          <Currency amount={parseFloat(product.rate)} bold />
-                        </div>
-                      </TableCell>
-                      <TableCell className="capitalize">
-                        {product.unit || "unit"}
-                      </TableCell>
-                      <TableCell>
-                        {product.category ? (
-                          <Badge variant="outline">{product.category}</Badge>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {product.usageCount}
-                      </TableCell>
-                      <TableCell>
-                        {product.isActive ? (
-                          <Badge
-                            variant="default"
-                            className="bg-green-500/10 text-green-500 hover:bg-green-500/20"
-                          >
-                            Active
-                          </Badge>
-                        ) : (
-                          <Badge variant="secondary">Archived</Badge>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              aria-label="More actions for this product"
-                            >
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() => openEditDialog(product)}
-                            >
-                              <Pencil className="mr-2 h-4 w-4" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => openDeleteDialog(product)}
-                              className="text-destructive"
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Archive
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <SortableTableHeader
+                        label="Product"
+                        sortKey="name"
+                        currentSort={sort}
+                        onSort={handleSort}
+                      />
+                      <SortableTableHeader
+                        label="Rate"
+                        sortKey="rate"
+                        currentSort={sort}
+                        onSort={handleSort}
+                      />
+                      <TableHead>Unit</TableHead>
+                      <SortableTableHeader
+                        label="Category"
+                        sortKey="category"
+                        currentSort={sort}
+                        onSort={handleSort}
+                      />
+                      <TableHead className="text-center">Used</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="w-[50px]"></TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {paginatedProducts.map(product => (
+                      <TableRow
+                        key={product.id}
+                        className={!product.isActive ? "opacity-50" : ""}
+                      >
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">{product.name}</div>
+                            {product.description && (
+                              <div className="text-sm text-muted-foreground line-clamp-1">
+                                {product.description}
+                              </div>
+                            )}
+                            {product.sku && (
+                              <div className="text-xs text-muted-foreground">
+                                SKU: {product.sku}
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            <DollarSign className="h-3 w-3 text-muted-foreground" />
+                            <Currency amount={parseFloat(product.rate)} bold />
+                          </div>
+                        </TableCell>
+                        <TableCell className="capitalize">
+                          {product.unit || "unit"}
+                        </TableCell>
+                        <TableCell>
+                          {product.category ? (
+                            <Badge variant="outline">{product.category}</Badge>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {product.usageCount}
+                        </TableCell>
+                        <TableCell>
+                          {product.isActive ? (
+                            <Badge
+                              variant="default"
+                              className="bg-green-500/10 text-green-500 hover:bg-green-500/20"
+                            >
+                              Active
+                            </Badge>
+                          ) : (
+                            <Badge variant="secondary">Archived</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                aria-label="More actions for this product"
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                onClick={() => openEditDialog(product)}
+                              >
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => openDeleteDialog(product)}
+                                className="text-destructive"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Archive
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </ScrollableTableWrapper>
 
               {/* Pagination */}

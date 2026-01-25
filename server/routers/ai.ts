@@ -1,8 +1,4 @@
-import {
-  publicProcedure,
-  protectedProcedure,
-  router,
-} from "../_core/trpc";
+import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { z } from "zod";
 import * as db from "../db";
 import { extractInvoiceData } from "../ai/smartCompose";
@@ -32,8 +28,7 @@ export const aiRouter = router({
       name: pack.name,
       credits: pack.credits,
       price: pack.price / 100, // Convert to dollars
-      pricePerCredit:
-        Math.round((pack.price / pack.credits) * 100) / 100 / 100, // Price per credit in dollars
+      pricePerCredit: Math.round((pack.price / pack.credits) * 100) / 100 / 100, // Price per credit in dollars
     }));
   }),
 
@@ -45,9 +40,8 @@ export const aiRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { createCreditPurchaseCheckout, CREDIT_PACKS } = await import(
-        "../stripe"
-      );
+      const { createCreditPurchaseCheckout, CREDIT_PACKS } =
+        await import("../stripe");
 
       // Ensure user has Stripe customer ID
       let customerId = ctx.user.stripeCustomerId;

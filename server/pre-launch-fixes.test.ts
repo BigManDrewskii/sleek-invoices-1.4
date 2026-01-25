@@ -172,7 +172,10 @@ describe("Pre-Launch Fixes", () => {
     it("should check for duplicate invoice numbers in routers/invoices.ts", async () => {
       const fs = await import("fs");
       const path = await import("path");
-      const routersPath = path.join(process.cwd(), "server/routers/invoices.ts");
+      const routersPath = path.join(
+        process.cwd(),
+        "server/routers/invoices.ts"
+      );
       const content = fs.readFileSync(routersPath, "utf-8");
 
       // Check that invoice creation handles invoice numbers

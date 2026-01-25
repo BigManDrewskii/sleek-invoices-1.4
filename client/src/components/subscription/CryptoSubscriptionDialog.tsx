@@ -89,24 +89,23 @@ export function CryptoSubscriptionDialog({
       },
     });
 
-  const extendSubscription =
-    trpc.crypto.extendCryptoSubscription.useMutation({
-      onSuccess: data => {
-        setPaymentData({
-          paymentUrl: data.paymentUrl,
-          paymentId: data.paymentId,
-          cryptoAmount: data.cryptoAmount,
-          cryptoCurrency: data.cryptoCurrency,
-        });
-        setStep("payment");
-        toast.success(
-          "Payment created! Complete payment to extend your subscription."
-        );
-      },
-      onError: error => {
-        toast.error(error.message || "Failed to create extension payment");
-      },
-    });
+  const extendSubscription = trpc.crypto.extendCryptoSubscription.useMutation({
+    onSuccess: data => {
+      setPaymentData({
+        paymentUrl: data.paymentUrl,
+        paymentId: data.paymentId,
+        cryptoAmount: data.cryptoAmount,
+        cryptoCurrency: data.cryptoCurrency,
+      });
+      setStep("payment");
+      toast.success(
+        "Payment created! Complete payment to extend your subscription."
+      );
+    },
+    onError: error => {
+      toast.error(error.message || "Failed to create extension payment");
+    },
+  });
 
   const handleCreatePayment = () => {
     if (isExtension) {

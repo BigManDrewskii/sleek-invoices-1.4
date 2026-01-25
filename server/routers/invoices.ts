@@ -184,9 +184,8 @@ export const invoicesRouter = router({
       // ============================================================================
       if (input.status === "sent") {
         try {
-          const { getConnectionStatus, syncInvoiceToQB } = await import(
-            "../quickbooks"
-          );
+          const { getConnectionStatus, syncInvoiceToQB } =
+            await import("../quickbooks");
           const qbStatus = await getConnectionStatus(ctx.user.id);
           if (qbStatus.connected) {
             // Fire and forget - don't block invoice creation on QB sync
@@ -685,9 +684,8 @@ export const invoicesRouter = router({
           // Sync invoice to QuickBooks when first sent (status changes from draft)
           // ============================================================================
           try {
-            const { getConnectionStatus, syncInvoiceToQB } = await import(
-              "../quickbooks"
-            );
+            const { getConnectionStatus, syncInvoiceToQB } =
+              await import("../quickbooks");
             const qbStatus = await getConnectionStatus(ctx.user.id);
             if (qbStatus.connected) {
               // Fire and forget - don't block email sending on QB sync

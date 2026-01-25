@@ -5,6 +5,7 @@
 **Polar** is a modern payment platform positioned as a Merchant of Record (MoR) alternative to Stripe, specifically designed for SaaS, digital products, and software licensing. It offers lower fees (4% + $0.40 vs Stripe's variable rates), global tax compliance, and automated benefit delivery (license keys, file downloads, GitHub access, Discord roles).
 
 **Recommendation**: Polar is viable as a complementary payment option to Stripe, particularly for:
+
 - Subscription billing with simpler pricing models
 - Digital product sales with automated delivery
 - International customers (tax compliance handled automatically)
@@ -14,40 +15,43 @@
 
 ## Key Differences: Polar vs Stripe
 
-| Feature | Polar | Stripe |
-|---------|-------|--------|
-| **Model** | Merchant of Record (MoR) | Payment Processor |
-| **Tax Compliance** | Handles globally (VAT, GST, sales tax) | You handle compliance |
-| **Pricing** | 4% + $0.40 per transaction | 2.9% + $0.30 (varies by type) |
-| **Monthly Fees** | $0 | $0 (no monthly minimum) |
-| **Subscriptions** | ✅ Full support | ✅ Full support |
-| **Usage-Based Billing** | ✅ Metered pricing | ✅ Full support |
-| **Automated Benefits** | ✅ License keys, file downloads, GitHub, Discord | ❌ Manual implementation |
-| **License Key Generation** | ✅ Built-in | ❌ Manual implementation |
-| **File Delivery** | ✅ Up to 10GB files | ❌ Manual implementation |
-| **API Maturity** | Newer, actively developed | Mature, battle-tested |
-| **Webhook Support** | ✅ Full event system | ✅ Full event system |
-| **SDK Support** | ✅ TypeScript, Python, Go, PHP | ✅ Extensive |
-| **Customer Portal** | ✅ Built-in | ✅ Requires custom build |
-| **Refunds** | ✅ Full refunds (fees deducted) | ✅ Full refunds |
+| Feature                    | Polar                                            | Stripe                        |
+| -------------------------- | ------------------------------------------------ | ----------------------------- |
+| **Model**                  | Merchant of Record (MoR)                         | Payment Processor             |
+| **Tax Compliance**         | Handles globally (VAT, GST, sales tax)           | You handle compliance         |
+| **Pricing**                | 4% + $0.40 per transaction                       | 2.9% + $0.30 (varies by type) |
+| **Monthly Fees**           | $0                                               | $0 (no monthly minimum)       |
+| **Subscriptions**          | ✅ Full support                                  | ✅ Full support               |
+| **Usage-Based Billing**    | ✅ Metered pricing                               | ✅ Full support               |
+| **Automated Benefits**     | ✅ License keys, file downloads, GitHub, Discord | ❌ Manual implementation      |
+| **License Key Generation** | ✅ Built-in                                      | ❌ Manual implementation      |
+| **File Delivery**          | ✅ Up to 10GB files                              | ❌ Manual implementation      |
+| **API Maturity**           | Newer, actively developed                        | Mature, battle-tested         |
+| **Webhook Support**        | ✅ Full event system                             | ✅ Full event system          |
+| **SDK Support**            | ✅ TypeScript, Python, Go, PHP                   | ✅ Extensive                  |
+| **Customer Portal**        | ✅ Built-in                                      | ✅ Requires custom build      |
+| **Refunds**                | ✅ Full refunds (fees deducted)                  | ✅ Full refunds               |
 
 ---
 
 ## Polar Core Features
 
 ### 1. **Flexible Product Management**
+
 - **One-time purchases**: Digital products, courses, templates, software licenses
 - **Subscriptions**: Recurring billing with automatic renewals
 - **Flexible pricing**: Fixed price, pay-what-you-want, free with optional minimums
 - **Usage-based billing**: Metered pricing for consumption-based models
 
 ### 2. **Checkout Options**
+
 - **Checkout Links**: No-code solution, create and share instantly
 - **Embedded Checkout**: Customizable checkout on your website
 - **Checkout API**: Programmatic control for custom flows
 - **Custom Fields**: Collect additional customer data during checkout
 
 ### 3. **Automated Benefits (Entitlements)**
+
 - **License Keys**: Generate and deliver software licenses with custom formats
 - **File Downloads**: Secure delivery of digital assets (up to 10GB)
 - **GitHub Access**: Auto-invite customers to private repositories
@@ -55,18 +59,21 @@
 - **Seats**: Manage per-seat licensing for team subscriptions
 
 ### 4. **Global Merchant of Record**
+
 - **International Tax Compliance**: Handles VAT, GST, sales tax globally
 - **EU VAT**: Proper B2B reverse charge and B2C tax collection
 - **Automatic Tax Calculation**: Real-time tax rates for every transaction
 - **Compliance Reporting**: Automatic filing and documentation
 
 ### 5. **Customer Management**
+
 - **Customer Portal**: Built-in portal for customers to manage subscriptions
 - **Subscription Management**: Pause, resume, cancel, upgrade/downgrade
 - **Order History**: Track all purchases and transactions
 - **Benefit Access**: View and manage entitlements
 
 ### 6. **Analytics & Reporting**
+
 - **Revenue Metrics**: Track MRR, ARR, churn, LTV
 - **Customer Insights**: Cohort analysis, retention rates
 - **Product Performance**: Sales, conversion rates by product
@@ -77,19 +84,21 @@
 ## API Architecture
 
 ### Base URLs
+
 - **Production**: `https://api.polar.sh/v1`
 - **Sandbox**: `https://sandbox-api.polar.sh/v1`
 
 ### Authentication
+
 1. **Organization Access Tokens (OAT)**: For server-side operations (managing products, orders, subscriptions)
    - Format: `Authorization: Bearer polar_oat_xxxxxxxxxxxxxxxxx`
    - Never expose in client-side code
-   
 2. **Customer Access Tokens**: For customer-facing operations (viewing orders, subscriptions, benefits)
    - Generated via `/v1/customer-sessions/` endpoint
    - Safe for browser exposure
 
 ### Core API Endpoints
+
 - **Checkout**: Create checkout sessions, manage checkout links
 - **Customers**: Manage customer data
 - **Subscriptions**: Create, update, cancel subscriptions
@@ -102,11 +111,13 @@
 - **Webhooks**: Subscribe to events (order.created, subscription.updated, etc.)
 
 ### Rate Limits
+
 - **300 requests per minute** per organization/customer
 - **3 requests per second** for unauthenticated license key endpoints
 - Retry-After header provided on 429 responses
 
 ### SDKs Available
+
 - **TypeScript/JavaScript**: Full-featured SDK
 - **Python**: Django, Flask, FastAPI support
 - **Go**: Native Go SDK
@@ -117,6 +128,7 @@
 ## Integration Approach for SleekInvoices
 
 ### Option 1: Dual Payment Provider (Recommended)
+
 Implement both Stripe and Polar with a provider abstraction layer:
 
 ```
@@ -133,6 +145,7 @@ Implement both Stripe and Polar with a provider abstraction layer:
 ```
 
 **Benefits:**
+
 - Users choose their preferred payment method at checkout
 - Stripe for complex billing scenarios (usage-based, custom pricing)
 - Polar for simpler subscriptions and digital product sales
@@ -140,6 +153,7 @@ Implement both Stripe and Polar with a provider abstraction layer:
 - Leverage Polar's tax compliance for international customers
 
 ### Option 2: Polar for Subscriptions, Stripe for Invoices
+
 - Use Polar exclusively for subscription billing and credits
 - Keep Stripe for invoice payments and one-time charges
 - Simpler implementation, clear separation of concerns
@@ -149,14 +163,16 @@ Implement both Stripe and Polar with a provider abstraction layer:
 ## Implementation Roadmap
 
 ### Phase 1: Foundation (Week 1-2)
+
 1. **Create Payment Provider Interface**
+
    ```typescript
    interface PaymentProvider {
-     createCheckoutSession(params): Promise<CheckoutSession>
-     getSubscription(id): Promise<Subscription>
-     cancelSubscription(id): Promise<void>
-     issueRefund(orderId, amount): Promise<Refund>
-     validateWebhook(signature, payload): boolean
+     createCheckoutSession(params): Promise<CheckoutSession>;
+     getSubscription(id): Promise<Subscription>;
+     cancelSubscription(id): Promise<void>;
+     issueRefund(orderId, amount): Promise<Refund>;
+     validateWebhook(signature, payload): boolean;
    }
    ```
 
@@ -172,6 +188,7 @@ Implement both Stripe and Polar with a provider abstraction layer:
    - Create migration
 
 ### Phase 2: Checkout Integration (Week 2-3)
+
 1. **Create Polar Checkout Session**
    - Implement `/api/polar/checkout` endpoint
    - Handle product/subscription selection
@@ -188,6 +205,7 @@ Implement both Stripe and Polar with a provider abstraction layer:
    - Sync to database
 
 ### Phase 3: Subscription Management (Week 3-4)
+
 1. **Subscription Portal**
    - Display Polar subscriptions alongside Stripe
    - Support pause/resume/cancel for both providers
@@ -203,6 +221,7 @@ Implement both Stripe and Polar with a provider abstraction layer:
    - Churn analysis
 
 ### Phase 4: Testing & Optimization (Week 4-5)
+
 1. **Sandbox Testing**
    - Test all checkout flows
    - Verify webhook handling
@@ -252,6 +271,7 @@ CREATE TABLE polar_customers (
 ## Cost Analysis
 
 ### Polar Pricing
+
 - **Transaction Fee**: 4% + $0.40
 - **Monthly Fee**: $0
 - **Payout Fee**: Depends on payment method (typically 1-2%)
@@ -261,12 +281,14 @@ CREATE TABLE polar_customers (
   - **Difference**: +$1.50 per transaction
 
 ### When Polar Makes Sense
+
 - International customers (tax compliance included)
 - Digital product sales with automated delivery
 - Subscription plans under $50/month (lower relative cost)
 - Customers preferring Polar's interface
 
 ### When Stripe Makes Sense
+
 - Usage-based billing with complex calculations
 - High-volume transactions (fees add up)
 - Invoicing and payment plans
@@ -277,6 +299,7 @@ CREATE TABLE polar_customers (
 ## Risk Assessment
 
 ### Advantages
+
 ✅ Lower fees for simple subscriptions
 ✅ Global tax compliance (huge for international)
 ✅ Automated benefit delivery (license keys, downloads)
@@ -285,6 +308,7 @@ CREATE TABLE polar_customers (
 ✅ Modern, actively developed platform
 
 ### Risks
+
 ⚠️ Newer platform (less battle-tested than Stripe)
 ⚠️ Smaller ecosystem and community
 ⚠️ Limited advanced features (usage-based billing newer)
@@ -292,6 +316,7 @@ CREATE TABLE polar_customers (
 ⚠️ Support response times (smaller team)
 
 ### Mitigation
+
 - Start with Polar for new subscriptions, keep Stripe as fallback
 - Implement comprehensive webhook testing
 - Monitor Polar's changelog for breaking changes
@@ -335,6 +360,7 @@ CREATE TABLE polar_customers (
 ## Conclusion
 
 Polar is a **viable and complementary payment option** to Stripe, particularly for:
+
 - Subscription billing with simpler pricing models
 - International customers (tax compliance is a major advantage)
 - Digital product sales with automated delivery

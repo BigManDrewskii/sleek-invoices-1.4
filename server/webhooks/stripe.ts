@@ -114,9 +114,8 @@ async function handlePaymentSucceeded(event: any) {
   }
 
   // Get invoice details (without userId check since webhook doesn't have it)
-  const { invoices, payments, clients, users } = await import(
-    "../../drizzle/schema"
-  );
+  const { invoices, payments, clients, users } =
+    await import("../../drizzle/schema");
   const { getDb } = await import("../db");
   const { eq } = await import("drizzle-orm");
 

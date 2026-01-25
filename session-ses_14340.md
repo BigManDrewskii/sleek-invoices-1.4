@@ -3488,6 +3488,7 @@ const onLinkContainerClick = useCallback(() => {
 // Add your code here
 }, []);
 return (
+
 <div className={styles.navbarUi04}>
 <div className={styles.link} onClick={onLinkContainerClick}>
 <div className={styles.container}>
@@ -3650,6 +3651,7 @@ import styles from './index.module.css';
 
 const NavigationMainNavigation: NextPage = () => {
 return (
+
 <div className={styles.navigationMainNavigation}>
 <Image className={styles.linkSleekinvoicesGoToD} width={163.6} height={28} sizes="100vw" alt="" />
 <div className={styles.container}>
@@ -3896,6 +3898,7 @@ import styles from './index.module.css';
 
 const NavigationMainNavigation: NextPage = () => {
 return (
+
 <div className={styles.navigationMainNavigation}>
 <Image className={styles.linkSleekinvoicesGoToD} width={36} height={36} sizes="100vw" alt="" />
 <div className={styles.container}>
@@ -4074,6 +4077,7 @@ import styles from './index.module.css';
 
 const NavigationMainNavigation: NextPage = () => {
 return (
+
 <div className={styles.navigationMainNavigation}>
 <div className={styles.container}>
 <Image className={styles.linkSleekinvoicesGoToD} width={36} height={36} sizes="100vw" alt="" />

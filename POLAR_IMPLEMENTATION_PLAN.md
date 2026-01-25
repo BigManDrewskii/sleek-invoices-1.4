@@ -13,6 +13,7 @@ This document outlines the complete implementation plan for integrating Polar as
 **Objective**: Prepare development environment and create Polar account
 
 **Tasks**:
+
 - [ ] Create Polar sandbox account at https://polar.sh/dashboard
 - [ ] Generate Organization Access Token (OAT)
 - [ ] Add `POLAR_ACCESS_TOKEN` to `.env.local` and production secrets
@@ -20,6 +21,7 @@ This document outlines the complete implementation plan for integrating Polar as
 - [ ] Test Polar API connectivity with curl/SDK
 
 **Deliverables**:
+
 - Polar sandbox account configured
 - Environment variables set up
 - API connectivity verified
@@ -33,6 +35,7 @@ This document outlines the complete implementation plan for integrating Polar as
 **Objective**: Build unified interface for payment providers
 
 **Tasks**:
+
 - [ ] Create `server/lib/payment/types.ts` with interfaces:
   - `PaymentProvider` (abstract interface)
   - `CheckoutSessionParams`, `CheckoutSession`
@@ -51,6 +54,7 @@ This document outlines the complete implementation plan for integrating Polar as
   - Error handling for unknown providers
 
 **Code Structure**:
+
 ```
 server/lib/payment/
 ├── types.ts           (interfaces and types)
@@ -62,6 +66,7 @@ server/lib/payment/
 ```
 
 **Deliverables**:
+
 - Payment provider abstraction layer
 - Type definitions
 - Factory pattern implementation
@@ -69,6 +74,7 @@ server/lib/payment/
 **Time Estimate**: 4-6 hours
 
 **Testing**:
+
 ```bash
 # Verify types compile
 pnpm tsc --noEmit
@@ -84,6 +90,7 @@ pnpm test server/lib/payment/provider-factory.test.ts
 **Objective**: Extract Stripe logic into StripeProvider class
 
 **Tasks**:
+
 - [ ] Create `server/lib/payment/stripe-provider.ts`:
   - Implement all `PaymentProvider` methods
   - Move existing Stripe checkout logic
@@ -96,12 +103,14 @@ pnpm test server/lib/payment/provider-factory.test.ts
 - [ ] Implement `mapStripeSubscription()` helper
 
 **Current Stripe Integration Points** (to refactor):
+
 - `server/routers/payment.ts` - checkout routes
 - `server/routers/subscription.ts` - subscription routes
 - `server/routers/webhook.ts` - Stripe webhook handler
 - `server/lib/stripe.ts` - Stripe client initialization
 
 **Deliverables**:
+
 - StripeProvider implementation
 - All existing Stripe logic refactored
 - Tests updated
@@ -109,6 +118,7 @@ pnpm test server/lib/payment/provider-factory.test.ts
 **Time Estimate**: 6-8 hours
 
 **Testing**:
+
 ```bash
 # Verify existing tests still pass
 pnpm test server/routers/payment.test.ts
@@ -122,7 +132,9 @@ pnpm test server/routers/subscription.test.ts
 **Objective**: Add Polar-specific fields to database
 
 **Tasks**:
+
 - [ ] Create migration file:
+
   ```sql
   ALTER TABLE subscriptions ADD COLUMN (
     payment_provider ENUM('stripe', 'polar') DEFAULT 'stripe',
@@ -134,6 +146,7 @@ pnpm test server/routers/subscription.test.ts
   ```
 
 - [ ] Create `payment_customers` table:
+
   ```sql
   CREATE TABLE payment_customers (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -151,6 +164,7 @@ pnpm test server/routers/subscription.test.ts
 - [ ] Run migration: `pnpm db:push`
 
 **Deliverables**:
+
 - Database migration files
 - Updated Drizzle schema
 - Migration executed successfully
@@ -158,6 +172,7 @@ pnpm test server/routers/subscription.test.ts
 **Time Estimate**: 2-3 hours
 
 **Verification**:
+
 ```bash
 # Verify schema changes
 pnpm db:push
@@ -173,12 +188,14 @@ pnpm db:studio  # Visual verification
 **Objective**: Add Polar SDK to project
 
 **Tasks**:
+
 - [ ] Install Polar SDK: `pnpm add @polar-sh/sdk`
 - [ ] Update `package.json` with version pinning
 - [ ] Verify TypeScript types are available
 - [ ] Test SDK import and initialization
 
 **Deliverables**:
+
 - Polar SDK installed
 - TypeScript types available
 - SDK initialization working
@@ -192,6 +209,7 @@ pnpm db:studio  # Visual verification
 **Objective**: Create Polar implementation of PaymentProvider interface
 
 **Tasks**:
+
 - [ ] Create `server/lib/payment/polar-provider.ts`
 
 - [ ] Implement methods:
@@ -214,12 +232,14 @@ pnpm db:studio  # Visual verification
   - [ ] Error handling and logging
 
 **API Reference**:
+
 - Checkout: POST `/v1/checkouts/`
 - Subscriptions: GET/POST/PATCH `/v1/subscriptions/`
 - Customers: GET/POST `/v1/customers/`
 - Refunds: POST `/v1/refunds/`
 
 **Deliverables**:
+
 - PolarProvider class
 - All interface methods implemented
 - Error handling in place
@@ -227,6 +247,7 @@ pnpm db:studio  # Visual verification
 **Time Estimate**: 8-10 hours
 
 **Testing**:
+
 ```bash
 # Unit tests for PolarProvider
 pnpm test server/lib/payment/polar-provider.test.ts
@@ -239,6 +260,7 @@ pnpm test server/lib/payment/polar-provider.test.ts
 **Objective**: Handle webhooks from both providers
 
 **Tasks**:
+
 - [ ] Create `server/lib/payment/webhook-handler.ts`
 
 - [ ] Implement webhook routing:
@@ -261,6 +283,7 @@ pnpm test server/lib/payment/polar-provider.test.ts
   - [ ] Log all events for audit trail
 
 **Deliverables**:
+
 - Unified webhook handler
 - Event routing logic
 - Idempotency checks
@@ -269,6 +292,7 @@ pnpm test server/lib/payment/polar-provider.test.ts
 **Time Estimate**: 4-6 hours
 
 **Testing**:
+
 ```bash
 # Unit tests for webhook handler
 pnpm test server/lib/payment/webhook-handler.test.ts
@@ -283,16 +307,16 @@ pnpm test server/lib/payment/webhook-handler.test.ts
 **Objective**: Build tRPC routes for payment operations
 
 **Tasks**:
-- [ ] Update `server/routers/payment.ts`:
 
+- [ ] Update `server/routers/payment.ts`:
   - [ ] `createCheckoutSession` procedure:
+
     ```typescript
     input: { provider: 'stripe' | 'polar', productId, priceId, ... }
     output: { id, url, provider, expiresAt }
     ```
 
   - [ ] `getCheckoutSession` procedure
-  
   - [ ] `getSubscriptions` procedure:
     - Fetch all subscriptions for user
     - Support filtering by provider
@@ -303,15 +327,14 @@ pnpm test server/lib/payment/webhook-handler.test.ts
     - Route to correct provider
 
   - [ ] `cancelSubscription` procedure
-  
   - [ ] `pauseSubscription` procedure
-  
   - [ ] `resumeSubscription` procedure
 
 - [ ] Add error handling and validation
 - [ ] Add logging for debugging
 
 **Deliverables**:
+
 - Updated payment router
 - All procedures implemented
 - Input validation
@@ -320,6 +343,7 @@ pnpm test server/lib/payment/webhook-handler.test.ts
 **Time Estimate**: 4-5 hours
 
 **Testing**:
+
 ```bash
 # Integration tests for payment router
 pnpm test server/routers/payment.test.ts
@@ -332,6 +356,7 @@ pnpm test server/routers/payment.test.ts
 **Objective**: Handle webhooks from both providers
 
 **Tasks**:
+
 - [ ] Create webhook routes:
   - [ ] `POST /api/stripe/webhook` - Stripe webhook
   - [ ] `POST /api/polar/webhook` - Polar webhook
@@ -348,6 +373,7 @@ pnpm test server/routers/payment.test.ts
   - [ ] Dead letter queue (for failed events)
 
 **Deliverables**:
+
 - Webhook routes
 - Signature validation
 - Event processing
@@ -356,6 +382,7 @@ pnpm test server/routers/payment.test.ts
 **Time Estimate**: 3-4 hours
 
 **Testing**:
+
 ```bash
 # Test webhook signature validation
 pnpm test server/routers/webhook.test.ts
@@ -368,6 +395,7 @@ pnpm test server/routers/webhook.test.ts
 **Objective**: Add provider selection to checkout
 
 **Tasks**:
+
 - [ ] Create `client/src/components/payment/ProviderSelector.tsx`:
   - Radio buttons for Stripe/Polar
   - Provider descriptions
@@ -388,6 +416,7 @@ pnpm test server/routers/webhook.test.ts
   - Different styling for each provider
 
 **Deliverables**:
+
 - Provider selector component
 - Updated billing page
 - Updated subscription page
@@ -396,6 +425,7 @@ pnpm test server/routers/webhook.test.ts
 **Time Estimate**: 4-5 hours
 
 **Testing**:
+
 ```bash
 # Component tests
 pnpm test client/src/components/payment/ProviderSelector.test.tsx
@@ -410,6 +440,7 @@ pnpm test client/src/components/payment/ProviderSelector.test.tsx
 **Objective**: Comprehensive unit test coverage
 
 **Test Files**:
+
 - [ ] `server/lib/payment/types.test.ts` - Type validation
 - [ ] `server/lib/payment/base-provider.test.ts` - Base class
 - [ ] `server/lib/payment/provider-factory.test.ts` - Factory pattern
@@ -420,8 +451,9 @@ pnpm test client/src/components/payment/ProviderSelector.test.tsx
 **Coverage Target**: >85% for payment module
 
 **Deliverables**:
+
 - Unit tests for all payment providers
-- >85% code coverage
+- > 85% code coverage
 - All tests passing
 
 **Time Estimate**: 6-8 hours
@@ -433,6 +465,7 @@ pnpm test client/src/components/payment/ProviderSelector.test.tsx
 **Objective**: Test end-to-end payment flows
 
 **Test Scenarios**:
+
 - [ ] Create checkout session (Stripe)
 - [ ] Create checkout session (Polar)
 - [ ] Complete checkout flow (Stripe)
@@ -447,6 +480,7 @@ pnpm test client/src/components/payment/ProviderSelector.test.tsx
 - [ ] Handle webhook errors
 
 **Deliverables**:
+
 - Integration tests
 - All scenarios passing
 - Error scenarios covered
@@ -460,6 +494,7 @@ pnpm test client/src/components/payment/ProviderSelector.test.tsx
 **Objective**: Test with Polar sandbox environment
 
 **Tasks**:
+
 - [ ] Set up Polar sandbox account
 - [ ] Create test products and prices
 - [ ] Test checkout flow in sandbox
@@ -469,6 +504,7 @@ pnpm test client/src/components/payment/ProviderSelector.test.tsx
 - [ ] Verify tax calculation (if applicable)
 
 **Deliverables**:
+
 - Sandbox testing completed
 - All flows verified
 - Issues documented
@@ -482,6 +518,7 @@ pnpm test client/src/components/payment/ProviderSelector.test.tsx
 **Objective**: Prepare for production deployment
 
 **Tasks**:
+
 - [ ] Create Polar production account
 - [ ] Generate production OAT token
 - [ ] Configure production webhook URL
@@ -490,6 +527,7 @@ pnpm test client/src/components/payment/ProviderSelector.test.tsx
 - [ ] Document troubleshooting steps
 
 **Deliverables**:
+
 - Production account configured
 - Monitoring set up
 - Runbook created
@@ -506,6 +544,7 @@ pnpm test client/src/components/payment/ProviderSelector.test.tsx
 **Objective**: Safely roll out Polar integration
 
 **Tasks**:
+
 - [ ] Create feature flag: `ENABLE_POLAR_PROVIDER`
 - [ ] Add flag to environment variables
 - [ ] Update provider factory to respect flag
@@ -513,12 +552,14 @@ pnpm test client/src/components/payment/ProviderSelector.test.tsx
 - [ ] Create gradual rollout plan
 
 **Rollout Strategy**:
+
 1. **Day 1**: Enable for 10% of new users
 2. **Day 2-3**: Enable for 25% of new users
 3. **Day 4-5**: Enable for 50% of new users
 4. **Day 6-7**: Enable for 100% of users
 
 **Deliverables**:
+
 - Feature flag implementation
 - Rollout plan
 - Monitoring dashboard
@@ -532,6 +573,7 @@ pnpm test client/src/components/payment/ProviderSelector.test.tsx
 **Objective**: Monitor Polar integration health
 
 **Metrics to Track**:
+
 - [ ] Checkout session creation rate (by provider)
 - [ ] Checkout completion rate (by provider)
 - [ ] Subscription creation rate (by provider)
@@ -541,12 +583,14 @@ pnpm test client/src/components/payment/ProviderSelector.test.tsx
 - [ ] Customer satisfaction (by provider)
 
 **Alerts**:
+
 - [ ] Webhook processing errors > 1%
 - [ ] Checkout completion rate < 50%
 - [ ] Subscription creation failures > 5%
 - [ ] API response time > 5s
 
 **Deliverables**:
+
 - Monitoring dashboard
 - Alert rules configured
 - Runbook for alerts
@@ -560,6 +604,7 @@ pnpm test client/src/components/payment/ProviderSelector.test.tsx
 **Objective**: Document Polar integration
 
 **Documents**:
+
 - [ ] API documentation (for internal use)
 - [ ] Webhook event reference
 - [ ] Troubleshooting guide
@@ -567,6 +612,7 @@ pnpm test client/src/components/payment/ProviderSelector.test.tsx
 - [ ] FAQ for support team
 
 **Deliverables**:
+
 - Complete documentation
 - Support team trained
 - FAQ published
@@ -579,13 +625,13 @@ pnpm test client/src/components/payment/ProviderSelector.test.tsx
 
 ### Technical Risks
 
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|-----------|
-| Polar API changes | Medium | High | Monitor changelog, maintain abstraction layer |
-| Webhook delivery failures | Low | High | Implement retry logic, dead letter queue |
-| Tax compliance issues | Low | High | Test with international customers, consult legal |
-| Provider outage | Low | High | Implement fallback provider, status page |
-| Data sync issues | Medium | High | Implement reconciliation job, audit trail |
+| Risk                      | Probability | Impact | Mitigation                                       |
+| ------------------------- | ----------- | ------ | ------------------------------------------------ |
+| Polar API changes         | Medium      | High   | Monitor changelog, maintain abstraction layer    |
+| Webhook delivery failures | Low         | High   | Implement retry logic, dead letter queue         |
+| Tax compliance issues     | Low         | High   | Test with international customers, consult legal |
+| Provider outage           | Low         | High   | Implement fallback provider, status page         |
+| Data sync issues          | Medium      | High   | Implement reconciliation job, audit trail        |
 
 ### Mitigation Strategies
 
@@ -610,31 +656,34 @@ pnpm test client/src/components/payment/ProviderSelector.test.tsx
 
 ## Timeline Summary
 
-| Phase | Duration | Start | End |
-|-------|----------|-------|-----|
-| Phase 1: Foundation | 2 weeks | Week 1 | Week 2 |
-| Phase 2: Polar Provider | 1 week | Week 2 | Week 3 |
-| Phase 3: API & Checkout | 1 week | Week 3 | Week 4 |
-| Phase 4: Testing | 1 week | Week 4 | Week 5 |
-| Phase 5: Deployment | 1 week | Week 5 | Week 6 |
-| **Total** | **6 weeks** | | |
+| Phase                   | Duration    | Start  | End    |
+| ----------------------- | ----------- | ------ | ------ |
+| Phase 1: Foundation     | 2 weeks     | Week 1 | Week 2 |
+| Phase 2: Polar Provider | 1 week      | Week 2 | Week 3 |
+| Phase 3: API & Checkout | 1 week      | Week 3 | Week 4 |
+| Phase 4: Testing        | 1 week      | Week 4 | Week 5 |
+| Phase 5: Deployment     | 1 week      | Week 5 | Week 6 |
+| **Total**               | **6 weeks** |        |        |
 
 ---
 
 ## Resource Requirements
 
 ### Team
+
 - 1 Full-stack engineer (primary)
 - 1 QA engineer (testing & validation)
 - 1 DevOps engineer (deployment & monitoring)
 
 ### Tools
+
 - Polar sandbox account
 - Polar production account
 - Monitoring tools (DataDog, New Relic, etc.)
 - Feature flag service (LaunchDarkly, etc.)
 
 ### Budget
+
 - Polar transaction fees (variable)
 - Monitoring/alerting tools
 - Testing infrastructure
@@ -655,6 +704,7 @@ pnpm test client/src/components/payment/ProviderSelector.test.tsx
 ## Appendix: API Reference
 
 ### Polar Checkout API
+
 ```
 POST /v1/checkouts/
 {
@@ -667,6 +717,7 @@ POST /v1/checkouts/
 ```
 
 ### Polar Subscription API
+
 ```
 POST /v1/subscriptions/
 {
@@ -677,6 +728,7 @@ POST /v1/subscriptions/
 ```
 
 ### Polar Webhook Events
+
 - `checkout.created`
 - `checkout.updated`
 - `order.created`
@@ -692,6 +744,7 @@ POST /v1/subscriptions/
 ## Questions & Clarifications
 
 Before starting implementation, confirm:
+
 1. ✅ Dual provider approach approved?
 2. ✅ Polar account setup ready?
 3. ✅ Timeline acceptable?

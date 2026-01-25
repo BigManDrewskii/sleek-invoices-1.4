@@ -450,94 +450,99 @@ export default function EmailHistory() {
         </CardHeader>
         <CardContent className="p-0">
           <ScrollableTableWrapper minWidth={800}>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Recipient</TableHead>
-                <TableHead>Subject</TableHead>
-                <SortableTableHeader
-                  label="Type"
-                  sortKey="emailType"
-                  currentSort={sort}
-                  onSort={handleSort}
-                />
-                <SortableTableHeader
-                  label="Status"
-                  sortKey="deliveryStatus"
-                  currentSort={sort}
-                  onSort={handleSort}
-                />
-                <SortableTableHeader
-                  label="Sent"
-                  sortKey="sentAt"
-                  currentSort={sort}
-                  onSort={handleSort}
-                />
-                <TableHead>Opens</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <DataTableLoading colSpan={7} rows={5} />
-              ) : !emails || filteredAndSortedEmails.length === 0 ? (
-                <tr>
-                  <td colSpan={7}>
-                    <EmptyState {...EmptyStatePresets.emailHistory} size="sm" />
-                  </td>
-                </tr>
-              ) : (
-                paginatedEmails.map(email => (
-                  <TableRow
-                    key={email.id}
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => openDetails(email)}
-                  >
-                    <TableCell className="font-medium">
-                      {email.recipientEmail}
-                    </TableCell>
-                    <TableCell className="max-w-[300px] truncate">
-                      {email.subject}
-                    </TableCell>
-                    <TableCell>
-                      <TypeBadge type={email.emailType} />
-                    </TableCell>
-                    <TableCell>
-                      <StatusBadge
-                        status={email.deliveryStatus}
-                        success={email.success}
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Recipient</TableHead>
+                  <TableHead>Subject</TableHead>
+                  <SortableTableHeader
+                    label="Type"
+                    sortKey="emailType"
+                    currentSort={sort}
+                    onSort={handleSort}
+                  />
+                  <SortableTableHeader
+                    label="Status"
+                    sortKey="deliveryStatus"
+                    currentSort={sort}
+                    onSort={handleSort}
+                  />
+                  <SortableTableHeader
+                    label="Sent"
+                    sortKey="sentAt"
+                    currentSort={sort}
+                    onSort={handleSort}
+                  />
+                  <TableHead>Opens</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  <DataTableLoading colSpan={7} rows={5} />
+                ) : !emails || filteredAndSortedEmails.length === 0 ? (
+                  <tr>
+                    <td colSpan={7}>
+                      <EmptyState
+                        {...EmptyStatePresets.emailHistory}
+                        size="sm"
                       />
-                    </TableCell>
-                    <TableCell>
-                      <DateDisplay date={email.sentAt} />
-                    </TableCell>
-                    <TableCell>
-                      {email.openCount ? (
-                        <span className="text-blue-400">{email.openCount}</span>
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {!email.success && (email.retryCount || 0) < 3 && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={e => {
-                            e.stopPropagation();
-                            handleRetry(email.id);
-                          }}
-                          disabled={retryMutation.isPending}
-                        >
-                          <RotateCcw className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                    </td>
+                  </tr>
+                ) : (
+                  paginatedEmails.map(email => (
+                    <TableRow
+                      key={email.id}
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => openDetails(email)}
+                    >
+                      <TableCell className="font-medium">
+                        {email.recipientEmail}
+                      </TableCell>
+                      <TableCell className="max-w-[300px] truncate">
+                        {email.subject}
+                      </TableCell>
+                      <TableCell>
+                        <TypeBadge type={email.emailType} />
+                      </TableCell>
+                      <TableCell>
+                        <StatusBadge
+                          status={email.deliveryStatus}
+                          success={email.success}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <DateDisplay date={email.sentAt} />
+                      </TableCell>
+                      <TableCell>
+                        {email.openCount ? (
+                          <span className="text-blue-400">
+                            {email.openCount}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {!email.success && (email.retryCount || 0) < 3 && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={e => {
+                              e.stopPropagation();
+                              handleRetry(email.id);
+                            }}
+                            disabled={retryMutation.isPending}
+                          >
+                            <RotateCcw className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
           </ScrollableTableWrapper>
         </CardContent>
 

@@ -77,8 +77,11 @@ const PUBLIC_PATHS = [
 
 const isPublicPath = () => {
   const path = window.location.pathname;
-  return PUBLIC_PATHS.some(publicPath => 
-    path === publicPath || path.startsWith(`${publicPath}/`) || path.startsWith("/portal/")
+  return PUBLIC_PATHS.some(
+    publicPath =>
+      path === publicPath ||
+      path.startsWith(`${publicPath}/`) ||
+      path.startsWith("/portal/")
   );
 };
 

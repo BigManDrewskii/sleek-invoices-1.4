@@ -27,9 +27,8 @@ describe("QuickBooks Auto-Sync", () => {
 
   describe("Auto-sync trigger conditions", () => {
     it('should trigger sync when invoice is created with status "sent"', async () => {
-      const { getConnectionStatus, syncInvoiceToQB } = await import(
-        "./quickbooks"
-      );
+      const { getConnectionStatus, syncInvoiceToQB } =
+        await import("./quickbooks");
 
       // Mock connected status
       vi.mocked(getConnectionStatus).mockResolvedValue({
@@ -64,9 +63,8 @@ describe("QuickBooks Auto-Sync", () => {
     });
 
     it('should NOT trigger sync when invoice is created with status "draft"', async () => {
-      const { getConnectionStatus, syncInvoiceToQB } = await import(
-        "./quickbooks"
-      );
+      const { getConnectionStatus, syncInvoiceToQB } =
+        await import("./quickbooks");
 
       vi.mocked(getConnectionStatus).mockResolvedValue({
         connected: true,
@@ -93,9 +91,8 @@ describe("QuickBooks Auto-Sync", () => {
     });
 
     it("should NOT trigger sync when QuickBooks is not connected", async () => {
-      const { getConnectionStatus, syncInvoiceToQB } = await import(
-        "./quickbooks"
-      );
+      const { getConnectionStatus, syncInvoiceToQB } =
+        await import("./quickbooks");
 
       // Mock disconnected status
       vi.mocked(getConnectionStatus).mockResolvedValue({
@@ -124,9 +121,8 @@ describe("QuickBooks Auto-Sync", () => {
 
   describe("Auto-sync on email send", () => {
     it("should trigger sync when invoice status changes from draft to sent", async () => {
-      const { getConnectionStatus, syncInvoiceToQB } = await import(
-        "./quickbooks"
-      );
+      const { getConnectionStatus, syncInvoiceToQB } =
+        await import("./quickbooks");
 
       vi.mocked(getConnectionStatus).mockResolvedValue({
         connected: true,
@@ -159,9 +155,8 @@ describe("QuickBooks Auto-Sync", () => {
     });
 
     it("should NOT trigger sync when invoice is already sent", async () => {
-      const { getConnectionStatus, syncInvoiceToQB } = await import(
-        "./quickbooks"
-      );
+      const { getConnectionStatus, syncInvoiceToQB } =
+        await import("./quickbooks");
 
       const userId = 1;
       const invoiceId = 200;
@@ -182,9 +177,8 @@ describe("QuickBooks Auto-Sync", () => {
 
   describe("Auto-sync on payment", () => {
     it("should trigger sync when invoice is marked as paid", async () => {
-      const { getConnectionStatus, syncInvoiceToQB } = await import(
-        "./quickbooks"
-      );
+      const { getConnectionStatus, syncInvoiceToQB } =
+        await import("./quickbooks");
 
       vi.mocked(getConnectionStatus).mockResolvedValue({
         connected: true,
@@ -216,9 +210,8 @@ describe("QuickBooks Auto-Sync", () => {
     });
 
     it("should NOT trigger sync for partial payments", async () => {
-      const { getConnectionStatus, syncInvoiceToQB } = await import(
-        "./quickbooks"
-      );
+      const { getConnectionStatus, syncInvoiceToQB } =
+        await import("./quickbooks");
 
       const userId = 1;
       const invoiceId = 300;
@@ -239,9 +232,8 @@ describe("QuickBooks Auto-Sync", () => {
 
   describe("Error handling", () => {
     it("should handle sync errors gracefully without blocking main operation", async () => {
-      const { getConnectionStatus, syncInvoiceToQB } = await import(
-        "./quickbooks"
-      );
+      const { getConnectionStatus, syncInvoiceToQB } =
+        await import("./quickbooks");
 
       vi.mocked(getConnectionStatus).mockResolvedValue({
         connected: true,
@@ -280,9 +272,8 @@ describe("QuickBooks Auto-Sync", () => {
     });
 
     it("should handle connection status check errors gracefully", async () => {
-      const { getConnectionStatus, syncInvoiceToQB } = await import(
-        "./quickbooks"
-      );
+      const { getConnectionStatus, syncInvoiceToQB } =
+        await import("./quickbooks");
 
       // Simulate connection check failure
       vi.mocked(getConnectionStatus).mockRejectedValue(

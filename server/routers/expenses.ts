@@ -156,11 +156,7 @@ export const expensesRouter = router({
       const fileKey = `receipts/${ctx.user.id}/${timestamp}-${randomSuffix}-${input.fileName}`;
 
       // Upload to S3
-      const { url, key } = await storagePut(
-        fileKey,
-        buffer,
-        input.contentType
-      );
+      const { url, key } = await storagePut(fileKey, buffer, input.contentType);
 
       return { url, key };
     }),
@@ -195,10 +191,7 @@ export const expensesRouter = router({
   getBillableUnlinked: protectedProcedure
     .input(z.object({ clientId: z.number().optional() }).optional())
     .query(async ({ ctx, input }) => {
-      return await db.getBillableUnlinkedExpenses(
-        ctx.user.id,
-        input?.clientId
-      );
+      return await db.getBillableUnlinkedExpenses(ctx.user.id, input?.clientId);
     }),
 
   linkToInvoice: protectedProcedure

@@ -57,9 +57,8 @@ export const paymentsRouter = router({
         // Sync invoice to QuickBooks when marked as paid to update payment status
         // ============================================================================
         try {
-          const { getConnectionStatus, syncInvoiceToQB } = await import(
-            "../quickbooks"
-          );
+          const { getConnectionStatus, syncInvoiceToQB } =
+            await import("../quickbooks");
           const qbStatus = await getConnectionStatus(ctx.user.id);
           if (qbStatus.connected) {
             // Fire and forget - don't block payment recording on QB sync
@@ -134,11 +133,7 @@ export const paymentsRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      return await db.recordPartialPayment(
-        input.invoiceId,
-        ctx.user.id,
-        input
-      );
+      return await db.recordPartialPayment(input.invoiceId, ctx.user.id, input);
     }),
 
   getStats: protectedProcedure.query(async ({ ctx }) => {

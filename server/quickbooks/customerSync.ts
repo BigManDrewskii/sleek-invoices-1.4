@@ -200,17 +200,15 @@ export async function syncClientToQB(
       );
 
       if (existingQBCustomer) {
-        await db
-          .insert(quickbooksCustomerMapping)
-          .values({
-            userId,
-            clientId,
-            qbCustomerId: existingQBCustomer.Id,
-            qbDisplayName: existingQBCustomer.DisplayName,
-            syncVersion: 1,
-            lastSyncedAt: new Date(),
-            createdAt: new Date(),
-          });
+        await db.insert(quickbooksCustomerMapping).values({
+          userId,
+          clientId,
+          qbCustomerId: existingQBCustomer.Id,
+          qbDisplayName: existingQBCustomer.DisplayName,
+          syncVersion: 1,
+          lastSyncedAt: new Date(),
+          createdAt: new Date(),
+        });
         await logSync(
           userId,
           "customer",
@@ -245,17 +243,15 @@ export async function syncClientToQB(
         return { success: false, error: result.error };
       }
 
-      await db
-        .insert(quickbooksCustomerMapping)
-        .values({
-          userId,
-          clientId,
-          qbCustomerId: result.data.Id,
-          qbDisplayName: result.data.DisplayName,
-          syncVersion: 1,
-          lastSyncedAt: new Date(),
-          createdAt: new Date(),
-        });
+      await db.insert(quickbooksCustomerMapping).values({
+        userId,
+        clientId,
+        qbCustomerId: result.data.Id,
+        qbDisplayName: result.data.DisplayName,
+        syncVersion: 1,
+        lastSyncedAt: new Date(),
+        createdAt: new Date(),
+      });
       await logSync(
         userId,
         "customer",

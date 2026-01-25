@@ -23,12 +23,10 @@ vi.mock("./db", () => ({
 }));
 
 vi.mock("./storage", () => ({
-  storagePut: vi
-    .fn()
-    .mockResolvedValue({
-      url: "https://example.com/export.json",
-      key: "exports/1/test.json",
-    }),
+  storagePut: vi.fn().mockResolvedValue({
+    url: "https://example.com/export.json",
+    key: "exports/1/test.json",
+  }),
 }));
 
 describe("Production Features", () => {

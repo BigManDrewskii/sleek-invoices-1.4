@@ -6,10 +6,7 @@ export const productsRouter = router({
   list: protectedProcedure
     .input(z.object({ includeInactive: z.boolean().optional() }).optional())
     .query(async ({ ctx, input }) => {
-      return await db.getProductsByUserId(
-        ctx.user.id,
-        input?.includeInactive
-      );
+      return await db.getProductsByUserId(ctx.user.id, input?.includeInactive);
     }),
 
   get: protectedProcedure

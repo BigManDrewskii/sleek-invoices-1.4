@@ -2,8 +2,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { forwardRef } from "react";
 
-interface CurrencyInputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+interface CurrencyInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   value: string | number;
   onValueChange?: (value: string) => void;
   currency?: string;
@@ -46,8 +45,7 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
 
 CurrencyInput.displayName = "CurrencyInput";
 
-interface PercentageInputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+interface PercentageInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   value: string | number;
   onValueChange?: (value: string) => void;
 }
@@ -86,8 +84,7 @@ export const PercentageInput = forwardRef<
 
 PercentageInput.displayName = "PercentageInput";
 
-interface QuantityInputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+interface QuantityInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   value: string | number;
   onValueChange?: (value: string) => void;
 }

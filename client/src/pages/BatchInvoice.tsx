@@ -501,7 +501,11 @@ export default function BatchInvoice() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <Link href="/clients">
-              <Button variant="ghost" size="icon" aria-label="Go back to clients">
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Go back to clients"
+              >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
             </Link>

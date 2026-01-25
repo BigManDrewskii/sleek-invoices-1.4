@@ -3,6 +3,7 @@
 ## Overview
 
 SleekInvoices is deployed on Vercel with a hybrid architecture:
+
 - **Frontend**: Static files from `dist/public/` served by Vercel CDN
 - **Backend**: Serverless function at `api/index.js` using Express + tRPC
 - **Database**: MySQL/TiDB (external connection via DATABASE_URL)
@@ -16,6 +17,7 @@ pnpm build
 ```
 
 This creates:
+
 1. **Frontend bundle**: `dist/public/` - React app with Vite
 2. **Backend bundle**: `dist/_server/index.js` - Express server bundled with esbuild
 
@@ -49,13 +51,17 @@ This creates:
   },
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/index.js" },
-    { "src": "/(.*\\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|json))", "dest": "/dist/public/$1" },
+    {
+      "src": "/(.*\\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|json))",
+      "dest": "/dist/public/$1"
+    },
     { "src": "/(.*)", "dest": "/dist/public/index.html" }
   ]
 }
 ```
 
 **Key points**:
+
 - API routes → serverless function (`api/index.js`)
 - Static assets → CDN from `dist/public/`
 - SPA fallback → `index.html` for client-side routing
@@ -65,6 +71,7 @@ This creates:
 Required in Vercel dashboard:
 
 **Authentication**:
+
 - `JWT_SECRET` - **REQUIRED** Session signing secret (generate with `openssl rand -base64 32`)
 - `AUTH_SECRET` - Auth.js session secret (generate with `openssl rand -base64 32`)
 - `AUTH_GOOGLE_ID` - Google OAuth client ID (optional but recommended)
@@ -74,9 +81,11 @@ Required in Vercel dashboard:
 - `OAUTH_SERVER_URL` - OAuth callback URL (https://sleekinvoices.vercel.app)
 
 **Database**:
+
 - `DATABASE_URL` - MySQL/TiDB connection string
 
 **Payment Processing**:
+
 - `STRIPE_SECRET_KEY` - Stripe API secret key
 - `STRIPE_WEBHOOK_SECRET` - Stripe webhook signing secret
 - `STRIPE_PRO_PRICE_ID` - Pro subscription price ID
@@ -85,10 +94,12 @@ Required in Vercel dashboard:
 - `NOWPAYMENTS_PUBLIC_KEY` - NOWPayments public key
 
 **Services**:
+
 - `RESEND_API_KEY` - Resend email API key
 - `OPENROUTER_API_KEY` - OpenRouter API key for AI features
 
-**Frontend** (VITE_ prefix for client-side access):
+**Frontend** (VITE\_ prefix for client-side access):
+
 - `VITE_SKIP_AUTH` - Client-side auth bypass
 - `VITE_OAUTH_PORTAL_URL` - OAuth portal URL
 - `VITE_APP_ID` - App identifier
@@ -105,7 +116,7 @@ Required in Vercel dashboard:
 
 ```javascript
 // api/index.js (Vercel serverless function)
-import { app } from '../dist/_server/index.js';
+import { app } from "../dist/_server/index.js";
 
 export default function handler(req, res) {
   app(req, res);
@@ -113,9 +124,10 @@ export default function handler(req, res) {
 ```
 
 **Not** from TypeScript source:
+
 ```javascript
 // ❌ WRONG - source files don't exist in deployment
-import { app } from '../server/_core/index';
+import { app } from "../server/_core/index";
 ```
 
 **Reason**: Vercel serverless functions are bundled independently. The TypeScript source in `server/` isn't deployed - only the bundled `dist/_server/index.js` exists.
@@ -135,12 +147,13 @@ export const app = createApp();
 export default app;
 
 // Auto-start server in local development only
-if (require.main === module || process.env.NODE_ENV === 'development') {
+if (require.main === module || process.env.NODE_ENV === "development") {
   startServer().catch(console.error);
 }
 ```
 
 **Benefits**:
+
 - Can import `app` without starting server
 - Serverless function handles requests directly
 - Local development auto-starts server
@@ -158,6 +171,7 @@ if (!process.env.VERCEL) {
 **Reason**: Serverless functions can't run continuous background processes.
 
 **Solution**: Use Vercel Cron Jobs (Phase 2):
+
 1. Create `api/crons/recurring-invoices.ts`
 2. Configure `vercel.json` with `crons` array
 3. Each scheduled execution = serverless function invocation
@@ -189,6 +203,7 @@ git push origin main
 ```
 
 Vercel automatically:
+
 1. Runs `pnpm install`
 2. Runs `pnpm build`
 3. Deploys `dist/public/` to CDN
@@ -198,6 +213,7 @@ Vercel automatically:
 ### Rollback
 
 In Vercel dashboard:
+
 1. Go to Deployments
 2. Find previous successful deployment
 3. Click "Promote to Production"
@@ -212,13 +228,14 @@ In Vercel dashboard:
 
 **Fix**: Ensure `api/index.js` imports from `../dist/_server/index.js` (bundled code), not TypeScript source.
 
-### Issue: "Cannot find module '../dist/_server/index.js'"
+### Issue: "Cannot find module '../dist/\_server/index.js'"
 
 **Symptom**: Serverless function fails to load
 
 **Cause**: Build didn't complete before deployment
 
 **Fix**:
+
 1. Run `pnpm build` locally to verify
 2. Ensure `dist/_server/index.js` exists
 3. Check esbuild bundling in `package.json` build script
@@ -246,8 +263,12 @@ In Vercel dashboard:
 **Cause**: Incorrect route configuration in `vercel.json`
 
 **Fix**: Ensure static route comes before SPA fallback:
+
 ```json
-{ "src": "/(.*\\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|json))", "dest": "/dist/public/$1" }
+{
+  "src": "/(.*\\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|json))",
+  "dest": "/dist/public/$1"
+}
 ```
 
 ## Performance Optimization
@@ -255,13 +276,16 @@ In Vercel dashboard:
 ### CDN Caching
 
 Static assets cached for 1 year (immutable):
+
 ```json
 {
   "source": "/(.*)\\.js",
-  "headers": [{
-    "key": "Cache-Control",
-    "value": "public, max-age=31536000, immutable"
-  }]
+  "headers": [
+    {
+      "key": "Cache-Control",
+      "value": "public, max-age=31536000, immutable"
+    }
+  ]
 }
 ```
 
@@ -274,6 +298,7 @@ Static assets cached for 1 year (immutable):
 ### Code Splitting
 
 Frontend uses manual chunks for better caching:
+
 - `vendor-react.js` - React core (rarely changes)
 - `vendor-radix.js` - Radix UI components
 - `vendor-data.js` - tRPC + React Query
@@ -314,6 +339,7 @@ Sentry integration for error monitoring (configured in `server/_core/errorMonito
 ### Phase 2: Cron Jobs
 
 Implement Vercel Cron Jobs for:
+
 - Recurring invoice generation
 - Overdue invoice detection
 - Payment reminder scheduling
@@ -321,6 +347,7 @@ Implement Vercel Cron Jobs for:
 ### Phase 3: Multi-Region Deployment
 
 Add regions for better global performance:
+
 ```json
 "regions": ["iad1", "hnd1", "fra1"]
 ```
@@ -328,6 +355,7 @@ Add regions for better global performance:
 ### Phase 4: Edge Functions
 
 Migrate static endpoints to Edge Functions for faster cold starts:
+
 - `/api/health`
 - OAuth callbacks
 - Webhook receivers (with streaming)

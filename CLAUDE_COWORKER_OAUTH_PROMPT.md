@@ -7,6 +7,7 @@ OAuth callbacks (Google & GitHub) are returning 404 errors in production on Verc
 ## Error Messages
 
 **Google OAuth:**
+
 ```
 google: 404: NOT_FOUND
 Code: NOT_FOUND
@@ -14,6 +15,7 @@ ID: fra1::rrl9h-1769335245688-7b5f4acf268f
 ```
 
 **GitHub OAuth:**
+
 ```
 github: 404: NOT_FOUND
 Code: NOT_FOUND
@@ -31,12 +33,14 @@ ID: fra1::dh2xj-1769335258530-82288bd610e7
 ## Configuration
 
 ### Auth Configuration (`server/_core/auth.ts`)
+
 - Using `trustHost: true` for auto-detecting URL from request headers
 - Drizzle adapter with database session strategy
 - Google and GitHub OAuth providers configured
 - `AUTH_URL` environment variable is set in Vercel
 
 ### Vercel Routing (`vercel.json`)
+
 ```json
 "routes": [
   {
@@ -48,7 +52,9 @@ ID: fra1::dh2xj-1769335258530-82288bd610e7
 ```
 
 ### Vercel Serverless Handler (`api/index.js`)
+
 Recently updated to properly await Express response:
+
 ```javascript
 export default async function handler(req, res) {
   try {
@@ -56,19 +62,19 @@ export default async function handler(req, res) {
     return new Promise((resolve, reject) => {
       try {
         app(req, res);
-        res.on('finish', () => resolve());
-        res.on('error', (err) => reject(err));
+        res.on("finish", () => resolve());
+        res.on("error", err => reject(err));
       } catch (err) {
         reject(err);
       }
     });
   } catch (error) {
-    console.error('[Vercel] Handler error:', error);
+    console.error("[Vercel] Handler error:", error);
     if (!res.headersSent) {
       res.status(500).json({
-        error: 'Internal server error',
+        error: "Internal server error",
         message: error.message,
-        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
       });
     }
   }
@@ -76,6 +82,7 @@ export default async function handler(req, res) {
 ```
 
 ### Auth Routes (`server/_core/auth-routes.ts`)
+
 ```typescript
 export async function registerAuthRoutes(app: Express) {
   app.set("trust proxy", true);
@@ -101,9 +108,11 @@ export async function registerAuthRoutes(app: Express) {
 ## Callback URLs Configuration
 
 **Google OAuth Console:**
+
 - Callback URL: `https://sleek-invoices-1-4.vercel.app/api/auth/callback/google`
 
 **GitHub OAuth App:**
+
 - Callback URL: `https://sleek-invoices-1-4.vercel.app/api/auth/callback/github`
 
 ## Recent Changes Attempted
@@ -115,6 +124,7 @@ export async function registerAuthRoutes(app: Express) {
 ## Root Cause Hypothesis
 
 The issue is likely that:
+
 1. Vercel's routing isn't forwarding `/api/auth/callback/*` requests to Express
 2. The `@auth/express` middleware isn't handling the requests properly in serverless
 3. There's a timing issue with async initialization in serverless environment
@@ -178,6 +188,7 @@ Steps 1-4 work correctly, but step 5 returns **404 NOT_FOUND** instead of proces
 ## Request
 
 Please investigate the OAuth callback 404 errors and fix the issue. Focus on:
+
 1. Why the callback URLs return 404
 2. Whether Vercel routing is properly configured
 3. Whether the Express app is correctly handling the auth routes

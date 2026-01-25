@@ -3,9 +3,8 @@ import { z } from "zod";
 
 export const quickbooksRouter = router({
   getStatus: protectedProcedure.query(async ({ ctx }) => {
-    const { getConnectionStatus, isQuickBooksConfigured } = await import(
-      "../quickbooks"
-    );
+    const { getConnectionStatus, isQuickBooksConfigured } =
+      await import("../quickbooks");
     if (!isQuickBooksConfigured())
       return {
         configured: false,
@@ -20,9 +19,8 @@ export const quickbooksRouter = router({
   }),
 
   getAuthUrl: protectedProcedure.query(async ({ ctx }) => {
-    const { getAuthorizationUrl, isQuickBooksConfigured } = await import(
-      "../quickbooks"
-    );
+    const { getAuthorizationUrl, isQuickBooksConfigured } =
+      await import("../quickbooks");
     if (!isQuickBooksConfigured())
       throw new Error("QuickBooks integration is not configured");
     const state = Buffer.from(
@@ -55,8 +53,7 @@ export const quickbooksRouter = router({
         input.realmId,
         ctx.user.id
       );
-      if (!result.success)
-        throw new Error(result.error || "Failed to connect");
+      if (!result.success) throw new Error(result.error || "Failed to connect");
       return { success: true };
     }),
 
@@ -71,9 +68,8 @@ export const quickbooksRouter = router({
   syncClient: protectedProcedure
     .input(z.object({ clientId: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      const { syncClientToQB, getConnectionStatus } = await import(
-        "../quickbooks"
-      );
+      const { syncClientToQB, getConnectionStatus } =
+        await import("../quickbooks");
       const status = await getConnectionStatus(ctx.user.id);
       if (!status.connected) throw new Error("Not connected to QuickBooks");
       const result = await syncClientToQB(ctx.user.id, input.clientId);
@@ -83,9 +79,8 @@ export const quickbooksRouter = router({
     }),
 
   syncAllClients: protectedProcedure.mutation(async ({ ctx }) => {
-    const { syncAllClientsToQB, getConnectionStatus } = await import(
-      "../quickbooks"
-    );
+    const { syncAllClientsToQB, getConnectionStatus } =
+      await import("../quickbooks");
     const status = await getConnectionStatus(ctx.user.id);
     if (!status.connected) throw new Error("Not connected to QuickBooks");
     return await syncAllClientsToQB(ctx.user.id);
@@ -94,9 +89,8 @@ export const quickbooksRouter = router({
   syncInvoice: protectedProcedure
     .input(z.object({ invoiceId: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      const { syncInvoiceToQB, getConnectionStatus } = await import(
-        "../quickbooks"
-      );
+      const { syncInvoiceToQB, getConnectionStatus } =
+        await import("../quickbooks");
       const status = await getConnectionStatus(ctx.user.id);
       if (!status.connected) throw new Error("Not connected to QuickBooks");
       const result = await syncInvoiceToQB(ctx.user.id, input.invoiceId);
@@ -106,9 +100,8 @@ export const quickbooksRouter = router({
     }),
 
   syncAllInvoices: protectedProcedure.mutation(async ({ ctx }) => {
-    const { syncAllInvoicesToQB, getConnectionStatus } = await import(
-      "../quickbooks"
-    );
+    const { syncAllInvoicesToQB, getConnectionStatus } =
+      await import("../quickbooks");
     const status = await getConnectionStatus(ctx.user.id);
     if (!status.connected) throw new Error("Not connected to QuickBooks");
     return await syncAllInvoicesToQB(ctx.user.id);
@@ -164,9 +157,8 @@ export const quickbooksRouter = router({
   syncPayment: protectedProcedure
     .input(z.object({ paymentId: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      const { syncPaymentToQB, getConnectionStatus } = await import(
-        "../quickbooks"
-      );
+      const { syncPaymentToQB, getConnectionStatus } =
+        await import("../quickbooks");
       const status = await getConnectionStatus(ctx.user.id);
       if (!status.connected) throw new Error("Not connected to QuickBooks");
       const result = await syncPaymentToQB(ctx.user.id, input.paymentId);
@@ -176,9 +168,8 @@ export const quickbooksRouter = router({
     }),
 
   pollPayments: protectedProcedure.mutation(async ({ ctx }) => {
-    const { pollPaymentsFromQB, getConnectionStatus } = await import(
-      "../quickbooks"
-    );
+    const { pollPaymentsFromQB, getConnectionStatus } =
+      await import("../quickbooks");
     const status = await getConnectionStatus(ctx.user.id);
     if (!status.connected) throw new Error("Not connected to QuickBooks");
     return await pollPaymentsFromQB(ctx.user.id);

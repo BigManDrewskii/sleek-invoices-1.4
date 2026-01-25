@@ -88,8 +88,12 @@ describe("CSRF Protection", () => {
     });
 
     it("should apply CSRF protection before rate limiting", () => {
-      const csrfIndex = indexContent.indexOf('app.use("/api/trpc", csrfProtection)');
-      const rateLimitIndex = indexContent.indexOf('app.use("/api/trpc", standardRateLimit)');
+      const csrfIndex = indexContent.indexOf(
+        'app.use("/api/trpc", csrfProtection)'
+      );
+      const rateLimitIndex = indexContent.indexOf(
+        'app.use("/api/trpc", standardRateLimit)'
+      );
       expect(csrfIndex).toBeLessThan(rateLimitIndex);
     });
   });

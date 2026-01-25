@@ -199,23 +199,19 @@ export function ClientTable({
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56">
-                      <DropdownMenuItem
-                        onClick={() => onEdit(client)}
-                      >
+                      <DropdownMenuItem onClick={() => onEdit(client)}>
                         <div className="flex items-center gap-2">
                           <Edit className="h-3 w-3 text-muted-foreground" />
                           <span className="text-sm">Edit</span>
                         </div>
                       </DropdownMenuItem>
                       {onDuplicate && (
-                      <DropdownMenuItem
-                        onClick={() => onDuplicate(client)}
-                      >
-                        <div className="flex items-center gap-2">
-                          <Copy className="h-3 w-3 text-muted-foreground" />
-                          <span className="text-sm">Duplicate</span>
-                        </div>
-                      </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onDuplicate(client)}>
+                          <div className="flex items-center gap-2">
+                            <Copy className="h-3 w-3 text-muted-foreground" />
+                            <span className="text-sm">Duplicate</span>
+                          </div>
+                        </DropdownMenuItem>
                       )}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
@@ -228,9 +224,7 @@ export function ClientTable({
                         </div>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => onPortalAccess(client)}
-                      >
+                      <DropdownMenuItem onClick={() => onPortalAccess(client)}>
                         <div className="flex items-center gap-2">
                           <Key className="h-3 w-3 text-muted-foreground" />
                           <span className="text-sm">Portal Access</span>

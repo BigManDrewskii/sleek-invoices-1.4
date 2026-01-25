@@ -248,17 +248,15 @@ export async function syncInvoiceToQB(
         return { success: false, error: result.error };
       }
 
-      await db
-        .insert(quickbooksInvoiceMapping)
-        .values({
-          userId,
-          invoiceId,
-          qbInvoiceId: result.data.Id,
-          qbDocNumber: result.data.DocNumber,
-          syncVersion: 1,
-          lastSyncedAt: new Date(),
-          createdAt: new Date(),
-        });
+      await db.insert(quickbooksInvoiceMapping).values({
+        userId,
+        invoiceId,
+        qbInvoiceId: result.data.Id,
+        qbDocNumber: result.data.DocNumber,
+        syncVersion: 1,
+        lastSyncedAt: new Date(),
+        createdAt: new Date(),
+      });
       await logSync(
         userId,
         "invoice",

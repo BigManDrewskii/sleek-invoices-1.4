@@ -1,4 +1,10 @@
-import { useRef, useState, useEffect, useCallback, type ReactNode } from "react";
+import {
+  useRef,
+  useState,
+  useEffect,
+  useCallback,
+  type ReactNode,
+} from "react";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -36,7 +42,7 @@ export function ScrollableTableWrapper({
     const { scrollLeft, scrollWidth, clientWidth } = el;
     // Add small threshold to account for rounding errors
     const threshold = 2;
-    
+
     setCanScrollLeft(scrollLeft > threshold);
     setCanScrollRight(scrollLeft + clientWidth < scrollWidth - threshold);
   }, []);
@@ -47,10 +53,10 @@ export function ScrollableTableWrapper({
       const mobile = window.matchMedia("(max-width: 768px)").matches;
       setIsMobile(mobile);
     };
-    
+
     checkMobile();
     window.addEventListener("resize", checkMobile);
-    
+
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
@@ -71,13 +77,13 @@ export function ScrollableTableWrapper({
     const el = scrollRef.current;
     if (el && el.scrollWidth > el.clientWidth) {
       setShowSwipeHint(true);
-      
+
       // Auto-dismiss after 4 seconds
       const timer = setTimeout(() => {
         setShowSwipeHint(false);
         localStorage.setItem(hintStorageKey, "true");
       }, 4000);
-      
+
       return () => clearTimeout(timer);
     }
   }, [isMobile, hintStorageKey]);
@@ -125,7 +131,7 @@ export function ScrollableTableWrapper({
           onClick={dismissHint}
           role="button"
           tabIndex={0}
-          onKeyDown={(e) => e.key === "Enter" && dismissHint()}
+          onKeyDown={e => e.key === "Enter" && dismissHint()}
           aria-label="Dismiss swipe hint"
         >
           <div className="flex items-center gap-3 px-4 py-3 bg-card border border-border rounded-full shadow-lg">

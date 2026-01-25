@@ -261,9 +261,8 @@ export const clientsRouter = router({
       const database = await db.getDb();
       if (!database) throw new Error("Database not available");
 
-      const { clientTagAssignments, clientTags } = await import(
-        "../../drizzle/schema"
-      );
+      const { clientTagAssignments, clientTags } =
+        await import("../../drizzle/schema");
 
       const tagAssignments = await database
         .select({

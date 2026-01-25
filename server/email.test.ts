@@ -406,9 +406,8 @@ describe("Email Module", () => {
 
 describe("Portal Invitation Email", () => {
   it("should generate correct email content", async () => {
-    const { generatePortalInvitationEmail } = await import(
-      "./email-templates/portal-invitation"
-    );
+    const { generatePortalInvitationEmail } =
+      await import("./email-templates/portal-invitation");
 
     const result = generatePortalInvitationEmail({
       clientName: "John Doe",
@@ -425,9 +424,8 @@ describe("Portal Invitation Email", () => {
   });
 
   it("should use default company name if not provided", async () => {
-    const { generatePortalInvitationEmail } = await import(
-      "./email-templates/portal-invitation"
-    );
+    const { generatePortalInvitationEmail } =
+      await import("./email-templates/portal-invitation");
 
     const result = generatePortalInvitationEmail({
       clientName: "Jane Doe",

@@ -13,7 +13,7 @@ This document outlines the architecture for supporting multiple payment provider
 ```typescript
 // server/lib/payment/types.ts
 
-export type PaymentProviderType = 'stripe' | 'polar';
+export type PaymentProviderType = "stripe" | "polar";
 
 export interface CheckoutSessionParams {
   userId: number;
@@ -39,7 +39,7 @@ export interface Subscription {
   userId: number;
   productId: string;
   priceId: string;
-  status: 'active' | 'paused' | 'canceled' | 'past_due';
+  status: "active" | "paused" | "canceled" | "past_due";
   currentPeriodStart: Date;
   currentPeriodEnd: Date;
   canceledAt?: Date;
@@ -48,7 +48,13 @@ export interface Subscription {
 
 export interface PaymentEvent {
   id: string;
-  type: 'checkout.completed' | 'subscription.created' | 'subscription.updated' | 'subscription.canceled' | 'invoice.paid' | 'invoice.payment_failed';
+  type:
+    | "checkout.completed"
+    | "subscription.created"
+    | "subscription.updated"
+    | "subscription.canceled"
+    | "invoice.paid"
+    | "invoice.payment_failed";
   provider: PaymentProviderType;
   timestamp: Date;
   data: Record<string, any>;
@@ -56,13 +62,18 @@ export interface PaymentEvent {
 
 export interface PaymentProvider {
   // Checkout
-  createCheckoutSession(params: CheckoutSessionParams): Promise<CheckoutSession>;
+  createCheckoutSession(
+    params: CheckoutSessionParams
+  ): Promise<CheckoutSession>;
   getCheckoutSession(sessionId: string): Promise<CheckoutSession | null>;
 
   // Subscriptions
   createSubscription(params: SubscriptionParams): Promise<Subscription>;
   getSubscription(subscriptionId: string): Promise<Subscription | null>;
-  updateSubscription(subscriptionId: string, updates: Partial<Subscription>): Promise<Subscription>;
+  updateSubscription(
+    subscriptionId: string,
+    updates: Partial<Subscription>
+  ): Promise<Subscription>;
   cancelSubscription(subscriptionId: string): Promise<void>;
   pauseSubscription(subscriptionId: string): Promise<void>;
   resumeSubscription(subscriptionId: string): Promise<void>;
@@ -75,7 +86,11 @@ export interface PaymentProvider {
   parseWebhookEvent(payload: string): PaymentEvent;
 
   // Customers
-  getOrCreateCustomer(userId: number, email: string, name?: string): Promise<string>;
+  getOrCreateCustomer(
+    userId: number,
+    email: string,
+    name?: string
+  ): Promise<string>;
 }
 
 export interface SubscriptionParams {
@@ -89,7 +104,7 @@ export interface SubscriptionParams {
 export interface RefundResult {
   refundId: string;
   amount: number;
-  status: 'pending' | 'succeeded' | 'failed';
+  status: "pending" | "succeeded" | "failed";
 }
 ```
 
@@ -122,18 +137,19 @@ server/
 ```typescript
 // server/lib/payment/provider-factory.ts
 
-import { PaymentProvider, PaymentProviderType } from './types';
-import { StripeProvider } from './stripe-provider';
-import { PolarProvider } from './polar-provider';
+import { PaymentProvider, PaymentProviderType } from "./types";
+import { StripeProvider } from "./stripe-provider";
+import { PolarProvider } from "./polar-provider";
 
 export class PaymentProviderFactory {
-  private static providers: Map<PaymentProviderType, PaymentProvider> = new Map();
+  private static providers: Map<PaymentProviderType, PaymentProvider> =
+    new Map();
 
   static getProvider(type: PaymentProviderType): PaymentProvider {
     if (!this.providers.has(type)) {
-      if (type === 'stripe') {
+      if (type === "stripe") {
         this.providers.set(type, new StripeProvider());
-      } else if (type === 'polar') {
+      } else if (type === "polar") {
         this.providers.set(type, new PolarProvider());
       } else {
         throw new Error(`Unknown payment provider: ${type}`);
@@ -143,10 +159,7 @@ export class PaymentProviderFactory {
   }
 
   static getAllProviders(): PaymentProvider[] {
-    return [
-      this.getProvider('stripe'),
-      this.getProvider('polar'),
-    ];
+    return [this.getProvider("stripe"), this.getProvider("polar")];
   }
 }
 ```
@@ -158,23 +171,47 @@ export class PaymentProviderFactory {
 ```typescript
 // server/lib/payment/base-provider.ts
 
-import { PaymentProvider, PaymentProviderType, CheckoutSessionParams, Subscription, PaymentEvent } from './types';
+import {
+  PaymentProvider,
+  PaymentProviderType,
+  CheckoutSessionParams,
+  Subscription,
+  PaymentEvent,
+} from "./types";
 
 export abstract class BasePaymentProvider implements PaymentProvider {
   abstract type: PaymentProviderType;
 
-  abstract createCheckoutSession(params: CheckoutSessionParams): Promise<CheckoutSession>;
-  abstract getCheckoutSession(sessionId: string): Promise<CheckoutSession | null>;
-  abstract createSubscription(params: SubscriptionParams): Promise<Subscription>;
-  abstract getSubscription(subscriptionId: string): Promise<Subscription | null>;
-  abstract updateSubscription(subscriptionId: string, updates: Partial<Subscription>): Promise<Subscription>;
+  abstract createCheckoutSession(
+    params: CheckoutSessionParams
+  ): Promise<CheckoutSession>;
+  abstract getCheckoutSession(
+    sessionId: string
+  ): Promise<CheckoutSession | null>;
+  abstract createSubscription(
+    params: SubscriptionParams
+  ): Promise<Subscription>;
+  abstract getSubscription(
+    subscriptionId: string
+  ): Promise<Subscription | null>;
+  abstract updateSubscription(
+    subscriptionId: string,
+    updates: Partial<Subscription>
+  ): Promise<Subscription>;
   abstract cancelSubscription(subscriptionId: string): Promise<void>;
   abstract pauseSubscription(subscriptionId: string): Promise<void>;
   abstract resumeSubscription(subscriptionId: string): Promise<void>;
   abstract issueRefund(orderId: string, amount?: number): Promise<RefundResult>;
-  abstract validateWebhookSignature(signature: string, payload: string): boolean;
+  abstract validateWebhookSignature(
+    signature: string,
+    payload: string
+  ): boolean;
   abstract parseWebhookEvent(payload: string): PaymentEvent;
-  abstract getOrCreateCustomer(userId: number, email: string, name?: string): Promise<string>;
+  abstract getOrCreateCustomer(
+    userId: number,
+    email: string,
+    name?: string
+  ): Promise<string>;
 
   // Helper methods
   protected logEvent(event: PaymentEvent): void {
@@ -195,12 +232,18 @@ export abstract class BasePaymentProvider implements PaymentProvider {
 ```typescript
 // server/lib/payment/stripe-provider.ts
 
-import Stripe from 'stripe';
-import { BasePaymentProvider } from './base-provider';
-import { PaymentProviderType, CheckoutSessionParams, Subscription, PaymentEvent, CheckoutSession } from './types';
+import Stripe from "stripe";
+import { BasePaymentProvider } from "./base-provider";
+import {
+  PaymentProviderType,
+  CheckoutSessionParams,
+  Subscription,
+  PaymentEvent,
+  CheckoutSession,
+} from "./types";
 
 export class StripeProvider extends BasePaymentProvider {
-  type: PaymentProviderType = 'stripe';
+  type: PaymentProviderType = "stripe";
   private stripe: Stripe;
 
   constructor() {
@@ -208,7 +251,9 @@ export class StripeProvider extends BasePaymentProvider {
     this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
   }
 
-  async createCheckoutSession(params: CheckoutSessionParams): Promise<CheckoutSession> {
+  async createCheckoutSession(
+    params: CheckoutSessionParams
+  ): Promise<CheckoutSession> {
     const session = await this.stripe.checkout.sessions.create({
       customer_email: params.email,
       line_items: [
@@ -217,7 +262,7 @@ export class StripeProvider extends BasePaymentProvider {
           quantity: params.quantity || 1,
         },
       ],
-      mode: 'subscription',
+      mode: "subscription",
       success_url: params.successUrl,
       cancel_url: params.cancelUrl,
       metadata: {
@@ -229,7 +274,7 @@ export class StripeProvider extends BasePaymentProvider {
     return {
       id: session.id,
       url: session.url!,
-      provider: 'stripe',
+      provider: "stripe",
       expiresAt: new Date(session.expires_at * 1000),
     };
   }
@@ -241,14 +286,17 @@ export class StripeProvider extends BasePaymentProvider {
     return {
       id: session.id,
       url: session.url!,
-      provider: 'stripe',
+      provider: "stripe",
       expiresAt: new Date(session.expires_at * 1000),
     };
   }
 
   async createSubscription(params: SubscriptionParams): Promise<Subscription> {
-    const customerId = await this.getOrCreateCustomer(params.userId, params.email);
-    
+    const customerId = await this.getOrCreateCustomer(
+      params.userId,
+      params.email
+    );
+
     const subscription = await this.stripe.subscriptions.create({
       customer: customerId,
       items: [{ price: params.priceId }],
@@ -262,19 +310,26 @@ export class StripeProvider extends BasePaymentProvider {
   }
 
   async getSubscription(subscriptionId: string): Promise<Subscription | null> {
-    const subscription = await this.stripe.subscriptions.retrieve(subscriptionId);
+    const subscription =
+      await this.stripe.subscriptions.retrieve(subscriptionId);
     if (!subscription) return null;
 
-    const userId = parseInt(subscription.metadata?.userId || '0');
+    const userId = parseInt(subscription.metadata?.userId || "0");
     return this.mapStripeSubscription(subscription, userId);
   }
 
-  async updateSubscription(subscriptionId: string, updates: Partial<Subscription>): Promise<Subscription> {
-    const subscription = await this.stripe.subscriptions.update(subscriptionId, {
-      metadata: updates.metadata,
-    });
+  async updateSubscription(
+    subscriptionId: string,
+    updates: Partial<Subscription>
+  ): Promise<Subscription> {
+    const subscription = await this.stripe.subscriptions.update(
+      subscriptionId,
+      {
+        metadata: updates.metadata,
+      }
+    );
 
-    const userId = parseInt(subscription.metadata?.userId || '0');
+    const userId = parseInt(subscription.metadata?.userId || "0");
     return this.mapStripeSubscription(subscription, userId);
   }
 
@@ -285,7 +340,7 @@ export class StripeProvider extends BasePaymentProvider {
   async pauseSubscription(subscriptionId: string): Promise<void> {
     await this.stripe.subscriptions.update(subscriptionId, {
       pause_collection: {
-        behavior: 'void',
+        behavior: "void",
       },
     });
   }
@@ -305,7 +360,7 @@ export class StripeProvider extends BasePaymentProvider {
     return {
       refundId: refund.id,
       amount: refund.amount / 100,
-      status: refund.status as 'pending' | 'succeeded' | 'failed',
+      status: refund.status as "pending" | "succeeded" | "failed",
     };
   }
 
@@ -324,21 +379,25 @@ export class StripeProvider extends BasePaymentProvider {
 
   parseWebhookEvent(payload: string): PaymentEvent {
     const event = JSON.parse(payload);
-    
+
     return {
       id: event.id,
-      type: event.type as PaymentEvent['type'],
-      provider: 'stripe',
+      type: event.type as PaymentEvent["type"],
+      provider: "stripe",
       timestamp: new Date(event.created * 1000),
       data: event.data.object,
     };
   }
 
-  async getOrCreateCustomer(userId: number, email: string, name?: string): Promise<string> {
+  async getOrCreateCustomer(
+    userId: number,
+    email: string,
+    name?: string
+  ): Promise<string> {
     // Check if customer already exists in database
     // If not, create in Stripe and save mapping
     // Return Stripe customer ID
-    
+
     const customers = await this.stripe.customers.list({
       email,
       limit: 1,
@@ -357,17 +416,24 @@ export class StripeProvider extends BasePaymentProvider {
     return customer.id;
   }
 
-  private mapStripeSubscription(stripeSubscription: Stripe.Subscription, userId: number): Subscription {
+  private mapStripeSubscription(
+    stripeSubscription: Stripe.Subscription,
+    userId: number
+  ): Subscription {
     return {
       id: stripeSubscription.id,
-      provider: 'stripe',
+      provider: "stripe",
       userId,
-      productId: (stripeSubscription.items.data[0].price.product as string),
+      productId: stripeSubscription.items.data[0].price.product as string,
       priceId: stripeSubscription.items.data[0].price.id,
-      status: stripeSubscription.status as Subscription['status'],
-      currentPeriodStart: new Date(stripeSubscription.current_period_start * 1000),
+      status: stripeSubscription.status as Subscription["status"],
+      currentPeriodStart: new Date(
+        stripeSubscription.current_period_start * 1000
+      ),
       currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
-      canceledAt: stripeSubscription.canceled_at ? new Date(stripeSubscription.canceled_at * 1000) : undefined,
+      canceledAt: stripeSubscription.canceled_at
+        ? new Date(stripeSubscription.canceled_at * 1000)
+        : undefined,
       metadata: stripeSubscription.metadata,
     };
   }
@@ -381,26 +447,34 @@ export class StripeProvider extends BasePaymentProvider {
 ```typescript
 // server/lib/payment/polar-provider.ts
 
-import { Polar } from '@polar-sh/sdk';
-import { BasePaymentProvider } from './base-provider';
-import { PaymentProviderType, CheckoutSessionParams, Subscription, PaymentEvent, CheckoutSession } from './types';
+import { Polar } from "@polar-sh/sdk";
+import { BasePaymentProvider } from "./base-provider";
+import {
+  PaymentProviderType,
+  CheckoutSessionParams,
+  Subscription,
+  PaymentEvent,
+  CheckoutSession,
+} from "./types";
 
 export class PolarProvider extends BasePaymentProvider {
-  type: PaymentProviderType = 'polar';
+  type: PaymentProviderType = "polar";
   private polar: Polar;
 
   constructor() {
     super();
     this.polar = new Polar({
       accessToken: process.env.POLAR_ACCESS_TOKEN!,
-      server: process.env.NODE_ENV === 'production' ? 'production' : 'sandbox',
+      server: process.env.NODE_ENV === "production" ? "production" : "sandbox",
     });
   }
 
-  async createCheckoutSession(params: CheckoutSessionParams): Promise<CheckoutSession> {
+  async createCheckoutSession(
+    params: CheckoutSessionParams
+  ): Promise<CheckoutSession> {
     // Implementation similar to Stripe
     // Use Polar Checkout API
-    throw new Error('Not implemented');
+    throw new Error("Not implemented");
   }
 
   // ... other methods
@@ -414,60 +488,71 @@ export class PolarProvider extends BasePaymentProvider {
 ```typescript
 // server/db/schema.ts
 
-import { sqliteTable, text, integer, timestamp, boolean, json } from 'drizzle-orm/sqlite-core';
+import {
+  sqliteTable,
+  text,
+  integer,
+  timestamp,
+  boolean,
+  json,
+} from "drizzle-orm/sqlite-core";
 
-export const subscriptions = sqliteTable('subscriptions', {
-  id: integer('id').primaryKey().autoIncrement(),
-  userId: integer('user_id').notNull(),
-  
+export const subscriptions = sqliteTable("subscriptions", {
+  id: integer("id").primaryKey().autoIncrement(),
+  userId: integer("user_id").notNull(),
+
   // Payment provider info
-  paymentProvider: text('payment_provider', { enum: ['stripe', 'polar'] }).notNull().default('stripe'),
-  stripeSubscriptionId: text('stripe_subscription_id').unique(),
-  polarSubscriptionId: text('polar_subscription_id').unique(),
-  
+  paymentProvider: text("payment_provider", { enum: ["stripe", "polar"] })
+    .notNull()
+    .default("stripe"),
+  stripeSubscriptionId: text("stripe_subscription_id").unique(),
+  polarSubscriptionId: text("polar_subscription_id").unique(),
+
   // Product/Price info
-  productId: text('product_id').notNull(),
-  priceId: text('price_id').notNull(),
-  
+  productId: text("product_id").notNull(),
+  priceId: text("price_id").notNull(),
+
   // Status
-  status: text('status', { enum: ['active', 'paused', 'canceled', 'past_due'] }).notNull(),
-  
+  status: text("status", {
+    enum: ["active", "paused", "canceled", "past_due"],
+  }).notNull(),
+
   // Billing period
-  currentPeriodStart: timestamp('current_period_start').notNull(),
-  currentPeriodEnd: timestamp('current_period_end').notNull(),
-  
+  currentPeriodStart: timestamp("current_period_start").notNull(),
+  currentPeriodEnd: timestamp("current_period_end").notNull(),
+
   // Cancellation
-  canceledAt: timestamp('canceled_at'),
-  
+  canceledAt: timestamp("canceled_at"),
+
   // Metadata
-  metadata: json('metadata'),
-  
+  metadata: json("metadata"),
+
   // Timestamps
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export const paymentCustomers = sqliteTable('payment_customers', {
-  id: integer('id').primaryKey().autoIncrement(),
-  userId: integer('user_id').notNull().unique(),
-  
-  stripeCustomerId: text('stripe_customer_id').unique(),
-  polarCustomerId: text('polar_customer_id').unique(),
-  
-  createdAt: timestamp('created_at').notNull().defaultNow(),
+export const paymentCustomers = sqliteTable("payment_customers", {
+  id: integer("id").primaryKey().autoIncrement(),
+  userId: integer("user_id").notNull().unique(),
+
+  stripeCustomerId: text("stripe_customer_id").unique(),
+  polarCustomerId: text("polar_customer_id").unique(),
+
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const paymentWebhookEvents = sqliteTable('payment_webhook_events', {
-  id: integer('id').primaryKey().autoIncrement(),
-  
-  provider: text('provider', { enum: ['stripe', 'polar'] }).notNull(),
-  eventId: text('event_id').notNull().unique(),
-  eventType: text('event_type').notNull(),
-  
-  payload: json('payload').notNull(),
-  processed: boolean('processed').notNull().default(false),
-  
-  createdAt: timestamp('created_at').notNull().defaultNow(),
+export const paymentWebhookEvents = sqliteTable("payment_webhook_events", {
+  id: integer("id").primaryKey().autoIncrement(),
+
+  provider: text("provider", { enum: ["stripe", "polar"] }).notNull(),
+  eventId: text("event_id").notNull().unique(),
+  eventType: text("event_type").notNull(),
+
+  payload: json("payload").notNull(),
+  processed: boolean("processed").notNull().default(false),
+
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 ```
 
@@ -478,22 +563,24 @@ export const paymentWebhookEvents = sqliteTable('payment_webhook_events', {
 ```typescript
 // server/routers/payment.ts
 
-import { router, publicProcedure, protectedProcedure } from '../trpc';
-import { PaymentProviderFactory } from '../lib/payment/provider-factory';
-import { z } from 'zod';
+import { router, publicProcedure, protectedProcedure } from "../trpc";
+import { PaymentProviderFactory } from "../lib/payment/provider-factory";
+import { z } from "zod";
 
 export const paymentRouter = router({
   createCheckoutSession: protectedProcedure
-    .input(z.object({
-      provider: z.enum(['stripe', 'polar']),
-      productId: z.string(),
-      priceId: z.string(),
-      successUrl: z.string().url(),
-      cancelUrl: z.string().url(),
-    }))
+    .input(
+      z.object({
+        provider: z.enum(["stripe", "polar"]),
+        productId: z.string(),
+        priceId: z.string(),
+        successUrl: z.string().url(),
+        cancelUrl: z.string().url(),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       const provider = PaymentProviderFactory.getProvider(input.provider);
-      
+
       const session = await provider.createCheckoutSession({
         userId: ctx.user.id,
         email: ctx.user.email,
@@ -506,17 +593,18 @@ export const paymentRouter = router({
       return session;
     }),
 
-  getSubscriptions: protectedProcedure
-    .query(async ({ ctx }) => {
-      // Fetch subscriptions from database for current user
-      // Return both Stripe and Polar subscriptions
-    }),
+  getSubscriptions: protectedProcedure.query(async ({ ctx }) => {
+    // Fetch subscriptions from database for current user
+    // Return both Stripe and Polar subscriptions
+  }),
 
   cancelSubscription: protectedProcedure
-    .input(z.object({
-      subscriptionId: z.string(),
-      provider: z.enum(['stripe', 'polar']),
-    }))
+    .input(
+      z.object({
+        subscriptionId: z.string(),
+        provider: z.enum(["stripe", "polar"]),
+      })
+    )
     .mutation(async ({ input }) => {
       const provider = PaymentProviderFactory.getProvider(input.provider);
       await provider.cancelSubscription(input.subscriptionId);
@@ -531,16 +619,20 @@ export const paymentRouter = router({
 ```typescript
 // server/lib/payment/webhook-handler.ts
 
-import { PaymentProviderFactory } from './provider-factory';
-import { PaymentProviderType } from './types';
+import { PaymentProviderFactory } from "./provider-factory";
+import { PaymentProviderType } from "./types";
 
 export class WebhookHandler {
-  async handleWebhook(provider: PaymentProviderType, signature: string, payload: string): Promise<void> {
+  async handleWebhook(
+    provider: PaymentProviderType,
+    signature: string,
+    payload: string
+  ): Promise<void> {
     const paymentProvider = PaymentProviderFactory.getProvider(provider);
 
     // Validate signature
     if (!paymentProvider.validateWebhookSignature(signature, payload)) {
-      throw new Error('Invalid webhook signature');
+      throw new Error("Invalid webhook signature");
     }
 
     // Parse event
@@ -551,22 +643,22 @@ export class WebhookHandler {
 
     // Handle event
     switch (event.type) {
-      case 'checkout.completed':
+      case "checkout.completed":
         await this.handleCheckoutCompleted(event);
         break;
-      case 'subscription.created':
+      case "subscription.created":
         await this.handleSubscriptionCreated(event);
         break;
-      case 'subscription.updated':
+      case "subscription.updated":
         await this.handleSubscriptionUpdated(event);
         break;
-      case 'subscription.canceled':
+      case "subscription.canceled":
         await this.handleSubscriptionCanceled(event);
         break;
-      case 'invoice.paid':
+      case "invoice.paid":
         await this.handleInvoicePaid(event);
         break;
-      case 'invoice.payment_failed':
+      case "invoice.payment_failed":
         await this.handleInvoicePaymentFailed(event);
         break;
     }
@@ -594,21 +686,21 @@ export class WebhookHandler {
 
 ```typescript
 // Creating a checkout session
-const provider = PaymentProviderFactory.getProvider('polar');
+const provider = PaymentProviderFactory.getProvider("polar");
 const session = await provider.createCheckoutSession({
   userId: 123,
-  email: 'user@example.com',
-  productId: 'prod_123',
-  priceId: 'price_123',
-  successUrl: 'https://example.com/success',
-  cancelUrl: 'https://example.com/cancel',
+  email: "user@example.com",
+  productId: "prod_123",
+  priceId: "price_123",
+  successUrl: "https://example.com/success",
+  cancelUrl: "https://example.com/cancel",
 });
 
 // Getting a subscription
-const subscription = await provider.getSubscription('sub_123');
+const subscription = await provider.getSubscription("sub_123");
 
 // Canceling a subscription
-await provider.cancelSubscription('sub_123');
+await provider.cancelSubscription("sub_123");
 ```
 
 ---

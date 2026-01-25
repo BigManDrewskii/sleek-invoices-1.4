@@ -266,9 +266,8 @@ export async function canUserCreateInvoice(
     | null
 ): Promise<boolean> {
   // Import subscription helpers from shared constants
-  const { isPro, canCreateInvoice } = await import(
-    "../../shared/subscription.js"
-  );
+  const { isPro, canCreateInvoice } =
+    await import("../../shared/subscription.js");
 
   // Pro users bypass all limits
   if (isPro(subscriptionStatus)) {

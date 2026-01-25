@@ -3,6 +3,8 @@ import { Link } from "wouter";
 import { LayoutDashboard, Menu, LogIn, UserPlus } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { getLoginUrl } from "@/const";
+import { getLoginUrl } from "@/const";
 
 export function LandingNavigation() {
   const [scrolled, setScrolled] = useState(false);
@@ -105,6 +107,13 @@ export function LandingNavigation() {
                 >
                   <LogIn className="h-3.5 w-3.5" />
                   Log In with Google
+                </a>
+                <a
+                  href={getLoginUrl("github")}
+                  className="h-8 rounded-[33554400px] bg-[#5f6fff] border border-[#5f6fff] px-4 flex items-center justify-center gap-2 text-xs font-medium text-[#f1f6f9] hover:bg-[#5f6fff]/90 transition-all"
+                >
+                  <LogIn className="h-3.5 w-3.5" />
+                  Log In with GitHub
                 </a>
                 <a
                   href={getLoginUrl("github")}

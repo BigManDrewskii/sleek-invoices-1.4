@@ -5,11 +5,7 @@ import fs from "node:fs";
 import path from "path";
 import { defineConfig } from "vite";
 
-const plugins = [
-  react(),
-  tailwindcss(),
-  jsxLocPlugin(),
-];
+const plugins = [react(), tailwindcss(), jsxLocPlugin()];
 
 export default defineConfig({
   plugins,
@@ -104,11 +100,7 @@ export default defineConfig({
   },
   server: {
     host: true,
-    allowedHosts: [
-      "localhost",
-      "127.0.0.1",
-      ".vercel.app",
-    ],
+    allowedHosts: ["localhost", "127.0.0.1", ".vercel.app"],
     fs: {
       strict: true,
       deny: ["**/.*"],

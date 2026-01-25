@@ -1,10 +1,10 @@
 /**
  * CSRF Protection Middleware
- * 
+ *
  * Uses Custom Header Validation pattern to prevent CSRF attacks.
  * Browsers won't add custom headers to cross-origin requests without CORS preflight,
  * and our CORS policy only allows same-origin requests.
- * 
+ *
  * This middleware validates that mutation requests include a custom header
  * that can only be set by JavaScript running on our domain.
  */
@@ -35,7 +35,7 @@ const PROTECTED_METHODS = ["POST", "PUT", "PATCH", "DELETE"];
 
 /**
  * Validates that the request includes the required CSRF header.
- * 
+ *
  * @param req - Express request object
  * @returns true if the request passes CSRF validation
  */
@@ -46,7 +46,7 @@ export function validateCsrfHeader(req: Request): boolean {
 
 /**
  * Express middleware for CSRF protection.
- * 
+ *
  * This middleware:
  * 1. Allows safe HTTP methods (GET, HEAD, OPTIONS)
  * 2. Allows exempt paths (webhooks, health checks)
@@ -70,7 +70,9 @@ export function csrfProtection(
 
   // Validate CSRF header for protected requests
   if (!validateCsrfHeader(req)) {
-    console.warn(`[CSRF] Blocked request without valid CSRF header: ${req.method} ${req.path}`);
+    console.warn(
+      `[CSRF] Blocked request without valid CSRF header: ${req.method} ${req.path}`
+    );
     res.status(403).json({
       error: "CSRF validation failed",
       message: "Missing or invalid CSRF protection header",

@@ -1,7 +1,4 @@
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { DollarSign, FileText, Receipt, Tag } from "lucide-react";
 import { Currency } from "@/components/ui/typography";
 

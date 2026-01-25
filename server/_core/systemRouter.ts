@@ -28,17 +28,15 @@ export const systemRouter = router({
     }),
 
   detectOverdueInvoices: adminProcedure.mutation(async () => {
-    const { detectAndMarkOverdueInvoices } = await import(
-      "../jobs/detectOverdueInvoices"
-    );
+    const { detectAndMarkOverdueInvoices } =
+      await import("../jobs/detectOverdueInvoices");
     const result = await detectAndMarkOverdueInvoices();
     return result;
   }),
 
   sendReminders: adminProcedure.mutation(async () => {
-    const { sendOverdueReminders } = await import(
-      "../jobs/sendOverdueReminders"
-    );
+    const { sendOverdueReminders } =
+      await import("../jobs/sendOverdueReminders");
     await sendOverdueReminders();
     return { success: true };
   }),

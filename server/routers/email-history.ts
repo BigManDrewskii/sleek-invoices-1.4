@@ -198,8 +198,7 @@ export const emailHistoryRouter = router({
         ...d,
         openRate:
           d.delivered > 0 ? Math.round((d.opened / d.delivered) * 100) : 0,
-        clickRate:
-          d.opened > 0 ? Math.round((d.clicked / d.opened) * 100) : 0,
+        clickRate: d.opened > 0 ? Math.round((d.clicked / d.opened) * 100) : 0,
         bounceRate: d.sent > 0 ? Math.round((d.bounced / d.sent) * 100) : 0,
       }));
 

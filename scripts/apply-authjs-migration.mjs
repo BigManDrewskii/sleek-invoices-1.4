@@ -1,5 +1,5 @@
-import mysql from 'mysql2/promise';
-import 'dotenv/config';
+import mysql from "mysql2/promise";
+import "dotenv/config";
 
 async function applyAuthJsMigration() {
   const dbUrl = new URL(process.env.DATABASE_URL);
@@ -11,14 +11,14 @@ async function applyAuthJsMigration() {
     password: dbUrl.password,
     database: dbUrl.pathname.slice(1),
     ssl: { rejectUnauthorized: true },
-    multipleStatements: true
+    multipleStatements: true,
   });
 
   try {
-    console.log('🔧 Applying Auth.js migration in separate steps...\n');
+    console.log("🔧 Applying Auth.js migration in separate steps...\n");
 
     // Step 1: Add columns without UNIQUE constraint
-    console.log('Step 1: Adding uuid, emailVerified, image columns...');
+    console.log("Step 1: Adding uuid, emailVerified, image columns...");
     try {
       await connection.query(`
         ALTER TABLE users
@@ -26,52 +26,59 @@ async function applyAuthJsMigration() {
         ADD COLUMN emailVerified TIMESTAMP NULL AFTER email,
         ADD COLUMN image TEXT NULL AFTER avatarUrl
       `);
-      console.log('✅ Columns added\n');
+      console.log("✅ Columns added\n");
     } catch (error) {
-      if (error.code === 'ER_DUP_FIELDNAME') {
-        console.log('⏭️  Columns already exist, skipping...\n');
+      if (error.code === "ER_DUP_FIELDNAME") {
+        console.log("⏭️  Columns already exist, skipping...\n");
       } else {
         throw error;
       }
     }
 
     // Step 2: Add UNIQUE constraint on uuid separately
-    console.log('Step 2: Adding UNIQUE constraint on uuid...');
+    console.log("Step 2: Adding UNIQUE constraint on uuid...");
     try {
-      await connection.query(`CREATE UNIQUE INDEX idx_users_uuid_unique ON users(uuid)`);
-      console.log('✅ UNIQUE constraint added\n');
+      await connection.query(
+        `CREATE UNIQUE INDEX idx_users_uuid_unique ON users(uuid)`
+      );
+      console.log("✅ UNIQUE constraint added\n");
     } catch (error) {
-      if (error.code === 'ER_DUP_KEYNAME' || error.code === 'ER_KEY_FILE_DOES_NOT_EXIST') {
-        console.log('⏭️  Index already exists, skipping...\n');
+      if (
+        error.code === "ER_DUP_KEYNAME" ||
+        error.code === "ER_KEY_FILE_DOES_NOT_EXIST"
+      ) {
+        console.log("⏭️  Index already exists, skipping...\n");
       } else {
         console.log(`Warning: ${error.message}\n`);
       }
     }
 
     // Step 3: Add index on uuid for faster lookups
-    console.log('Step 3: Adding index on uuid...');
+    console.log("Step 3: Adding index on uuid...");
     try {
       await connection.query(`CREATE INDEX idx_users_uuid ON users(uuid)`);
-      console.log('✅ Index added\n');
+      console.log("✅ Index added\n");
     } catch (error) {
-      if (error.code === 'ER_DUP_KEYNAME') {
-        console.log('⏭️  Index already exists, skipping...\n');
+      if (error.code === "ER_DUP_KEYNAME") {
+        console.log("⏭️  Index already exists, skipping...\n");
       } else {
         console.log(`Warning: ${error.message}\n`);
       }
     }
 
     // Step 4: Modify openId column
-    console.log('Step 4: Modifying openId column...');
+    console.log("Step 4: Modifying openId column...");
     try {
-      await connection.query(`ALTER TABLE users MODIFY COLUMN openId VARCHAR(64) UNIQUE NULL`);
-      console.log('✅ openId column modified\n');
+      await connection.query(
+        `ALTER TABLE users MODIFY COLUMN openId VARCHAR(64) UNIQUE NULL`
+      );
+      console.log("✅ openId column modified\n");
     } catch (error) {
       console.log(`Warning: ${error.message}\n`);
     }
 
     // Step 5: Create accounts table
-    console.log('Step 5: Creating accounts table...');
+    console.log("Step 5: Creating accounts table...");
     await connection.query(`
       CREATE TABLE IF NOT EXISTS accounts (
         id CHAR(36) PRIMARY KEY,
@@ -92,10 +99,10 @@ async function applyAuthJsMigration() {
         UNIQUE KEY unique_provider_account (provider, providerAccountId)
       )
     `);
-    console.log('✅ accounts table created\n');
+    console.log("✅ accounts table created\n");
 
     // Step 6: Create sessions table
-    console.log('Step 6: Creating sessions table...');
+    console.log("Step 6: Creating sessions table...");
     await connection.query(`
       CREATE TABLE IF NOT EXISTS sessions (
         id CHAR(36) PRIMARY KEY,
@@ -107,11 +114,11 @@ async function applyAuthJsMigration() {
         FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
       )
     `);
-    console.log('✅ sessions table created\n');
+    console.log("✅ sessions table created\n");
 
-    console.log('✅ Auth.js migration completed successfully!');
+    console.log("✅ Auth.js migration completed successfully!");
   } catch (error) {
-    console.error('❌ Migration failed:', error.message);
+    console.error("❌ Migration failed:", error.message);
   } finally {
     await connection.end();
   }

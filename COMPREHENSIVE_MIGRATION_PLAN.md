@@ -1,4 +1,5 @@
 # Comprehensive Migration Plan: Manus → Vercel
+
 ## SleekInvoices 1.4 Full Migration Strategy
 
 **Date**: January 22, 2026
@@ -15,6 +16,7 @@ This document provides a complete, step-by-step migration plan to move SleekInvo
 ### Current State Analysis
 
 **What Works Now:**
+
 - ✅ Auth.js fully integrated (Google + GitHub OAuth)
 - ✅ Database schema migrated (Auth.js tables added, UUID system implemented)
 - ✅ Serverless-compatible code structure with lazy initialization
@@ -23,6 +25,7 @@ This document provides a complete, step-by-step migration plan to move SleekInvo
 - ✅ API handler structure (`api/index.js`)
 
 **What Failed Yesterday:**
+
 - ❌ Manus runtime plugin still in Vite config (causes build issues)
 - ❌ Manus-specific allowed hosts in Vite config
 - ❌ Database connection issues (likely SSL/TiDB compatibility)
@@ -30,6 +33,7 @@ This document provides a complete, step-by-step migration plan to move SleekInvo
 - ❌ Cron jobs not handled (serverless incompatible)
 
 **Root Causes Identified:**
+
 1. **Vite build still includes `vite-plugin-manus-runtime`** - this plugin tries to inject Manus-specific code
 2. **Database connection string format** - may need adjustment for TiDB vs standard MySQL
 3. **Missing critical environment variables** in Vercel dashboard
@@ -45,6 +49,7 @@ This document provides a complete, step-by-step migration plan to move SleekInvo
 **File**: `vite.config.ts`
 
 **Current problematic code:**
+
 ```typescript
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
 
@@ -52,11 +57,12 @@ const plugins = [
   react(),
   tailwindcss(),
   jsxLocPlugin(),
-  vitePluginManusRuntime(),  // ❌ REMOVE THIS
+  vitePluginManusRuntime(), // ❌ REMOVE THIS
 ];
 ```
 
 **Fix:**
+
 ```typescript
 const plugins = [
   react(),
@@ -67,15 +73,17 @@ const plugins = [
 ```
 
 **Also remove from `package.json`:**
+
 ```json
 {
   "devDependencies": {
-    "vite-plugin-manus-runtime": "^0.0.57"  // ❌ REMOVE THIS LINE
+    "vite-plugin-manus-runtime": "^0.0.57" // ❌ REMOVE THIS LINE
   }
 }
 ```
 
 **Verification:**
+
 ```bash
 pnpm install
 pnpm build  # Should complete without Manus-related errors
@@ -86,6 +94,7 @@ pnpm build  # Should complete without Manus-related errors
 **File**: `vite.config.ts`
 
 **Current code:**
+
 ```typescript
 server: {
   allowedHosts: [
@@ -101,6 +110,7 @@ server: {
 ```
 
 **Fix:**
+
 ```typescript
 server: {
   allowedHosts: [
@@ -114,15 +124,18 @@ server: {
 ### 1.3 Verify No Manus Auth Remnants
 
 **Search and remove:**
+
 ```bash
 grep -r "manus" server/ client/src/ --exclude-dir=node_modules
 ```
 
 **Expected results should be:**
+
 - Comments only (OK)
 - No actual Manus SDK imports or usage
 
 **Files to check:**
+
 - `server/_core/context.ts` - Ensure SKIP_AUTH is only for local dev
 - `client/src/pages/` - No Manus OAuth buttons
 - `server/_core/auth.ts` - Using Auth.js only (not Manus)
@@ -134,12 +147,14 @@ grep -r "manus" server/ client/src/ --exclude-dir=node_modules
 ### 2.1 Choose Database Strategy
 
 **Option A: Keep Current TiDB/MySQL**
+
 - ✅ No data migration needed
 - ✅ Already working in Manus
 - ⚠️ Must ensure SSL connection works from Vercel
 - ⚠️ May need connection pooling (PlanetScale offers this)
 
 **Option B: Migrate to PlanetScale (Recommended)**
+
 - ✅ Free tier available
 - ✅ Built-in connection pooling (critical for serverless)
 - ✅ Auto-scaling
@@ -151,6 +166,7 @@ grep -r "manus" server/ client/src/ --exclude-dir=node_modules
 ### 2.2 PlanetScale Migration Steps (if chosen)
 
 #### Step 1: Create PlanetScale Database
+
 ```bash
 # Install CLI
 brew install planetscale/tap/pscale
@@ -166,6 +182,7 @@ pscale connection-string sleekinvoices production --format javascript
 ```
 
 #### Step 2: Migrate Data
+
 ```bash
 # Export from current database
 mysqldump -h current-host -u user -p database > backup.sql
@@ -177,7 +194,9 @@ pscale shell sleekinvoices production < backup.sql
 ```
 
 #### Step 3: Update Connection String
+
 **Vercel Environment Variable:**
+
 ```
 DATABASE_URL=mysql://xxx:pscale_pw_xxx@aws.connect.psdb.cloud/sleekinvoices?ssl={"rejectUnauthorized":true}
 ```
@@ -185,6 +204,7 @@ DATABASE_URL=mysql://xxx:pscale_pw_xxx@aws.connect.psdb.cloud/sleekinvoices?ssl=
 ### 2.3 If Keeping TiDB/MySQL
 
 **Update `server/db/connection.ts`:**
+
 ```typescript
 export async function getDb() {
   if (!db) {
@@ -232,6 +252,7 @@ openssl rand -base64 32
 ### 3.2 Configure OAuth Providers
 
 #### Google OAuth (Required)
+
 1. Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
 2. Create OAuth 2.0 credentials
 3. Authorized JavaScript origins:
@@ -242,6 +263,7 @@ openssl rand -base64 32
    - `https://sleekinvoices.vercel.app/api/auth/callback/google`
 
 #### GitHub OAuth (Recommended)
+
 1. Go to [GitHub Developer Settings](https://github.com/settings/developers)
 2. Register new OAuth app
 3. Authorization callback URL:
@@ -252,27 +274,27 @@ openssl rand -base64 32
 
 **Vercel Dashboard → Project → Settings → Environment Variables**
 
-| Variable | Required? | Environment |
-|----------|-----------|-------------|
-| `DATABASE_URL` | ✅ Required | Production + Preview |
-| `JWT_SECRET` | ✅ Required | Production + Preview |
-| `AUTH_SECRET` | ✅ Required | Production + Preview |
-| `AUTH_GOOGLE_ID` | ✅ Required | Production + Preview |
-| `AUTH_GOOGLE_SECRET` | ✅ Required | Production + Preview |
-| `AUTH_GITHUB_ID` | Optional | Production + Preview |
-| `AUTH_GITHUB_SECRET` | Optional | Production + Preview |
-| `OAUTH_SERVER_URL` | ✅ Required | Production: `https://sleekinvoices.vercel.app` |
-| `NODE_ENV` | ✅ Required | Production: `production`, Preview: `development` |
-| `VERCEL` | ✅ Required | All: `1` |
-| `PDF_GENERATION_ENABLED` | Optional | Production: `false` (recommended) |
-| `STRIPE_SECRET_KEY` | Optional | Production |
-| `STRIPE_WEBHOOK_SECRET` | Optional | Production |
-| `RESEND_API_KEY` | Optional | Production |
-| `OPENROUTER_API_KEY` | Optional | Production |
-| `S3_BUCKET` | Optional | Production |
-| `S3_REGION` | Optional | Production |
-| `S3_ACCESS_KEY_ID` | Optional | Production |
-| `S3_SECRET_ACCESS_KEY` | Optional | Production |
+| Variable                 | Required?   | Environment                                      |
+| ------------------------ | ----------- | ------------------------------------------------ |
+| `DATABASE_URL`           | ✅ Required | Production + Preview                             |
+| `JWT_SECRET`             | ✅ Required | Production + Preview                             |
+| `AUTH_SECRET`            | ✅ Required | Production + Preview                             |
+| `AUTH_GOOGLE_ID`         | ✅ Required | Production + Preview                             |
+| `AUTH_GOOGLE_SECRET`     | ✅ Required | Production + Preview                             |
+| `AUTH_GITHUB_ID`         | Optional    | Production + Preview                             |
+| `AUTH_GITHUB_SECRET`     | Optional    | Production + Preview                             |
+| `OAUTH_SERVER_URL`       | ✅ Required | Production: `https://sleekinvoices.vercel.app`   |
+| `NODE_ENV`               | ✅ Required | Production: `production`, Preview: `development` |
+| `VERCEL`                 | ✅ Required | All: `1`                                         |
+| `PDF_GENERATION_ENABLED` | Optional    | Production: `false` (recommended)                |
+| `STRIPE_SECRET_KEY`      | Optional    | Production                                       |
+| `STRIPE_WEBHOOK_SECRET`  | Optional    | Production                                       |
+| `RESEND_API_KEY`         | Optional    | Production                                       |
+| `OPENROUTER_API_KEY`     | Optional    | Production                                       |
+| `S3_BUCKET`              | Optional    | Production                                       |
+| `S3_REGION`              | Optional    | Production                                       |
+| `S3_ACCESS_KEY_ID`       | Optional    | Production                                       |
+| `S3_SECRET_ACCESS_KEY`   | Optional    | Production                                       |
 
 **Critical: Select "All Environments" for core auth/database variables.**
 
@@ -283,11 +305,12 @@ openssl rand -base64 32
 **Problem**: `node-cron` won't work in serverless (no long-running process).
 
 **Current code** (`server/jobs/scheduler.ts`):
+
 ```typescript
-import cron from 'node-cron';
+import cron from "node-cron";
 
 // This NEVER runs in Vercel serverless!
-cron.schedule('0 0 * * *', generateRecurringInvoices);
+cron.schedule("0 0 * * *", generateRecurringInvoices);
 ```
 
 **Solution**: Migrate to Vercel Cron Jobs
@@ -295,18 +318,21 @@ cron.schedule('0 0 * * *', generateRecurringInvoices);
 ### 4.1 Create Vercel Cron Endpoint
 
 **New file**: `api/crons/recurring-invoices.ts`
+
 ```typescript
-import { generateRecurringInvoices } from '../../server/jobs/recurring-invoices';
+import { generateRecurringInvoices } from "../../server/jobs/recurring-invoices";
 
 export default async function handler(req, res) {
   // Verify Vercel cron secret
   if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
-    return res.status(401).json({ error: 'Unauthorized' });
+    return res.status(401).json({ error: "Unauthorized" });
   }
 
   try {
     await generateRecurringInvoices();
-    res.status(200).json({ success: true, timestamp: new Date().toISOString() });
+    res
+      .status(200)
+      .json({ success: true, timestamp: new Date().toISOString() });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -347,13 +373,16 @@ Add to Vercel: `CRON_SECRET`
 ## Phase 5: Fix PDF Generation (30 min)
 
 **Problem**: Puppeteer in serverless causes:
+
 - Memory errors (PDF generation needs ~500MB)
 - Timeout errors (Vercel max 30s on Pro plan)
 
 ### Solutions
 
 #### Option A: Disable Serverless PDF (Current implementation)
+
 **Already implemented in `server/_core/index.ts`:**
+
 ```typescript
 if (process.env.PDF_GENERATION_ENABLED === "false") {
   return res.status(503).json({
@@ -366,20 +395,25 @@ if (process.env.PDF_GENERATION_ENABLED === "false") {
 **Vercel env var**: `PDF_GENERATION_ENABLED=false`
 
 #### Option B: Use Serverless PDF Service (Recommended for production)
+
 **Services**: Cloudmersive, PDF.co, or PDFMonkey
 
 **Implementation example**:
+
 ```typescript
 // server/pdf-service.ts
 export async function generatePDFWithService(data: any) {
-  const response = await fetch('https://api.cloudmersive.com/convert/html/to/pdf', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Apikey': process.env.CLOUDMERSIVE_API_KEY,
-    },
-    body: JSON.stringify({ html: renderInvoiceHtml(data) }),
-  });
+  const response = await fetch(
+    "https://api.cloudmersive.com/convert/html/to/pdf",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Apikey: process.env.CLOUDMERSIVE_API_KEY,
+      },
+      body: JSON.stringify({ html: renderInvoiceHtml(data) }),
+    }
+  );
 
   return await response.arrayBuffer();
 }
@@ -423,6 +457,7 @@ vercel
 ```
 
 **Test endpoints on preview URL:**
+
 - `/api/health` - Should return `{"status":"healthy"}`
 - `/api/test-env` - Should show all env vars set
 - `/api/auth/signin` - Should show Auth.js sign-in page
@@ -442,6 +477,7 @@ vercel --prod
 ### 6.4 Post-Deployment Tests
 
 **Authentication Flow:**
+
 1. Visit `https://sleekinvoices.vercel.app`
 2. Click "Sign in with Google"
 3. Complete OAuth flow
@@ -449,6 +485,7 @@ vercel --prod
 5. Check database for `accounts` and `sessions` records
 
 **Core Features:**
+
 - Create invoice ✅
 - Send invoice ✅
 - View invoice list ✅
@@ -456,6 +493,7 @@ vercel --prod
 - Settings page ✅
 
 **Webhooks:**
+
 - Test Stripe webhook (if configured)
 - Test Resend webhook (if configured)
 
@@ -466,11 +504,13 @@ vercel --prod
 ### 7.1 Set Up Monitoring
 
 **Vercel Analytics** (auto-enabled):
+
 - Track page views
 - Monitor function invocations
 - Error rates
 
 **Sentry** (already integrated):
+
 ```typescript
 // Check server/_core/errorMonitoring.ts
 // Should send errors to Sentry
@@ -479,13 +519,14 @@ vercel --prod
 ### 7.2 Performance Tuning
 
 **Serverless Function Optimization:**
+
 ```json
 // vercel.json
 {
   "functions": {
     "api/**/*.js": {
-      "memory": 1024,      // Increase for PDF
-      "maxDuration": 30,   // Max for Pro plan
+      "memory": 1024, // Increase for PDF
+      "maxDuration": 30, // Max for Pro plan
       "runtime": "nodejs20"
     }
   }
@@ -493,13 +534,15 @@ vercel --prod
 ```
 
 **Database Connection Pooling:**
+
 - Use PlanetScale's built-in pooling
 - Or use external service: PgBouncer, ProxySQL
 
 **Caching Strategy:**
+
 ```typescript
 // Add Redis for frequent queries (optional)
-import Redis from 'ioredis';
+import Redis from "ioredis";
 
 const redis = new Redis(process.env.REDIS_URL);
 
@@ -516,11 +559,13 @@ export async function getCachedUser(id: number) {
 ### 7.3 Cost Monitoring
 
 **Vercel Pro Plan** ($20/month):
+
 - 100GB bandwidth
 - 1000 serverless function invocations/day
 - 30s execution time
 
 **Expected usage for SleekInvoices:**
+
 - ~50-100 invocations/day for small user base
 - ~500MB-1GB bandwidth/month
 - Should stay well within free tier initially
@@ -534,6 +579,7 @@ export async function getCachedUser(id: number) {
 **Cause**: Manus plugin still in build process
 
 **Fix**:
+
 ```bash
 # Remove from package.json
 pnpm remove vite-plugin-manus-runtime
@@ -552,12 +598,14 @@ pnpm build
 **Cause**: Environment variables missing
 
 **Diagnose**:
+
 ```bash
 # Visit /api/test-env
 # Check which variables are MISSING
 ```
 
 **Fix**:
+
 1. Go to Vercel Dashboard
 2. Project → Settings → Environment Variables
 3. Add missing variables
@@ -568,12 +616,14 @@ pnpm build
 **Cause**: SSL or connection pool issues
 
 **Diagnose**:
+
 ```bash
 # Visit /api/health/detailed
 # Check database latency
 ```
 
 **Fix**:
+
 1. Ensure `DATABASE_URL` has `ssl={"rejectUnauthorized":true}`
 2. Reduce `connectionLimit` to 10
 3. Add `idleTimeout: 20_000`
@@ -584,6 +634,7 @@ pnpm build
 **Cause**: Redirect URI mismatch
 
 **Fix**:
+
 1. Check OAuth provider dashboard
 2. Ensure `https://your-app.vercel.app/api/auth/callback/google` is listed
 3. Check `OAUTH_SERVER_URL` env var matches exactly
@@ -593,6 +644,7 @@ pnpm build
 **Cause**: Using `node-cron` instead of Vercel Cron
 
 **Fix**:
+
 1. Create API endpoints in `api/crons/`
 2. Update `vercel.json` with `crons` array
 3. Add `CRON_SECRET` to Vercel env vars
@@ -602,6 +654,7 @@ pnpm build
 **Cause**: Puppeteer too slow for serverless
 
 **Fix**:
+
 1. Set `PDF_GENERATION_ENABLED=false`
 2. Guide users to use browser print
 3. Or migrate to PDF generation service (Cloudmersive, PDF.co)
@@ -613,12 +666,14 @@ pnpm build
 If production deployment fails:
 
 ### Option 1: Vercel Rollback
+
 1. Go to Vercel Dashboard
 2. Deployments tab
 3. Find previous working deployment
 4. Click "Promote to Production"
 
 ### Option 2: Git Rollback
+
 ```bash
 git revert HEAD
 git push origin main
@@ -626,6 +681,7 @@ vercel --prod
 ```
 
 ### Option 3: Manual Rollback to Manus
+
 ```bash
 # Go back to working commit
 git checkout <working-commit-hash>
@@ -642,16 +698,16 @@ pnpm build
 
 ## Migration Timeline Estimate
 
-| Phase | Duration | Dependencies |
-|-------|----------|--------------|
-| Phase 1: Clean Manus Dependencies | 30 min | None |
-| Phase 2: Database Migration | 1-2 hours | Phase 1 |
-| Phase 3: Environment Variables | 45 min | Phase 1 |
-| Phase 4: Cron Jobs | 1-2 hours | Phase 1 |
-| Phase 5: PDF Generation | 30 min | None |
-| Phase 6: Testing | 2-3 hours | Phases 1-5 |
-| Phase 7: Monitoring | Ongoing | Phase 6 |
-| **Total** | **6-9 hours** | |
+| Phase                             | Duration      | Dependencies |
+| --------------------------------- | ------------- | ------------ |
+| Phase 1: Clean Manus Dependencies | 30 min        | None         |
+| Phase 2: Database Migration       | 1-2 hours     | Phase 1      |
+| Phase 3: Environment Variables    | 45 min        | Phase 1      |
+| Phase 4: Cron Jobs                | 1-2 hours     | Phase 1      |
+| Phase 5: PDF Generation           | 30 min        | None         |
+| Phase 6: Testing                  | 2-3 hours     | Phases 1-5   |
+| Phase 7: Monitoring               | Ongoing       | Phase 6      |
+| **Total**                         | **6-9 hours** |              |
 
 **Recommended schedule**: Complete in one day, or split over 2 days with Phase 6 on day 2.
 
@@ -677,24 +733,28 @@ Migration is successful when:
 ## Post-Migration Tasks
 
 ### Week 1: Monitor & Stabilize
+
 - Check Vercel logs daily for errors
 - Monitor database connection pool usage
 - Test all critical user flows daily
 - Gather user feedback on any issues
 
 ### Week 2: Optimize
+
 - Add caching layer if needed
 - Optimize slow database queries
 - Tune serverless function memory/duration
 - Set up alerts for error rates
 
 ### Week 3: Scale
+
 - Consider multi-region deployment
 - Implement CDN for static assets
 - Add Redis for session caching
 - Optimize bundle sizes
 
 ### Month 1: Review
+
 - Analyze Vercel invoice ($20/month expected)
 - Review serverless function usage
 - Plan for scale if user base grows
@@ -707,17 +767,20 @@ Migration is successful when:
 ### Appendix A: File Changes Summary
 
 **Files to modify:**
+
 1. `vite.config.ts` - Remove Manus plugin, update allowedHosts
 2. `package.json` - Remove `vite-plugin-manus-runtime`
 3. `vercel.json` - Add cron jobs configuration
 4. `server/db/connection.ts` - Add SSL enforcement
 
 **Files to create:**
+
 1. `api/crons/recurring-invoices.ts`
 2. `api/crons/check-overdue.ts`
 3. `api/crons/send-reminders.ts`
 
 **Environment variables to add to Vercel:**
+
 - `DATABASE_URL`
 - `JWT_SECRET`
 - `AUTH_SECRET`
@@ -762,17 +825,20 @@ pscale connection-string <database> production
 ### Appendix C: Resource Links
 
 **Documentation:**
+
 - [Vercel Serverless Functions](https://vercel.com/docs/functions/serverless-functions)
 - [Vercel Cron Jobs](https://vercel.com/docs/cron-jobs)
 - [Auth.js](https://authjs.dev/)
 - [PlanetScale](https://planetscale.com/docs)
 
 **Services:**
+
 - [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
 - [GitHub OAuth Apps](https://github.com/settings/developers)
 - [Cloudmersive PDF API](https://cloudmersive.com/pdf-api)
 
 **Migration Tools:**
+
 - [Vercel CLI](https://github.com/vercel/vercel/tree/main/cli)
 - [PlanetScale CLI](https://github.com/planetscale/cli)
 - [mysqldump](https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html)

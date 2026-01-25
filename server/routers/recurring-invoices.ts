@@ -1,8 +1,4 @@
-import {
-  protectedProcedure,
-  router,
-  TRPCError,
-} from "../_core/trpc";
+import { protectedProcedure, router, TRPCError } from "../_core/trpc";
 import { z } from "zod";
 import * as db from "../db";
 
@@ -14,10 +10,7 @@ export const recurringInvoicesRouter = router({
   get: protectedProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ ctx, input }) => {
-      const recurring = await db.getRecurringInvoiceById(
-        input.id,
-        ctx.user.id
-      );
+      const recurring = await db.getRecurringInvoiceById(input.id, ctx.user.id);
       if (!recurring) return null;
 
       const lineItems = await db.getRecurringInvoiceLineItems(input.id);
@@ -173,9 +166,8 @@ export const recurringInvoicesRouter = router({
       throw new Error("Only admins can manually trigger invoice generation");
     }
 
-    const { generateRecurringInvoices } = await import(
-      "../jobs/generateRecurringInvoices"
-    );
+    const { generateRecurringInvoices } =
+      await import("../jobs/generateRecurringInvoices");
     await generateRecurringInvoices();
 
     return { success: true, message: "Invoice generation triggered" };
@@ -185,8 +177,6 @@ export const recurringInvoicesRouter = router({
   getGenerationLogs: protectedProcedure
     .input(z.object({ recurringInvoiceId: z.number() }))
     .query(async ({ ctx, input }) => {
-      return await db.getGenerationLogsByRecurringId(
-        input.recurringInvoiceId
-      );
+      return await db.getGenerationLogsByRecurringId(input.recurringInvoiceId);
     }),
 });

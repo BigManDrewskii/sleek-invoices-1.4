@@ -5,6 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Deployment Platform
 
 **Vercel Serverless Environment**
+
 - This app is deployed on Vercel using serverless functions
 - Server functions must initialize lazily (per-request) to avoid cold start issues
 - DO NOT use top-level `await` or application-level singletons in server code
@@ -134,6 +135,7 @@ pnpm start
 - Vercel deployment: Routes defined in `vercel.json` (API → serverless functions, static → dist/public)
 
 **API Route Structure**:
+
 - `/api/trpc/*` - All tRPC procedures (mutations, queries)
 - `/api/stripe/webhook` - Stripe webhook handler (raw body parser)
 - `/api/webhooks/nowpayments` - NOWPayments webhook handler
@@ -166,7 +168,7 @@ pnpm start
 - **Local Dev**: Set `SKIP_AUTH=true` to auto-authenticate as "dev-user-local"
 - Session user available in `ctx.user` for protected procedures
 - Frontend gets user via `api.auth.me` query or `/api/auth/session`
-- CSRF protection via custom headers (server/_core/csrf.ts) and Auth.js built-in CSRF tokens
+- CSRF protection via custom headers (server/\_core/csrf.ts) and Auth.js built-in CSRF tokens
 - Rate limiting: standard (100 req/15min) and strict (20 req/15min) for sensitive routes
 
 ### 4. Frontend Patterns
@@ -348,6 +350,7 @@ open http://localhost:5173
 ### Environment Variables
 
 **Auth.js OAuth (REQUIRED for production):**
+
 - `AUTH_SECRET` - Random secret for JWT signing (generate with `openssl rand -base64 32`)
 - `AUTH_GOOGLE_ID` - Google OAuth client ID
 - `AUTH_GOOGLE_SECRET` - Google OAuth client secret
@@ -356,12 +359,15 @@ open http://localhost:5173
 - `AUTH_URL` - Full app URL (auto-detected, but can be set explicitly)
 
 **Auth Bypass (Local Dev Only):**
+
 - `SKIP_AUTH=true` - Bypass OAuth and auto-login as dev user (NEVER set in production)
 
 **Other Required:**
+
 - `DATABASE_URL` - MySQL connection string
 
 **Optional:**
+
 - `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` - Stripe payments
 - `RESEND_API_KEY` - Transactional emails
 - `OPENROUTER_API_KEY` - AI features
@@ -377,12 +383,14 @@ Set `SKIP_AUTH=true` in `.env.local` to bypass OAuth and auto-login as dev user.
 ### Environment-Specific Behavior
 
 **Local Development**:
+
 - Set `SKIP_AUTH=true` in `.env.local` to bypass OAuth and auto-login as "dev-user-local"
 - Vite dev server handles frontend with HMR on port 5173
 - Express server runs on port 3000 (auto-finds available port if 3000 is busy)
 - Cron jobs run via node-cron (initialized in `server/_core/index.ts`)
 
 **Vercel Production**:
+
 - Serverless functions handle all API routes (defined in `vercel.json`)
 - Cron jobs run via Vercel Cron Jobs (3 scheduled jobs in `vercel.json`)
 - PDF generation disabled in serverless (`PDF_GENERATION_ENABLED=false`) due to memory constraints
@@ -392,10 +400,12 @@ Set `SKIP_AUTH=true` in `.env.local` to bypass OAuth and auto-login as dev user.
 ### Build Process
 
 The build process has two parts:
+
 1. **Frontend**: `vite build` → outputs to `dist/public/`
 2. **Backend**: `esbuild` bundles `server/_core/index.ts` → outputs to `dist/_server/`
 
 The esbuild bundler excludes specific devDependencies from the serverless bundle:
+
 - `rollup`, `@rollup/*` (Vite dependency)
 - `lightningcss`, `@tailwindcss/*` (TailwindCSS dependencies)
 
@@ -454,24 +464,27 @@ This is critical for Vercel deployment to keep bundle size small and avoid bundl
 - [ ] Webhook signature verification (Stripe, Resend, NOWPayments)
 - [ ] httpOnly + secure + SameSite cookies for sessions
 - [ ] Never expose API keys in frontend code
-- [ ] SKIP_AUTH throws in production (see server/_core/context.ts)
+- [ ] SKIP_AUTH throws in production (see server/\_core/context.ts)
 
 ## Troubleshooting
 
 ### Vercel Deployment Issues
 
 **500 Errors on Serverless Functions**:
+
 - Ensure all services use lazy initialization (no top-level await)
 - Check `server/_core/index.ts` for proper initialization pattern
 - Review Vercel function logs: `vercel logs --limit 50`
 - Verify environment variables are set in Vercel dashboard
 
 **Cold Start Delays**:
+
 - First request after deployment may be slow (expected)
 - Subsequent requests should be faster
 - Monitor performance in Vercel Analytics
 
 **Database Connection Issues**:
+
 - Verify DATABASE_URL includes SSL parameters for remote databases
 - Check connection pooling is configured correctly
 - Ensure database allows connections from Vercel's IP ranges

@@ -1,4 +1,5 @@
 # 2-Day Migration Execution Plan
+
 ## Manus → Vercel Migration (PlanetScale + Browser Print PDF)
 
 **Timeline**: Split over 2 days (safer approach)
@@ -9,6 +10,7 @@
 ---
 
 ## Day 1: Preparation & Infrastructure Setup
+
 **Focus**: Get everything ready except production deployment
 **Time**: 3-4 hours
 **Risk Level**: Low (no production changes)
@@ -16,7 +18,9 @@
 ### Day 1, Morning: Cleanup & Local Testing (1 hour)
 
 **9:00 AM - Remove Manus Dependencies**
+
 - [ ] Create backup branch
+
   ```bash
   git checkout -b backup/pre-vercel-migration
   git push origin backup/pre-vercel-migration
@@ -38,6 +42,7 @@
   ```
 
 **9:30 AM - Local Verification**
+
 - [ ] Test local server
   ```bash
   pnpm start
@@ -48,17 +53,19 @@
 - [ ] Verify SKIP_AUTH still works in local dev
 
 **10:00 AM - Commit Manus cleanup**
-  ```bash
-  git add .
-  git commit -m "feat: remove Manus runtime dependencies for Vercel deployment"
-  git push origin mystifying-neumann
-  ```
+
+```bash
+git add .
+git commit -m "feat: remove Manus runtime dependencies for Vercel deployment"
+git push origin mystifying-neumann
+```
 
 ---
 
 ### Day 1, Mid-Day: PlanetScale Migration (2 hours)
 
 **10:15 AM - Database Backup**
+
 - [ ] Export current database
   ```bash
   # Via your current database admin panel or CLI:
@@ -67,13 +74,16 @@
 - [ ] Save backup file securely (Google Drive, Dropbox, etc.)
 
 **10:30 AM - PlanetScale Setup**
+
 - [ ] Install PlanetScale CLI
+
   ```bash
   brew install planetscale/tap/pscale
   # Or: npm i -g @planetscale/cli
   ```
 
 - [ ] Authenticate
+
   ```bash
   pscale auth login
   ```
@@ -86,13 +96,15 @@
 
 **11:00 AM - Migrate Data to PlanetScale**
 
-*Option A: Via PlanetScale Dashboard (Easier)*
+_Option A: Via PlanetScale Dashboard (Easier)_
+
 1. Go to https://app.planetscale.com/sleekinvoices
 2. Click "Import data"
 3. Upload your `backup_YYYYMMDD.sql` file
 4. Wait for import to complete (5-15 min depending on size)
 
-*Option B: Via CLI*
+_Option B: Via CLI_
+
 ```bash
 # Get connection string
 pscale connection-string sleekinvoices production --format javascript
@@ -111,11 +123,13 @@ mysql -h [pscale-host] -u [user] -p [database] < backup_YYYYMMDD.sql
   ```
 
 **11:30 AM - Get PlanetScale Connection String**
+
 ```bash
 pscale connection-string sleekinvoices production --format javascript
 ```
 
 Example output:
+
 ```
 mysql://xxx:pscale_pw_xxx@aws.connect.psdb.cloud/sleekinvoices?ssl={"rejectUnauthorized":true}
 ```
@@ -125,6 +139,7 @@ mysql://xxx:pscale_pw_xxx@aws.connect.psdb.cloud/sleekinvoices?ssl={"rejectUnaut
 **11:45 AM - Test PlanetScale Connection Locally**
 
 Create temporary `.env.test`:
+
 ```bash
 DATABASE_URL=[paste PlanetScale connection string here]
 JWT_SECRET=test-secret-for-local-testing
@@ -132,6 +147,7 @@ AUTH_SECRET=test-auth-secret-for-local-testing
 ```
 
 Test connection:
+
 ```bash
 # Update server/db/connection.ts if needed for SSL (see comprehensive guide)
 pnpm dev
@@ -147,6 +163,7 @@ Should show database connection healthy.
 ### Day 1, Afternoon: OAuth & Cron Jobs (1.5 hours)
 
 **1:00 PM - Generate Secrets**
+
 ```bash
 # Generate JWT secret
 openssl rand -base64 32
@@ -190,17 +207,20 @@ openssl rand -base64 32
 **1:45 PM - Create Vercel Cron Job Endpoints**
 
 Create `api/crons/recurring-invoices.ts`:
+
 ```typescript
-import { generateRecurringInvoices } from '../../server/jobs/recurring-invoices';
+import { generateRecurringInvoices } from "../../server/jobs/recurring-invoices";
 
 export default async function handler(req, res) {
   if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
-    return res.status(401).json({ error: 'Unauthorized' });
+    return res.status(401).json({ error: "Unauthorized" });
   }
 
   try {
     await generateRecurringInvoices();
-    res.status(200).json({ success: true, timestamp: new Date().toISOString() });
+    res
+      .status(200)
+      .json({ success: true, timestamp: new Date().toISOString() });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -208,17 +228,20 @@ export default async function handler(req, res) {
 ```
 
 Create `api/crons/check-overdue.ts`:
+
 ```typescript
-import { checkOverdueInvoices } from '../../server/jobs/check-overdue';
+import { checkOverdueInvoices } from "../../server/jobs/check-overdue";
 
 export default async function handler(req, res) {
   if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
-    return res.status(401).json({ error: 'Unauthorized' });
+    return res.status(401).json({ error: "Unauthorized" });
   }
 
   try {
     await checkOverdueInvoices();
-    res.status(200).json({ success: true, timestamp: new Date().toISOString() });
+    res
+      .status(200)
+      .json({ success: true, timestamp: new Date().toISOString() });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -226,17 +249,20 @@ export default async function handler(req, res) {
 ```
 
 Create `api/crons/send-reminders.ts`:
+
 ```typescript
-import { sendPaymentReminders } from '../../server/jobs/send-reminders';
+import { sendPaymentReminders } from "../../server/jobs/send-reminders";
 
 export default async function handler(req, res) {
   if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
-    return res.status(401).json({ error: 'Unauthorized' });
+    return res.status(401).json({ error: "Unauthorized" });
   }
 
   try {
     await sendPaymentReminders();
-    res.status(200).json({ success: true, timestamp: new Date().toISOString() });
+    res
+      .status(200)
+      .json({ success: true, timestamp: new Date().toISOString() });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -246,6 +272,7 @@ export default async function handler(req, res) {
 **2:15 PM - Update vercel.json**
 
 Add cron configuration to `vercel.json`:
+
 ```json
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
@@ -294,6 +321,7 @@ Add cron configuration to `vercel.json`:
 ```
 
 **2:30 PM - Commit Cron Jobs**
+
 ```bash
 git add .
 git commit -m "feat: add Vercel cron job endpoints"
@@ -305,12 +333,14 @@ git push origin mystifying-neumann
 ### Day 1, End: Vercel Project Setup (30 min)
 
 **2:45 PM - Install Vercel CLI**
+
 ```bash
 npm i -g vercel
 vercel login
 ```
 
 **3:00 PM - Link Project to Vercel**
+
 ```bash
 vercel link
 # Follow prompts:
@@ -326,22 +356,23 @@ Go to Vercel Dashboard → Project → Settings → Environment Variables
 
 **Critical Variables** (click "All Environments" for each):
 
-| Variable | Value | Source |
-|----------|-------|--------|
-| `DATABASE_URL` | [Paste PlanetScale connection string] | From 11:30 AM |
-| `JWT_SECRET` | [Paste JWT secret] | From 1:00 PM |
-| `AUTH_SECRET` | [Paste Auth secret] | From 1:00 PM |
-| `AUTH_GOOGLE_ID` | [Paste Google Client ID] | From 1:15 PM |
-| `AUTH_GOOGLE_SECRET` | [Paste Google Client Secret] | From 1:15 PM |
-| `AUTH_GITHUB_ID` | [Paste GitHub Client ID] | From 1:30 PM |
-| `AUTH_GITHUB_SECRET` | [Paste GitHub Client Secret] | From 1:30 PM |
-| `OAUTH_SERVER_URL` | `https://sleekinvoices.vercel.app` | Your Vercel URL |
-| `NODE_ENV` | `production` | Hardcode |
-| `VERCEL` | `1` | Hardcode |
-| `CRON_SECRET` | [Paste Cron secret] | From 1:00 PM |
-| `PDF_GENERATION_ENABLED` | `false` | Hardcode (browser print only) |
+| Variable                 | Value                                 | Source                        |
+| ------------------------ | ------------------------------------- | ----------------------------- |
+| `DATABASE_URL`           | [Paste PlanetScale connection string] | From 11:30 AM                 |
+| `JWT_SECRET`             | [Paste JWT secret]                    | From 1:00 PM                  |
+| `AUTH_SECRET`            | [Paste Auth secret]                   | From 1:00 PM                  |
+| `AUTH_GOOGLE_ID`         | [Paste Google Client ID]              | From 1:15 PM                  |
+| `AUTH_GOOGLE_SECRET`     | [Paste Google Client Secret]          | From 1:15 PM                  |
+| `AUTH_GITHUB_ID`         | [Paste GitHub Client ID]              | From 1:30 PM                  |
+| `AUTH_GITHUB_SECRET`     | [Paste GitHub Client Secret]          | From 1:30 PM                  |
+| `OAUTH_SERVER_URL`       | `https://sleekinvoices.vercel.app`    | Your Vercel URL               |
+| `NODE_ENV`               | `production`                          | Hardcode                      |
+| `VERCEL`                 | `1`                                   | Hardcode                      |
+| `CRON_SECRET`            | [Paste Cron secret]                   | From 1:00 PM                  |
+| `PDF_GENERATION_ENABLED` | `false`                               | Hardcode (browser print only) |
 
 **Optional Variables** (add if using these services):
+
 - `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRO_PRICE_ID`
 - `RESEND_API_KEY`
 - `OPENROUTER_API_KEY`
@@ -349,6 +380,7 @@ Go to Vercel Dashboard → Project → Settings → Environment Variables
 - `QUICKBOOKS_CLIENT_ID`, `QUICKBOOKS_CLIENT_SECRET`, `QUICKBOOKS_ENVIRONMENT`, `QUICKBOOKS_REDIRECT_URI`
 
 **3:45 PM - Deploy to Vercel Preview**
+
 ```bash
 vercel
 # This creates a preview deployment (not production)
@@ -358,6 +390,7 @@ vercel
 **4:00 PM - Test Preview Deployment**
 
 Open preview URL in browser and test:
+
 - [ ] Homepage loads without errors
 - [ ] `/api/health` returns `{"status":"healthy",...}`
 - [ ] `/api/test-env` shows all env vars as "SET"
@@ -375,6 +408,7 @@ Open preview URL in browser and test:
 ---
 
 ## Day 2: Production Deployment & Testing
+
 **Focus**: Deploy to production and verify everything works
 **Time**: 2-3 hours
 **Risk Level**: Medium (production changes)
@@ -407,6 +441,7 @@ pnpm start
 **9:30 AM - Create Pre-Production Checklist**
 
 Verify:
+
 - [ ] Manus plugin removed from `package.json` and `vite.config.ts`
 - [ ] PlanetScale database connection string ready
 - [ ] All OAuth credentials configured
@@ -446,6 +481,7 @@ vercel --prod
 ```
 
 This will:
+
 1. Build the project (same as `pnpm build`)
 2. Deploy `dist/public/` to Vercel CDN
 3. Deploy `api/index.js` as serverless function
@@ -453,6 +489,7 @@ This will:
 5. Make production live at `https://sleekinvoices.vercel.app`
 
 **Expected output**:
+
 ```
 ✅ Production: https://sleekinvoices.vercel.app [5m]
 ```
@@ -460,6 +497,7 @@ This will:
 **10:05 AM - Verify Deployment**
 
 Check Vercel Dashboard:
+
 - [ ] Deployment shows "Ready" status
 - [ ] No build errors in deployment log
 - [ ] Serverless function deployed successfully
@@ -470,6 +508,7 @@ Check Vercel Dashboard:
 Skip if using `*.vercel.app` domain.
 
 If using custom domain (e.g., `app.sleekinvoices.com`):
+
 1. Go to Vercel Dashboard → Project → Settings → Domains
 2. Add domain: `app.sleekinvoices.com`
 3. Vercel will show DNS records to add:
@@ -486,6 +525,7 @@ If using custom domain (e.g., `app.sleekinvoices.com`):
 Open production URL: `https://sleekinvoices.vercel.app`
 
 Test endpoints:
+
 - [ ] `/api/health` - Should return 200 with `{"status":"healthy",...}`
 - [ ] `/api/health/detailed` - Should show database latency < 500ms
 - [ ] `/api/test-env` - Should show all env vars as "SET"
@@ -493,6 +533,7 @@ Test endpoints:
 - [ ] `/api/auth/signin` - Should show Auth.js sign-in page
 
 **Check for errors**:
+
 - Browser console (F12) - Should be no red errors
 - Network tab - All requests should return 200 or 304
 - Vercel logs: `vercel logs --prod` - Should be no ERROR messages
@@ -510,12 +551,14 @@ Test endpoints:
    - [ ] Check you're logged in (see your name/email)
 
 2. **Verify Database Records**
+
    ```bash
    pscale shell sleekinvoices production
    > SELECT * FROM accounts WHERE userId = [your-user-id];
    > SELECT * FROM sessions WHERE userId = [your-user-id];
    > exit
    ```
+
    Should see OAuth account and session records.
 
 3. **Sign Out Test**
@@ -561,12 +604,14 @@ Test endpoints:
 **11:45 AM - Database Operations Test**
 
 Verify all database operations work:
+
 - [ ] Create operations (invoices, clients, payments)
 - [ ] Read operations (lists, details, searches)
 - [ ] Update operations (edit invoice, edit client)
 - [ ] Delete operations (delete test data)
 
 Check PlanetScale dashboard:
+
 - [ ] Query analytics (no slow queries > 1s)
 - [ ] Connection pooling working
 - [ ] No connection errors
@@ -580,6 +625,7 @@ Check PlanetScale dashboard:
 **1:00 PM - Webhook Testing (If Configured)**
 
 **Stripe Webhook:**
+
 - [ ] Get Stripe webhook test URL from Vercel: `https://sleekinvoices.vercel.app/api/stripe/webhook`
 - [ ] Add to Stripe Dashboard → Webhooks → Test mode
 - [ ] Send test webhook event
@@ -587,12 +633,14 @@ Check PlanetScale dashboard:
 - [ ] Check database for webhook processing
 
 **Resend Webhook:**
+
 - [ ] Similar test with Resend webhook endpoint
 - [ ] Verify email delivery tracking works
 
 **1:15 PM - Cron Job Testing**
 
 Manual test of cron endpoints:
+
 ```bash
 # Test recurring invoices cron
 curl -H "Authorization: Bearer $CRON_SECRET" https://sleekinvoices.vercel.app/api/crons/recurring-invoices
@@ -651,12 +699,14 @@ All should return: `{"success":true,"timestamp":"..."}`
 **2:00 PM - Browser Compatibility Testing**
 
 Test in multiple browsers:
+
 - [ ] Chrome (primary)
 - [ ] Safari (Mac/iOS)
 - [ ] Firefox (secondary)
 - [ ] Edge (if available)
 
 Check for:
+
 - Layout issues
 - JavaScript errors
 - CSS rendering problems
@@ -694,35 +744,43 @@ Check for:
 Create production runbook:
 
 **File**: `PRODUCTION_RUNBOOK.md`
+
 ```markdown
 # SleekInvoices Production Runbook
 
 ## Deployment
+
 - URL: https://sleekinvoices.vercel.app
 - Vercel Project: sleekinvoices
 - Database: PlanetScale sleekinvoices production
 
 ## Environment Variables
+
 - See Vercel Dashboard → Settings → Environment Variables
 - Never share secrets publicly
 
 ## Monitoring
+
 - Vercel Dashboard: https://vercel.com/[username]/sleekinvoices
 - PlanetScale Dashboard: https://app.planetscale.com/sleekinvoices
 - Sentry (if configured): [Your Sentry URL]
 
 ## Rollback Procedure
+
 If critical issues:
+
 1. Vercel Dashboard → Deployments → Previous deployment → Promote to Production
 2. Or: `git revert HEAD && git push origin main && vercel --prod`
 
 ## Common Issues
+
 - Database timeout: Check PlanetScale status page
 - OAuth failure: Verify redirect URIs in Google/GitHub consoles
 - Cron jobs not running: Check `vercel.json` cron configuration
 - PDF errors: Browser print only (PDF_GENERATION_ENABLED=false)
 
 ## Support
+
 - Vercel Docs: https://vercel.com/docs
 - PlanetScale Docs: https://planetscale.com/docs
 - Auth.js Docs: https://authjs.dev/
@@ -757,18 +815,21 @@ If critical issues:
 ### Metrics to Track
 
 **Vercel Metrics** (Dashboard → Analytics):
+
 - Page views per day
 - Unique visitors
 - Serverless function invocations
 - Error rate (should be < 1%)
 
 **Database Metrics** (PlanetScale Dashboard):
+
 - Query count per day
 - Slow queries (>1s)
 - Connection pool usage
 - Storage usage
 
 **Performance Metrics** (DevTools Lighthouse):
+
 - Performance score (should be > 90)
 - Accessibility score (should be > 90)
 - Best practices score (should be > 90)
@@ -777,18 +838,22 @@ If critical issues:
 ### Common Issues First Week
 
 **Issue**: Database connection errors
+
 - **Cause**: Connection pool exhausted
 - **Fix**: Increase connection limit in `server/db/connection.ts`
 
 **Issue**: OAuth login fails
+
 - **Cause**: Redirect URI mismatch
 - **Fix**: Verify URIs in Google/GitHub consoles match Vercel URL exactly
 
 **Issue**: Cron jobs not running
+
 - **Cause**: Cron secret mismatch
 - **Fix**: Verify `CRON_SECRET` env var in Vercel
 
 **Issue**: Page loads slowly
+
 - **Cause**: Cold start or slow database
 - **Fix**: Add caching layer, optimize queries, consider Edge Functions
 
@@ -818,12 +883,14 @@ Migration is **successful** when:
 ## Emergency Contacts & Resources
 
 **If stuck**:
+
 1. Check `COMPREHENSIVE_MIGRATION_PLAN.md` for detailed guidance
 2. Check troubleshooting section below
 3. Check official docs (Vercel, PlanetScale, Auth.js)
 4. Consider rollback if production affected
 
 **Rollback triggers**:
+
 - Production down for > 30 min
 - Critical features broken (auth, database)
 - Data corruption or loss

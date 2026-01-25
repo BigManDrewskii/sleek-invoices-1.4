@@ -103,9 +103,8 @@ export const clientPortalRouter = router({
       }
 
       // Import email template
-      const { generatePortalInvitationEmail } = await import(
-        "../email-templates/portal-invitation"
-      );
+      const { generatePortalInvitationEmail } =
+        await import("../email-templates/portal-invitation");
 
       // Generate email content
       const portalUrl = `${process.env.VITE_FRONTEND_FORGE_API_URL?.replace("/api", "") || "http://localhost:3000"}/portal/${input.accessToken}`;
@@ -228,9 +227,8 @@ export const clientPortalRouter = router({
       // Note: We need to update without userId check since this is client-initiated
       const dbInstance = await db.getDb();
       if (dbInstance) {
-        const { invoices: invoicesTable } = await import(
-          "../../drizzle/schema"
-        );
+        const { invoices: invoicesTable } =
+          await import("../../drizzle/schema");
         const { eq: eqDynamic } = await import("drizzle-orm");
         await dbInstance
           .update(invoicesTable)

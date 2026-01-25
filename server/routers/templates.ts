@@ -1,8 +1,4 @@
-import {
-  publicProcedure,
-  protectedProcedure,
-  router,
-} from "../_core/trpc";
+import { publicProcedure, protectedProcedure, router } from "../_core/trpc";
 import { z } from "zod";
 import * as db from "../db";
 import { and, eq } from "drizzle-orm";
@@ -122,9 +118,7 @@ export const templatesRouter = router({
     const { TEMPLATE_PRESETS } = await import("../../shared/template-presets");
 
     // Check if user already has the preset templates
-    const existingTemplates = await db.getInvoiceTemplatesByUserId(
-      ctx.user.id
-    );
+    const existingTemplates = await db.getInvoiceTemplatesByUserId(ctx.user.id);
     const presetNames = TEMPLATE_PRESETS.map((p: any) => p.name);
     const existingPresetNames = existingTemplates.map((t: any) => t.name);
     const hasAllPresets = presetNames.every((name: string) =>

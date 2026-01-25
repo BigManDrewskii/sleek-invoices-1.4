@@ -462,7 +462,10 @@ export default function Estimates() {
             ) : (
               <>
                 {/* Desktop Table */}
-                <ScrollableTableWrapper minWidth={850} className="hidden md:block">
+                <ScrollableTableWrapper
+                  minWidth={850}
+                  className="hidden md:block"
+                >
                   <Table>
                     <TableHeader>
                       <TableRow>

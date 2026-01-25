@@ -1,8 +1,4 @@
-import {
-  protectedProcedure,
-  router,
-  TRPCError,
-} from "../_core/trpc";
+import { protectedProcedure, router, TRPCError } from "../_core/trpc";
 import { z } from "zod";
 import * as db from "../db";
 

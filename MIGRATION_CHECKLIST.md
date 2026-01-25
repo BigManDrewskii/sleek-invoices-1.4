@@ -1,4 +1,5 @@
 # Quick-Start Migration Checklist
+
 ## Manus → Vercel Migration (SleekInvoices 1.4)
 
 **Print this checklist and check off each item as you complete it.**
@@ -8,6 +9,7 @@
 ## Pre-Migration Prep (15 min)
 
 - [ ] **Create backup branch**
+
   ```bash
   git checkout -b backup/pre-vercel-migration
   git push origin backup/pre-vercel-migration
@@ -15,6 +17,7 @@
   ```
 
 - [ ] **Create database backup**
+
   ```bash
   # Via TiDB/MySQL admin panel or CLI
   mysqldump -h host -u user -p database > backup_$(date +%Y%m%d_%H%M%S).sql
@@ -30,12 +33,14 @@
 ## Phase 1: Remove Manus Dependencies (30 min)
 
 - [ ] **Remove Manus plugin from package.json**
+
   ```bash
   # Edit package.json, remove this line:
   "vite-plugin-manus-runtime": "^0.0.57"
   ```
 
 - [ ] **Remove Manus plugin from vite.config.ts**
+
   ```bash
   # Edit vite.config.ts:
   # 1. Remove: import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
@@ -43,12 +48,14 @@
   ```
 
 - [ ] **Update allowed hosts in vite.config.ts**
+
   ```bash
   # Replace Manus domains with:
   allowedHosts: ["localhost", "127.0.0.1", ".vercel.app"]
   ```
 
 - [ ] **Reinstall dependencies**
+
   ```bash
   pnpm install
   ```
@@ -66,6 +73,7 @@
 ## Phase 2: OAuth Setup (45 min)
 
 - [ ] **Generate secrets**
+
   ```bash
   openssl rand -base64 32  # Copy output as JWT_SECRET
   openssl rand -base64 32  # Copy output as AUTH_SECRET
@@ -89,12 +97,14 @@
 ## Phase 3: Vercel Environment Variables (30 min)
 
 - [ ] **Install Vercel CLI**
+
   ```bash
   npm i -g vercel
   vercel login
   ```
 
 - [ ] **Connect project to Vercel**
+
   ```bash
   vercel link
   # Follow prompts, create new project or link existing
@@ -143,17 +153,20 @@
   - [ ] Create `api/crons/send-reminders.ts`
 
   **Template for each file:**
+
   ```typescript
-  import { generateRecurringInvoices } from '../../server/jobs/recurring-invoices';
+  import { generateRecurringInvoices } from "../../server/jobs/recurring-invoices";
 
   export default async function handler(req, res) {
     if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
     try {
       await generateRecurringInvoices();
-      res.status(200).json({ success: true, timestamp: new Date().toISOString() });
+      res
+        .status(200)
+        .json({ success: true, timestamp: new Date().toISOString() });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -185,12 +198,14 @@
 ## Phase 5: Pre-Deployment Testing (30 min)
 
 - [ ] **Local build test**
+
   ```bash
   pnpm build
   # Verify no errors
   ```
 
 - [ ] **Local server test**
+
   ```bash
   pnpm start
   # Test: http://localhost:3000/api/health
@@ -198,6 +213,7 @@
   ```
 
 - [ ] **Deploy to Vercel preview**
+
   ```bash
   vercel
   # Note the preview URL
@@ -215,6 +231,7 @@
 ## Phase 6: Production Deployment (15 min)
 
 - [ ] **Commit all changes**
+
   ```bash
   git add .
   git commit -m "feat: complete Manus to Vercel migration"
@@ -222,6 +239,7 @@
   ```
 
 - [ ] **Merge to main branch**
+
   ```bash
   git checkout main
   git merge mystifying-neumann
@@ -229,6 +247,7 @@
   ```
 
 - [ ] **Deploy to production**
+
   ```bash
   vercel --prod
   ```
@@ -292,6 +311,7 @@
 ## Rollback Procedures (IF NEEDED)
 
 ### If preview deployment fails:
+
 ```bash
 # Fix issues, then redeploy preview
 vercel
@@ -300,11 +320,13 @@ vercel
 ### If production deployment fails:
 
 **Option 1: Vercel Dashboard Rollback**
+
 1. Go to Vercel Dashboard → Deployments
 2. Find previous working deployment
 3. Click "Promote to Production"
 
 **Option 2: Git Revert**
+
 ```bash
 git revert HEAD
 git push origin main
@@ -312,6 +334,7 @@ vercel --prod
 ```
 
 **Option 3: Emergency - Back to Manus**
+
 ```bash
 git checkout backup/pre-vercel-migration
 git push -f origin main
@@ -342,14 +365,14 @@ vercel --prod
 
 ## Troubleshooting Quick Reference
 
-| Issue | Symptom | Quick Fix |
-|-------|---------|-----------|
-| Build fails | Module not found error | Run `pnpm install`, check Manus plugin removed |
-| API returns 500 | All /api routes fail | Check env vars in Vercel Dashboard |
-| OAuth fails | Callback error | Verify redirect URIs in OAuth provider |
-| DB timeout | Slow/failed queries | Check DATABASE_URL has SSL enabled |
-| PDF errors | Timeout/500 error | Set `PDF_GENERATION_ENABLED=false` |
-| Cron not running | Jobs not executing | Check `vercel.json` has `crons` array |
+| Issue            | Symptom                | Quick Fix                                      |
+| ---------------- | ---------------------- | ---------------------------------------------- |
+| Build fails      | Module not found error | Run `pnpm install`, check Manus plugin removed |
+| API returns 500  | All /api routes fail   | Check env vars in Vercel Dashboard             |
+| OAuth fails      | Callback error         | Verify redirect URIs in OAuth provider         |
+| DB timeout       | Slow/failed queries    | Check DATABASE_URL has SSL enabled             |
+| PDF errors       | Timeout/500 error      | Set `PDF_GENERATION_ENABLED=false`             |
+| Cron not running | Jobs not executing     | Check `vercel.json` has `crons` array          |
 
 ---
 
@@ -373,6 +396,7 @@ Migration is complete when:
 **Migration Duration Estimate**: 6-9 hours total
 
 **If stuck after 30 min on any phase**:
+
 1. Check `COMPREHENSIVE_MIGRATION_PLAN.md` for detailed guidance
 2. Check Vercel logs: `vercel logs`
 3. Check browser console for client-side errors
@@ -382,14 +406,14 @@ Migration is complete when:
 
 ---
 
-**Migration Date**: _______________
+**Migration Date**: ******\_\_\_******
 
-**Completed By**: _______________
+**Completed By**: ******\_\_\_******
 
-**Notes**: _______________________________________________________
+**Notes**: **************************\_\_\_**************************
 
-_______________________________________________________________
+---
 
-_______________________________________________________________
+---
 
-_______________________________________________________________
+---

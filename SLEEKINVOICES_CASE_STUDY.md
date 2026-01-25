@@ -7,6 +7,7 @@ SleekInvoices is a full-stack invoice management and payment platform designed f
 The project showcases a complete production-ready application with 1,176 passing tests, zero TypeScript errors, and enterprise-grade security features. It serves as a practical case study in rapid prototyping, AI-driven development workflows, and building scalable SaaS applications.
 
 **Key Metrics:**
+
 - **Development Time:** ~3 weeks
 - **Test Coverage:** 1,176 tests passing, 4 skipped
 - **Code Quality:** Zero TypeScript errors, zero console warnings
@@ -239,21 +240,22 @@ Rather than polling for payment status, the application uses webhooks from Strip
 
 The database schema was designed with normalization and scalability in mind:
 
-| Entity | Purpose | Key Fields |
-|--------|---------|-----------|
-| Users | User accounts and authentication | id, email, name, subscription_tier, stripe_customer_id |
-| Invoices | Invoice records | id, user_id, client_id, status, amount, due_date |
-| InvoiceItems | Line items on invoices | id, invoice_id, description, quantity, unit_price |
-| Clients | Client contact information | id, user_id, name, email, address |
-| Payments | Payment records | id, invoice_id, amount, status, stripe_payment_intent_id |
-| Subscriptions | User subscription data | id, user_id, status, stripe_subscription_id, current_period_end |
-| EmailHistory | Email delivery tracking | id, user_id, recipient, subject, status, sent_at |
+| Entity        | Purpose                          | Key Fields                                                      |
+| ------------- | -------------------------------- | --------------------------------------------------------------- |
+| Users         | User accounts and authentication | id, email, name, subscription_tier, stripe_customer_id          |
+| Invoices      | Invoice records                  | id, user_id, client_id, status, amount, due_date                |
+| InvoiceItems  | Line items on invoices           | id, invoice_id, description, quantity, unit_price               |
+| Clients       | Client contact information       | id, user_id, name, email, address                               |
+| Payments      | Payment records                  | id, invoice_id, amount, status, stripe_payment_intent_id        |
+| Subscriptions | User subscription data           | id, user_id, status, stripe_subscription_id, current_period_end |
+| EmailHistory  | Email delivery tracking          | id, user_id, recipient, subject, status, sent_at                |
 
 The schema supports future enhancements like recurring invoices, expense tracking, and multi-user teams without requiring major restructuring.
 
 ### Security Implementation
 
 **Authentication & Authorization:**
+
 - OAuth 2.0 for user onboarding
 - JWT tokens with 1-year expiry
 - HTTP-only cookies to prevent XSS attacks
@@ -261,18 +263,21 @@ The schema supports future enhancements like recurring invoices, expense trackin
 - Custom header validation for additional CSRF protection
 
 **Data Protection:**
+
 - Parameterized SQL queries (via Drizzle ORM) to prevent SQL injection
 - Input validation with Zod schemas on all tRPC routes
 - DOMPurify sanitization for user-generated HTML
 - Rate limiting on sensitive endpoints
 
 **Payment Security:**
+
 - Stripe webhook signature verification
 - NOWPayments HMAC-SHA512 verification
 - No sensitive payment data stored locally
 - PCI compliance through Stripe integration
 
 **Error Handling:**
+
 - Error boundary components for graceful UI failures
 - User-friendly error messages (no stack traces in production)
 - Sentry integration for error monitoring
@@ -289,6 +294,7 @@ The project demonstrates a practical approach to AI-assisted development that ma
 **1. Code Generation**
 
 AI was used to generate boilerplate code for:
+
 - CRUD operations (Create, Read, Update, Delete)
 - Form components and validation
 - Database migrations
@@ -300,6 +306,7 @@ AI was used to generate boilerplate code for:
 **2. Problem Solving**
 
 AI was consulted for:
+
 - Architecture decisions (when to use tRPC vs. REST, database normalization strategies)
 - Performance optimization (query optimization, lazy loading strategies)
 - Security implementation (CSRF protection patterns, rate limiting approaches)
@@ -308,6 +315,7 @@ AI was consulted for:
 **3. Documentation & Explanation**
 
 AI helped:
+
 - Explain complex concepts (OAuth flow, webhook handling)
 - Document architectural decisions
 - Generate comments and docstrings
@@ -328,18 +336,21 @@ This process ensured that AI-generated code maintained the same quality standard
 ### Lessons Learned
 
 **What Worked:**
+
 - AI excels at generating boilerplate and repetitive code
 - AI is useful for explaining concepts and exploring design options
 - AI-assisted development accelerates time-to-market without sacrificing quality
 - Type-safe frameworks (tRPC, Drizzle) make AI-generated code safer
 
 **What Required Human Oversight:**
+
 - Security-critical code (authentication, payment processing)
 - Complex business logic
 - Architectural decisions
 - Performance-critical code paths
 
 **Best Practices Discovered:**
+
 - Use AI for mechanical code generation, humans for critical thinking
 - Leverage type systems to catch AI-generated errors early
 - Review AI-generated code with the same rigor as hand-written code
@@ -352,42 +363,43 @@ This process ensured that AI-generated code maintained the same quality standard
 
 ### Code Quality
 
-| Metric | Result | Status |
-|--------|--------|--------|
-| Test Coverage | 1,176 tests passing, 4 skipped | ✅ Excellent |
-| TypeScript Errors | 0 | ✅ Perfect |
-| Console Warnings | 0 | ✅ Perfect |
-| Security Vulnerabilities | 12 (dev dependencies only) | ✅ Good |
-| Code Duplication | Minimal | ✅ Good |
-| Cyclomatic Complexity | Low | ✅ Good |
+| Metric                   | Result                         | Status       |
+| ------------------------ | ------------------------------ | ------------ |
+| Test Coverage            | 1,176 tests passing, 4 skipped | ✅ Excellent |
+| TypeScript Errors        | 0                              | ✅ Perfect   |
+| Console Warnings         | 0                              | ✅ Perfect   |
+| Security Vulnerabilities | 12 (dev dependencies only)     | ✅ Good      |
+| Code Duplication         | Minimal                        | ✅ Good      |
+| Cyclomatic Complexity    | Low                            | ✅ Good      |
 
 ### Performance
 
-| Metric | Result | Status |
-|--------|--------|--------|
-| Image Optimization | 81% reduction (33MB → 6.3MB) | ✅ Excellent |
-| Lazy Loading | Implemented on all mascot images | ✅ Complete |
-| Bundle Size | Optimized with code splitting | ✅ Good |
-| Database Queries | Optimized with indexes and lazy loading | ✅ Good |
-| API Response Time | <200ms average | ✅ Good |
+| Metric             | Result                                  | Status       |
+| ------------------ | --------------------------------------- | ------------ |
+| Image Optimization | 81% reduction (33MB → 6.3MB)            | ✅ Excellent |
+| Lazy Loading       | Implemented on all mascot images        | ✅ Complete  |
+| Bundle Size        | Optimized with code splitting           | ✅ Good      |
+| Database Queries   | Optimized with indexes and lazy loading | ✅ Good      |
+| API Response Time  | <200ms average                          | ✅ Good      |
 
 ### Production Readiness
 
-| Category | Score | Status |
-|----------|-------|--------|
-| Functionality | 9/10 | ✅ Ready |
-| Error Handling | 9/10 | ✅ Ready |
-| Responsiveness | 8/10 | ✅ Ready |
-| Performance | 7/10 | ✅ Ready |
-| Security | 9/10 | ✅ Ready |
-| Accessibility | 8/10 | ✅ Ready |
-| UX Polish | 9/10 | ✅ Ready |
-| Code Quality | 9/10 | ✅ Ready |
-| **Overall** | **87%** | ✅ **Production Ready** |
+| Category       | Score   | Status                  |
+| -------------- | ------- | ----------------------- |
+| Functionality  | 9/10    | ✅ Ready                |
+| Error Handling | 9/10    | ✅ Ready                |
+| Responsiveness | 8/10    | ✅ Ready                |
+| Performance    | 7/10    | ✅ Ready                |
+| Security       | 9/10    | ✅ Ready                |
+| Accessibility  | 8/10    | ✅ Ready                |
+| UX Polish      | 9/10    | ✅ Ready                |
+| Code Quality   | 9/10    | ✅ Ready                |
+| **Overall**    | **87%** | ✅ **Production Ready** |
 
 ### Feature Completeness
 
 **Core Features (100% Complete):**
+
 - Invoice management (CRUD, templates, PDF generation)
 - Client management
 - Payment processing (Stripe integration)
@@ -398,6 +410,7 @@ This process ensured that AI-generated code maintained the same quality standard
 - AI assistant integration
 
 **Advanced Features (90% Complete):**
+
 - Advanced search and filtering
 - Batch operations
 - Email template editor
@@ -405,6 +418,7 @@ This process ensured that AI-generated code maintained the same quality standard
 - Expense tracking (partially implemented)
 
 **Future Roadmap:**
+
 - Multi-user team collaboration
 - Custom branding and white-labeling
 - Advanced reporting and analytics
@@ -418,6 +432,7 @@ This process ensured that AI-generated code maintained the same quality standard
 ### 1. Production-Ready Code Quality
 
 The application was built with production standards from day one. This meant:
+
 - Comprehensive test coverage (1,176 tests)
 - Type safety throughout the stack
 - Security hardening before launch
@@ -433,6 +448,7 @@ Using AI-assisted development, a complete SaaS application was built in 3 weeks.
 ### 3. Modern Tech Stack Integration
 
 The project demonstrates how to integrate modern tools effectively:
+
 - tRPC for type-safe APIs
 - Drizzle ORM for type-safe database access
 - Stripe for payment processing
@@ -444,6 +460,7 @@ Each tool was chosen for specific reasons and integrated thoughtfully.
 ### 4. Security-First Approach
 
 Rather than adding security as an afterthought, the application was built with security in mind from the start:
+
 - CSRF protection with custom headers
 - DOMPurify sanitization for user-generated content
 - Rate limiting on sensitive endpoints
@@ -455,6 +472,7 @@ This resulted in an 8.5/10 security score with only dev dependency vulnerabiliti
 ### 5. User Experience & Polish
 
 Despite the rapid development timeline, the application includes thoughtful UX details:
+
 - Custom mascot (Sleeky the otter) with multiple states
 - Smooth animations and transitions
 - Loading skeletons and empty states
@@ -505,6 +523,7 @@ Despite the rapid development timeline, the application includes thoughtful UX d
 ### 1. Type-Safe End-to-End Development
 
 Using tRPC and TypeScript throughout the stack means:
+
 - Frontend components have type-safe access to backend data
 - Invalid API calls are caught at compile time
 - Refactoring is safe because types guide changes
@@ -515,6 +534,7 @@ This reduces bugs and makes the codebase easier to maintain.
 ### 2. Comprehensive Error Handling
 
 The application includes multiple layers of error handling:
+
 - Error boundary components for UI errors
 - Try-catch blocks for async operations
 - User-friendly error messages
@@ -524,6 +544,7 @@ The application includes multiple layers of error handling:
 ### 3. Webhook-Driven Architecture
 
 Payment processing uses webhooks rather than polling:
+
 - Real-time payment updates
 - Lower database load
 - Reduced API calls to Stripe
@@ -532,6 +553,7 @@ Payment processing uses webhooks rather than polling:
 ### 4. Lazy Loading & Performance Optimization
 
 Images are lazy-loaded, reducing initial page load:
+
 - 81% reduction in image size through optimization
 - Lazy loading on all mascot images
 - Code splitting for better bundle size
@@ -540,6 +562,7 @@ Images are lazy-loaded, reducing initial page load:
 ### 5. Security-First Design
 
 Security is built into the architecture:
+
 - CSRF protection with custom headers
 - DOMPurify sanitization for user-generated HTML
 - Rate limiting on sensitive endpoints
@@ -581,6 +604,7 @@ Security is built into the architecture:
 SleekInvoices demonstrates that modern AI-assisted development can produce production-ready applications rapidly without sacrificing quality. By combining type-safe frameworks, comprehensive testing, and thoughtful human oversight, we built a complete SaaS platform in 3 weeks.
 
 The project serves as a practical case study in:
+
 - Rapid prototyping with AI assistance
 - Building production-grade applications
 - Integrating modern payment processing
@@ -596,6 +620,7 @@ Most importantly, the project demonstrates that AI is not a replacement for soft
 ## Appendix: Technology Stack
 
 **Frontend:**
+
 - React 18
 - TypeScript
 - Tailwind CSS
@@ -605,6 +630,7 @@ Most importantly, the project demonstrates that AI is not a replacement for soft
 - Lucide React (icons)
 
 **Backend:**
+
 - Express.js
 - tRPC
 - TypeScript
@@ -616,6 +642,7 @@ Most importantly, the project demonstrates that AI is not a replacement for soft
 - Sentry (error monitoring)
 
 **Infrastructure:**
+
 - Manus (initial deployment)
 - PostgreSQL (database)
 - S3 (file storage)
@@ -623,6 +650,7 @@ Most importantly, the project demonstrates that AI is not a replacement for soft
 - Resend (email delivery)
 
 **Development Tools:**
+
 - Vite (bundler)
 - Vitest (testing)
 - TypeScript (type checking)
@@ -630,6 +658,7 @@ Most importantly, the project demonstrates that AI is not a replacement for soft
 - Prettier (formatting)
 
 **AI Tools Used:**
+
 - Claude (code generation, architecture guidance)
 - ChatGPT (documentation, explanations)
 - Windsurf (code editing, refactoring)

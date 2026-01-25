@@ -336,9 +336,8 @@ export async function createApp(): Promise<Express> {
 
       const buffer = Buffer.from(file, "base64");
       const { storagePut } = await import("../storage");
-      const { optimizeImage, getFileExtension } = await import(
-        "../image-optimization"
-      );
+      const { optimizeImage, getFileExtension } =
+        await import("../image-optimization");
 
       const optimization = await optimizeImage(
         buffer,
@@ -399,9 +398,8 @@ export async function createApp(): Promise<Express> {
 
       const buffer = Buffer.from(file, "base64");
       const { storagePut } = await import("../storage");
-      const { optimizeImage, getFileExtension } = await import(
-        "../image-optimization"
-      );
+      const { optimizeImage, getFileExtension } =
+        await import("../image-optimization");
 
       const optimization = await optimizeImage(buffer, filename || "logo.png");
 

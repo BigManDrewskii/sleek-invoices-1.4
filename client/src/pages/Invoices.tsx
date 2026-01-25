@@ -815,13 +815,15 @@ export default function Invoices() {
           handleSort={handleSort}
           totalItems={totalItems}
           qbStatus={qbStatus}
-          onView={(invoice) => window.location.assign(`/invoices/${invoice.id}`)}
-          onEdit={(invoice) => window.location.assign(`/invoices/${invoice.id}/edit`)}
-          onDelete={(invoice) => handleDelete(invoice as unknown as Invoice)}
-          onDuplicate={(invoice) => handleDuplicate(invoice.id)}
-          onDownloadPDF={(invoice) => handleDownloadPDF(invoice.id)}
-          onSendEmail={(invoice) => handleSendEmail(invoice.id)}
-          onCreatePaymentLink={(invoice) => handleCreatePaymentLink(invoice.id)}
+          onView={invoice => window.location.assign(`/invoices/${invoice.id}`)}
+          onEdit={invoice =>
+            window.location.assign(`/invoices/${invoice.id}/edit`)
+          }
+          onDelete={invoice => handleDelete(invoice as unknown as Invoice)}
+          onDuplicate={invoice => handleDuplicate(invoice.id)}
+          onDownloadPDF={invoice => handleDownloadPDF(invoice.id)}
+          onSendEmail={invoice => handleSendEmail(invoice.id)}
+          onCreatePaymentLink={invoice => handleCreatePaymentLink(invoice.id)}
           isLoading={{
             pdf: generatePDF.isPending,
             email: sendEmail.isPending,
@@ -968,7 +970,10 @@ export default function Invoices() {
             ) : (
               <>
                 {/* Desktop Table View */}
-                <ScrollableTableWrapper minWidth={900} className="hidden md:block">
+                <ScrollableTableWrapper
+                  minWidth={900}
+                  className="hidden md:block"
+                >
                   <Table>
                     <TableHeader>
                       <TableRow>

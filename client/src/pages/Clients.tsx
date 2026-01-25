@@ -381,18 +381,14 @@ export default function Clients() {
     // Apply company filter
     if (filters.company && filters.company !== "all") {
       filtered = filtered.filter(client =>
-        filters.company === "with"
-          ? client.companyName
-          : !client.companyName
+        filters.company === "with" ? client.companyName : !client.companyName
       );
     }
 
     // Apply tax exempt filter
     if (filters.taxExempt && filters.taxExempt !== "all") {
       filtered = filtered.filter(client =>
-        filters.taxExempt === "yes"
-          ? client.taxExempt
-          : !client.taxExempt
+        filters.taxExempt === "yes" ? client.taxExempt : !client.taxExempt
       );
     }
 
@@ -550,10 +546,12 @@ export default function Clients() {
                 <Upload className="h-4 w-4 mr-2" />
                 Import CSV
               </Button>
-              <Button onClick={() => {
-                setSelectedClient(null);
-                setClientDialogOpen(true);
-              }}>
+              <Button
+                onClick={() => {
+                  setSelectedClient(null);
+                  setClientDialogOpen(true);
+                }}
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 New Client
               </Button>
@@ -579,13 +577,12 @@ export default function Clients() {
                     onClick={() => setFilterModalOpen(true)}
                   >
                     <Filter className="h-4 w-4 mr-2" />
-                    Filters {hasActiveFilters && `(${Object.values(filters).filter(f => f !== "all").length})`}
+                    Filters{" "}
+                    {hasActiveFilters &&
+                      `(${Object.values(filters).filter(f => f !== "all").length})`}
                   </Button>
                   {hasActiveFilters && (
-                    <Button
-                      variant="ghost"
-                      onClick={() => clearFilters()}
-                    >
+                    <Button variant="ghost" onClick={() => clearFilters()}>
                       Clear
                     </Button>
                   )}
@@ -635,16 +632,16 @@ export default function Clients() {
                   }}
                   clientTagsMap={clientTagsMap}
                   removeTagMutation={removeTagMutation}
-                  onEdit={(client) => {
+                  onEdit={client => {
                     setSelectedClient(client as Client);
                     setClientDialogOpen(true);
                   }}
-                  onDelete={(client) => handleDelete(client as Client)}
-                  onPortalAccess={(client) => {
+                  onDelete={client => handleDelete(client as Client)}
+                  onPortalAccess={client => {
                     setSelectedClient(client as Client);
                     setPortalAccessDialogOpen(true);
                   }}
-                  onDuplicate={(client) => {
+                  onDuplicate={client => {
                     // Create a new client object with the same data but no ID
                     const duplicateClient = {
                       ...client,

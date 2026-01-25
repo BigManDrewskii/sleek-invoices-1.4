@@ -110,9 +110,8 @@ export const subscriptionRouter = router({
    */
   getUsage: protectedProcedure.query(async ({ ctx }) => {
     const usage = await db.getCurrentMonthUsage(ctx.user.id);
-    const { SUBSCRIPTION_PLANS, isPro, getRemainingInvoices } = await import(
-      "../../shared/subscription.js"
-    );
+    const { SUBSCRIPTION_PLANS, isPro, getRemainingInvoices } =
+      await import("../../shared/subscription.js");
 
     const isProUser = isPro(ctx.user.subscriptionStatus);
     const limit = isProUser ? null : SUBSCRIPTION_PLANS.FREE.invoiceLimit;
@@ -209,9 +208,8 @@ export const subscriptionRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { getCryptoPrice, isValidCryptoDuration } = await import(
-        "../../shared/subscription.js"
-      );
+      const { getCryptoPrice, isValidCryptoDuration } =
+        await import("../../shared/subscription.js");
 
       // Validate duration
       if (!isValidCryptoDuration(input.months)) {
@@ -278,9 +276,8 @@ export const subscriptionRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { getCryptoPrice, isPro } = await import(
-        "../../shared/subscription.js"
-      );
+      const { getCryptoPrice, isPro } =
+        await import("../../shared/subscription.js");
 
       // User must be Pro to extend
       if (!isPro(ctx.user.subscriptionStatus)) {

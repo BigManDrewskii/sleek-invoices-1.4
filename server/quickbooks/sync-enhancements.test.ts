@@ -29,12 +29,10 @@ vi.mock("./client", () => ({
   createQBEntity: vi
     .fn()
     .mockResolvedValue({ success: true, data: { Id: "qb-123" } }),
-  getQBEntity: vi
-    .fn()
-    .mockResolvedValue({
-      success: true,
-      data: { CustomerRef: { value: "cust-1" } },
-    }),
+  getQBEntity: vi.fn().mockResolvedValue({
+    success: true,
+    data: { CustomerRef: { value: "cust-1" } },
+  }),
 }));
 
 // Mock OAuth
