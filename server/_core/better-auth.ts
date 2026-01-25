@@ -6,6 +6,12 @@ import { users, accounts, sessions } from "../../drizzle/schema";
 export const auth = betterAuth({
   database: drizzleAdapter(getDb, {
     provider: "mysql",
+    usePlural: true,
+    schema: {
+      user: users,
+      session: sessions,
+      account: accounts,
+    },
   }),
   socialProviders: {
     google: {
