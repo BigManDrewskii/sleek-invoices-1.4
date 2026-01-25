@@ -15,6 +15,6 @@ export async function registerAuthRoutes(app: Express) {
   // - /api/auth/providers
   const authHandler = toNodeHandler(auth);
 
-  // Use wildcard path for all auth routes
-  app.use("/api/auth/*", authHandler);
+  // Use base path for all auth routes (better-auth needs full path preserved)
+  app.use("/api/auth", authHandler);
 }
