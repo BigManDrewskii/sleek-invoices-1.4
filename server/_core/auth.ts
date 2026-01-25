@@ -19,7 +19,9 @@ export const authConfig: ExpressAuthConfig = {
   ],
   secret: process.env.AUTH_SECRET,
   trustHost: true, // Critical for Vercel/serverless environments
-  basePath: "/api/auth", // All auth endpoints are under /api/auth/*
+  // Note: basePath is NOT set here because Express already handles the /api/auth/* prefix
+  // When using app.use("/api/auth/*", ExpressAuth(authConfig)), Express strips the prefix
+  // and @auth/express receives root-level paths like /signin, /callback/google, etc.
   session: {
     strategy: "jwt",
     maxAge: 365 * 24 * 60 * 60, // 1 year
