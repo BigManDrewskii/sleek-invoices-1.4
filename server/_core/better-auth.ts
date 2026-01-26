@@ -42,6 +42,6 @@ export const auth = betterAuth({
   advanced: {
     useSecureCookies: process.env.NODE_ENV === "production",
     sessionCookieExpires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days
-    allowPublicEndpoints: true,
+    allowPublicEndpoints: true, // Allow public access to /api/auth/providers and /api/auth/session
   },
 });
