@@ -1,13 +1,7 @@
 import { GearLoader } from "@/components/ui/gear-loader";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -64,19 +58,16 @@ import {
   Sparkles,
   Filter,
   X,
-  Calendar,
-  DollarSign,
-  Check,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { FilterSection } from "@/components/ui/filter-section";
 import { FilterModal } from "@/components/ui/filter-modal";
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useTableSort } from "@/hooks/useTableSort";
 import { useUrlFilters } from "@/hooks/useUrlFilters";
 import { useUndoableDelete } from "@/hooks/useUndoableDelete";
 import { SortableTableHeader } from "@/components/shared/SortableTableHeader";
-import { Link, useLocation, useSearch, useSearchParams } from "wouter";
+import { Link, useLocation, useSearch } from "wouter";
 import { toast } from "sonner";
 import { Navigation } from "@/components/Navigation";
 import { CurrencyBadge } from "@/components/CurrencySelector";

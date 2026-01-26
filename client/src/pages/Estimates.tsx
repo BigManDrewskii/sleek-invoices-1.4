@@ -38,7 +38,7 @@ import {
   Send,
   MoreHorizontal,
 } from "lucide-react";
-import { useState, useRef, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { toast } from "sonner";
 import { Navigation } from "@/components/Navigation";

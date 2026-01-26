@@ -83,7 +83,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { FilterSection } from "@/components/ui/filter-section";
 import { FilterModal } from "@/components/ui/filter-modal";
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useLocation, useSearchParams } from "wouter";
 import { useUrlFilters } from "@/hooks/useUrlFilters";
 import { toast } from "sonner";
