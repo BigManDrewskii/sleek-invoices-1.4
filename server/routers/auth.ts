@@ -7,7 +7,7 @@ export const authRouter = router({
   logout: publicProcedure.mutation(({ ctx }) => {
     const cookieOptions = getSessionCookieOptions(ctx.req);
     ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
-    ctx.res.clearCookie("better-auth.temp_session_token", {
+    ctx.res.clearCookie("better-auth.session_token", {
       ...cookieOptions,
       maxAge: -1,
     });

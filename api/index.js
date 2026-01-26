@@ -1,6 +1,6 @@
 // Vercel API Handler
-// This file serves as the entry point for Vercel serverless functions
-// It delegates all requests to the Express application bundled at dist/_server/index.js
+// This file serves as entry point for Vercel serverless functions
+// It delegates all requests to Express application bundled at dist/_server/index.js
 
 let appInstance = null;
 
@@ -24,11 +24,11 @@ async function getApp() {
 export default async function handler(req, res) {
   try {
     const app = await getApp();
-    // Return a promise that resolves when the Express app finishes handling the request
+    // Return a promise that resolves when Express app finishes handling request
     return new Promise((resolve, reject) => {
       try {
         app(req, res);
-        // Express doesn't return a promise, so we listen for the response to finish
+        // Express doesn't return a promise, so we listen for response to finish
         res.on("finish", () => resolve());
         res.on("error", err => reject(err));
       } catch (err) {

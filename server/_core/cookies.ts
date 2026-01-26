@@ -24,25 +24,18 @@ function isSecureRequest(req: Request) {
 export function getSessionCookieOptions(
   req: Request
 ): Pick<CookieOptions, "domain" | "httpOnly" | "path" | "sameSite" | "secure"> {
-  // const hostname = req.hostname;
-  // const shouldSetDomain =
-  //   hostname &&
-  //   !LOCAL_HOSTS.has(hostname) &&
-  //   !isIpAddress(hostname) &&
-  //   hostname !== "127.0.0.1" &&
-  //   hostname !== "::1";
+  const hostname = req.hostname;
 
-  // const domain =
-  //   shouldSetDomain && !hostname.startsWith(".")
-  //     ? `.${hostname}`
-  //     : shouldSetDomain
-  //       ? hostname
-  //       : undefined;
+  // Determine sameSite value based on environment
+  // Use "lax" for localhost to avoid Chrome blocking cookies
+  // Use "none" for production (required for cross-origin requests on Vercel)
+  const sameSiteValue = LOCAL_HOSTS.has(hostname) ? "lax" : "none";
 
   return {
     httpOnly: true,
     path: "/",
-    sameSite: "none",
+    sameSite: sameSiteValue,
     secure: isSecureRequest(req),
+    domain: undefined,
   };
 }
